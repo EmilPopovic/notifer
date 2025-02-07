@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    volumes:
+      - ./volumes/db:/app/db
+    depends_on:
+      - db
+    
+  backend-worker:
+    build:
+      context: .
+      dockerfile: backend-worker/Dockerfile
+    volumes:
+      - ./volumes/db:/app/db
+    depends_on:
+      - db
+        
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "8080:80"
