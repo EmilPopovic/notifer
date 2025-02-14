@@ -15,7 +15,7 @@ services:
   backend-worker:
     build:
       context: .
-      dockerfile: backend-worker/Dockerfile
+      dockerfile: worker/Dockerfile
     volumes:
       - ./volumes/db:/app/db
     depends_on:

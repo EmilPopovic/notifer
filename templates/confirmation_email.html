@@ -1,0 +1,13 @@
+{% extends "templates/base_email.html" %}
+
+{% block content %}
+<div style="text-align: center">
+    <h1 style="color: {{ var(--primary) }}">Confirm Your Subscription</h1>
+    <a href="{{ activation_link }}"
+       style="display: inline-block; padding: 12px 24px; 
+                  background: {{ var(--secondary) }}; color: white; 
+                  text-decoration: none; border-radius: 6px;">
+        Activate Account
+    </a>
+</div>
+{% endblock %}

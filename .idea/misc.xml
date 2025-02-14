@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (FER-Notifier)" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 (NotiFER)" project-jdk-type="Python SDK" />
 </project>
