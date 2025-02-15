@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <span class="confirmation-icon info-icon">⏸</span>
+    <h1>Notifications Paused</h1>
+    <p>We've stopped sending change notifications for:</p>
+    <div class="email-display">{{ email }}</div>
+    <a href="{{ base_url }}" class="button">Return to NotiFER</a>
+</div>
+{% endblock %}

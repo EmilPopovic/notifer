@@ -1,48 +1,104 @@
 :root {
     --primary: #2c3e50;
     --secondary: #3498db;
-    --background: #f8f9fa;
     --success: #34c759;
     --error: #ff3b30;
+    --background: #f8f9fa;
+    --text-muted: #666;
+    --shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
-/* Base Typography */
+/* Base Styles */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
+    margin: 0;
+    background-color: var(--background);
     color: var(--primary);
 }
 
-/* Card Container */
+/* Shared Container Styles */
 .container {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     max-width: 600px;
-    margin: 0 auto;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
 }
 
-/* Buttons & Links */
+/* Form Elements (for index.html) */
+.input-group {
+    display: flex;
+    margin: 1.5rem 0;
+}
+
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: 2px solid var(--secondary);
+    border-color: transparent;
+}
+
+/* Buttons (Shared Across All Pages) */
 .button {
     display: inline-block;
     padding: 12px 24px;
     background: var(--secondary);
     color: white !important;
     text-decoration: none;
+    border: none;
     border-radius: 6px;
-    transition: transform 0.2s;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+    text-align: center;
 }
+
 
 .button:hover {
-    transform: translateY(-2px);
+    opacity: 0.95;
 }
 
-/* Status Indicators */
-.status-icon {
+/* Status Messages (Shared) */
+.status {
+    padding: 1rem;
+    border-radius: 6px;
+    margin: 1.5rem 0;
+    display: none;
+}
+
+.status.visible {
+    display: block;
+}
+
+.success {
+    background: #e6ffed;
+    border: 1px solid #b3e6cb;
+}
+
+.error {
+    background: #ffeef0;
+    border: 1px solid #f5c6cb;
+}
+
+/* Confirmation Page Specific */
+.confirmation-icon {
     font-size: 4rem;
     margin: 1rem 0;
 }
 
-.success-icon { color: var(--success); }
-.error-icon { color: var(--error); }
+.email-address {
+    font-weight: 500;
+    padding: 8px 16px;
+    background: rgba(44, 62, 80, 0.05);
+    border-radius: 4px;
+    display: inline-block;
+    margin: 1rem 0;
+}

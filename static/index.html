@@ -2,336 +2,182 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar Notifications</title>
+    <link rel="stylesheet" href="/static/css/shared.css">
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --background: #f8f9fa;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 2rem;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #fff;
-        }
-
-        h1 {
-            color: var(--primary);
+        /* Hero Section */
+        .hero {
             text-align: center;
+            padding: 3rem 1rem;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .hero p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Main container with a wider max-width */
+        .cards-container {
+            max-width: 900px; /* Increased from 600px to 900px */
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Card styles */
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
             margin-bottom: 2rem;
         }
 
-        .card {
-            background: var(--background);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        /* Subscription form: input and button side by side */
+        .subscribe-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
         }
-
-        input {
-            width: 100%;
-            padding: 0.8rem;
-            margin: 0.5rem 0;
+        .subscribe-group input[type="text"] {
+            flex: 1;
+            padding: 16px;
+            font-size: 1.2rem;
+            border-radius: 6px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1rem;
+        }
+        .subscribe-group .button {
+            /* The .button class no longer has width:100% from shared.css */
+            padding: 16px 24px;
+            font-size: 1.2rem;
+            white-space: nowrap;
+            border-radius: 6px;
+            flex-shrink: 0; /* Prevent the button from shrinking if the window gets narrow */
         }
 
-        button {
-            width: 100%;
-            padding: 0.8rem;
-            background: var(--secondary);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-top: 1rem;
-            transition: opacity 0.2s;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .notice {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            line-height: 1.4;
-        }
-
+        /* Manage subscription button group */
         .button-group {
             display: flex;
             gap: 1rem;
             margin-top: 1rem;
         }
 
-        .button-group button {
-            margin: 0;
+        /* Notice text */
+        .notice {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            line-height: 1.4;
         }
 
-        .status {
-            padding: 0.8rem;
-            border-radius: 4px;
-            margin: 1rem 0;
+        /* Container around the "Manage Subscription" area */
+        .manage-subscription-container {
+            margin-top: 2rem;
+            text-align: center; /* Optional: center the toggle button */
+        }
+
+        /* The toggle button can reuse your .button class or be styled separately */
+        .manage-subscription-toggle {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Hide the content by default */
+        .manage-subscription-content {
             display: none;
+            margin-top: 1rem;
+            /* Optionally: give it a card-like look if you want */
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
         }
 
-        .success {
-            background: #e6ffed;
-            color: #22863a;
-            border: 1px solid #b3e6cb;
+        /* When we want to show the content, we’ll toggle this class with JavaScript */
+        .manage-subscription-content.open {
+            display: block;
         }
 
-        .error {
-            background: #ffeef0;
-            color: #cb2431;
-            border: 1px solid #f5c6cb;
-        }
     </style>
 </head>
 <body>
-<h1>Calendar Notifications</h1>
 
-<div class="card">
-    <h2>Subscribe to Notifications</h2>
-    <form id="subscribeForm">
-        <input type="text"
-               id="calendarUrl"
-               placeholder="Paste your calendar URL here">
-        <button type="submit">Subscribe</button>
-        <div class="notice">
-            You'll receive a confirmation email to activate your subscription.<br>
-            Check your spam folder if you don't see it within 5 minutes.
+<!-- Hero Section -->
+<div class="hero">
+    <h1>Calendar Notifications</h1>
+    <p>Stay up to date with your upcoming events</p>
+</div>
+
+<!-- Main Container -->
+<div class="cards-container">
+
+    <!-- Subscribe Card -->
+    <div class="card subscribe-card">
+        <h2>Subscribe to Notifications</h2>
+        <form id="subscribeForm">
+            <div class="subscribe-group">
+                <input
+                        type="text"
+                        id="calendarUrl"
+                        placeholder="Paste your calendar URL here"
+                >
+                <button type="submit" class="button">Subscribe</button>
+            </div>
+            <div class="notice">
+                You'll receive a confirmation email to activate your subscription.
+                Check your spam folder if you don't see it within 5 minutes.
+            </div>
+            <div id="subscribeStatus" class="status"></div>
+        </form>
+    </div>
+
+    <!-- Manage Subscription Container -->
+    <div class="manage-subscription-container">
+        <button type="button" class="manage-subscription-toggle">
+            Manage Subscription
+        </button>
+        <div class="manage-subscription-content" id="manageSubscriptionContent">
+            <h2>Manage Subscription</h2>
+            <form id="manageForm">
+                <div class="input-group">
+                    <input
+                            type="email"
+                            id="userEmail"
+                            placeholder="Enter your registered email"
+                    >
+                </div>
+                <div class="button-group">
+                    <button type="button" class="button" onclick="handlePause()">
+                        Pause Notifications
+                    </button>
+                    <button type="button" class="button" onclick="handleResume()">
+                        Resume Notifications
+                    </button>
+                </div>
+                <div class="notice">
+                    Need help? Contact support at admin@emilpopovic.me<br>
+                    Allow up to 15 minutes for changes to take effect.
+                </div>
+                <div id="manageStatus" class="status"></div>
+            </form>
         </div>
-        <div id="subscribeStatus" class="status"></div>
-    </form>
+    </div>
+
 </div>
 
-<div class="card">
-    <h2>Manage Subscription</h2>
-    <input type="email"
-           id="userEmail"
-           placeholder="Enter your registered email">
-    <div class="button-group">
-        <button type="button" onclick="handlePause()">Pause Notifications</button>
-        <button type="button" onclick="handleResume()">Resume Notifications</button>
-    </div>
-    <div class="notice">
-        Need help? Contact support at support@notifer.com<br>
-        Allow up to 15 minutes for changes to take effect.
-    </div>
-    <div id="manageStatus" class="status"></div>
-</div>
-
-<script>
-    const API_BASE = window.location.origin;
-    let isProcessing = false;
-
-    // Enhanced status messages
-    const statusMessages = {
-        pauseSent: "📩 Pause confirmation email sent. Check your inbox (and spam folder).",
-        resumeSent: "📩 Resume confirmation email sent. Check your inbox.",
-        subSuccess: "🎉 Confirmation email sent! Check your inbox to activate.",
-        subError: "⚠️ Error processing your request. Please try again.",
-        invalidEmail: "❌ Please enter a valid email address",
-        invalidUrl: "❌ Please enter a valid calendar URL",
-        serverError: "🔧 Server error. Please try again later.",
-        rateLimit: "⏳ Too many requests. Please wait before trying again.",
-    };
-
-    // Validation functions
-    function isValidEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    // Enhanced error display
-    function showError(fieldId, errorId, message) {
-        const field = document.getElementById(fieldId);
-        const error = document.getElementById(errorId);
-        field.classList.add('input-error');
-        error.textContent = message;
-        error.style.display = 'block';
-    }
-
-    function clearErrors() {
-        document.querySelectorAll('.input-error').forEach(el => {
-            el.classList.remove('input-error');
-        });
-        document.querySelectorAll('.error-message').forEach(el => {
-            el.style.display = 'none';
-        });
-    }
-
-    // Enhanced status display
-    function showStatus(elementId, message, type, persistent = false) {
-        const statusEl = document.getElementById(elementId);
-        statusEl.innerHTML = message;
-        statusEl.className = `status ${type}${persistent ? ' persistent' : ''}`;
-        statusEl.style.display = 'block';
-
-        if (!persistent) {
-            setTimeout(() => {
-                statusEl.style.display = 'none';
-            }, 5000);
-        }
-    }
-
-    // Unified error handler
-    async function handleError(response, fallbackMessage) {
-        try {
-            const error = await response.json();
-            return error.detail || fallbackMessage;
-        } catch {
-            return fallbackMessage;
-        }
-    }
-
-    async function handleSubscribe(event) {
-        event.preventDefault();
-        if (isProcessing) return;
-
-        clearErrors();
-        const urlInput = document.getElementById('calendarUrl');
-        const url = urlInput.value.trim();
-
-        isProcessing = true;
-        toggleLoading(true);
-
-        try {
-            const response = await fetch(`${API_BASE}/subscribe?q=${encodeURIComponent(url)}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                const errorMessage = result.detail || statusMessages.subError;
-                showStatus('subscribeStatus', errorMessage, 'error', true);
-                return;
-            }
-
-            showStatus('subscribeStatus', statusMessages.subSuccess, 'success');
-            urlInput.value = '';
-        } catch (error) {
-            showStatus('subscribeStatus', statusMessages.serverError, 'error', true);
-        } finally {
-            isProcessing = false;
-            toggleLoading(false);
-        }
-    }
-
-    // Enhanced management handlers
-    async function handlePause() {
-        if (isProcessing) return;
-        await handleManagementAction('request-pause');
-    }
-
-    async function handleResume() {
-        if (isProcessing) return;
-        await handleManagementAction('request-resume');
-    }
-
-    async function handleManagementAction(endpoint) {
-        clearErrors();
-        const emailInput = document.getElementById('userEmail');
-        const email = emailInput.value.trim();
-
-        if (!isValidEmail(email)) {
-            showError('userEmail', 'emailError', statusMessages.invalidEmail);
-            emailInput.focus();
-            return;
-        }
-
-        isProcessing = true;
-        toggleLoading(true);
-
-        try {
-            const response = await fetch(`${API_BASE}/${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email })
-            });
-
-            if (!response.ok) {
-                const errorMessage = await handleError(response, statusMessages.subError);
-                showStatus('manageStatus', errorMessage, 'error', true);
-                return;
-            }
-
-            const successMessage = endpoint === 'request-pause'
-                ? statusMessages.pauseSent
-                : statusMessages.resumeSent;
-
-            showStatus('manageStatus', successMessage, 'success');
-        } catch (error) {
-            showStatus('manageStatus', statusMessages.serverError, 'error', true);
-        } finally {
-            isProcessing = false;
-            toggleLoading(false);
-        }
-    }
-
-    // Loading state management
-    function toggleLoading(isLoading) {
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(button => {
-            button.disabled = isLoading;
-            if (isLoading) {
-                button.innerHTML = '⏳ Processing...';
-                button.classList.add('loading');
-            } else {
-                button.innerHTML = button.dataset.originalText;
-                button.classList.remove('loading');
-            }
-        });
-    }
-
-    // Initialize button text storage
-    document.querySelectorAll('button').forEach(button => {
-        button.dataset.originalText = button.innerHTML;
-    });
-
-    // Event listeners
-    document.getElementById('subscribeForm').addEventListener('submit', handleSubscribe);
-
-    // Input validation on typing
-    document.getElementById('userEmail').addEventListener('input', function() {
-        if (!isValidEmail(this.value.trim())) {
-            showError('userEmail', 'emailError', statusMessages.invalidEmail);
-        } else {
-            clearErrors();
-        }
-    });
-
-    document.getElementById('calendarUrl').addEventListener('input', function() {
-        if (!isValidCalendarUrl(this.value.trim())) {
-            showError('calendarUrl', 'urlError', statusMessages.invalidUrl);
-        } else {
-            clearErrors();
-        }
-    });
-
-    // Click to dismiss persistent status messages
-    document.querySelectorAll('.status.persistent').forEach(el => {
-        el.addEventListener('click', () => {
-            el.style.display = 'none';
-        });
-    });
-</script>
+<script src="/static/js/app.js"></script>
 </body>
 </html>

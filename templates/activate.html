@@ -1,8 +1,11 @@
-{% extends "templates/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="status-icon success-icon">✓</div>
-<h1>Account Activated!</h1>
-<p>You're now subscribed to calendar change notifications.</p>
-<a href="{{ base_url }}" class="button">Return to NotiFER</a>
+<div class="container">
+    <span class="confirmation-icon success-icon">✓</span>
+    <h1>Account Activated!</h1>
+    <p>You're now subscribed to calendar change notifications.</p>
+    <p>We'll monitor your calendar and email you about any changes to your schedule.</p>
+    <a href="{{ base_url }}" class="button">Return to NotiFER</a>
+</div>
 {% endblock %}

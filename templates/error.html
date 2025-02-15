@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <span class="confirmation-icon error-icon">✕</span>
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    <a href="{{ base_url }}" class="button">Return to NotiFER</a>
+</div>
+{% endblock %}
