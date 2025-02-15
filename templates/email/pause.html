@@ -1,0 +1,14 @@
+{% extends "base_email.html" %}
+
+{% block content %}
+<p style="text-align: left;">You have requested to pause your notifications.</p>
+
+<div style="text-align: left; margin: 20px 0;">
+    <a href="{{ base_url }}/pause?token={{ token }}" class="button">Pause Notifications</a>
+</div>
+
+<p style="text-align: left;">If the button doesn't work, click or copy this link:</p>
+<p style="text-align: left;">
+    <a href="{{ base_url }}/pause?token={{ token }}">{{ base_url }}/pause?token={{ token }}</a>
+</p>
+{% endblock %}

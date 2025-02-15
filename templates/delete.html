@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <span class="confirmation-icon info-icon">🗑️</span>
+    <h1>Account Deleted</h1>
+    <p>We've deleted your account:</p>
+    <div class="email-display">{{ email }}</div>
+    <a href="{{ base_url }}" class="button">Return to NotiFER</a>
+</div>
+{% endblock %}

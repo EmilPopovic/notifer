@@ -28,7 +28,6 @@ from shared.email_utils import EmailClient
 from shared.token_utils import decode_token
 
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
@@ -70,13 +69,12 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    # dependencies=[Depends(RateLimiter(times=5, minutes=15))]
+    dependencies=[Depends(RateLimiter(times=5, minutes=15))]
 )
 app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
 
-# Middleware to log all incoming requests and their responses
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     logger.info("Incoming request: %s %s", request.method, request.url)
@@ -168,7 +166,7 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
                 {
                     'request': request,
                     'title': 'Subscription Not Found',
-                    'message': 'We couldn\'t find your subscription',
+                    'message': 'We could not find your subscription',
                     'base_url': API_URL
                 }
             )
@@ -197,53 +195,80 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
 
 
 @app.post('/request-delete')
-async def request_delete(email: str, db: Session = Depends(get_db)):
+async def request_delete(email: str = Body(..., embed=True), db: Session = Depends(get_db)):
     logger.info("Deletion request received for email: %s", email)
     subscription = get_subscription(db, email)
     if not subscription:
         logger.error("Deletion request failed: subscription not found for %s", email)
         raise HTTPException(status_code=404, detail='Subscription not found')
+    
     try:
         logger.info("Sending deletion confirmation email to %s", email)
         confirmation_client.send_delete_confirmation_email(email)
-    except Exception as e:
+    except Exception as _:
         logger.exception("Error sending deletion email to %s", email)
         raise HTTPException(status_code=500, detail='Unexpected error while sending deletion email')
+    
     return {'message': 'Deletion confirmation email sent.'}
 
 
 @app.get('/delete')
-async def delete_account(token: str, db: Session = Depends(get_db)):
+async def delete_account(request: Request, token: str, db: Session = Depends(get_db)):
     logger.info("Delete account requested with token: %s", token)
     try:
         email = decode_token(token, 'delete')
         success = delete_user(db, email)
         if not success:
             logger.error("Delete account failed: account not found or already deleted for %s", email)
-            raise HTTPException(status_code=404, detail='Account not found or already deleted.')
+            return templates.TemplateResponse(
+                'error.html',
+                {
+                    'request': request,
+                    'title': 'Account Not Found',
+                    'message': 'Account not found or already deleted.',
+                    'base_url': API_URL
+                }
+            )
+        
         logger.info("Account deleted successfully for %s", email)
-        return {'message': 'Account deleted successfully.'}
-    except Exception as e:
+        return templates.TemplateResponse(
+            'delete.html',
+            {
+                'request': request,
+                'email': email,
+                'base_url': API_URL
+            }
+        )
+    
+    except Exception as _:
         logger.exception("Error processing delete account request with token: %s", token)
-        raise HTTPException(status_code=500, detail='Unexpected error during account deletion')
+        return templates.TemplateResponse(
+            'error.html',
+            {
+                'request': request,
+                'title': 'Account Not Found',
+                'message': 'This link is invalid or expired.',
+                'base_url': API_URL
+            }
+        )
 
 
 @app.post('/request-pause')
 async def request_pause(email: str = Body(..., embed=True), db: Session = Depends(get_db)):
     logger.info("Pause request received for email: %s", email)
     subscription = get_subscription(db, email)
-    if not subscription:
+    if not subscription or not subscription.activated:
         logger.error("Pause request failed: subscription not found for %s", email)
-        return {'message': 'Subscription not found.'}
+        raise HTTPException(status_code=404, detail='Subscription not found.')
 
     if subscription.paused:
         logger.info("Pause request: notifications already paused for %s", email)
-        return {'message': 'Email notifications are already paused.'}
+        raise HTTPException(status_code=400, detail='Email notifications are already paused.')
 
     try:
         logger.info("Sending pause confirmation email to %s", email)
         confirmation_client.send_pause_confirmation_email(email)
-    except Exception as e:
+    except Exception as _:
         logger.exception("Error sending pause confirmation email to %s", email)
         raise HTTPException(status_code=500, detail='Unexpected error while sending pause email')
 
@@ -295,18 +320,18 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
 async def request_resume(email: str = Body(..., embed=True), db: Session = Depends(get_db)):
     logger.info("Resume request received for email: %s", email)
     subscription = get_subscription(db, email)
-    if not subscription:
+    if not subscription or not subscription.activated:
         logger.error("Resume request failed: subscription not found for %s", email)
-        return {'message': 'Subscription not found.'}
+        raise HTTPException(status_code=404, detail='Subscription not found.')
 
     if not subscription.paused:
         logger.info("Resume request: notifications already active for %s", email)
-        return {'message': 'Email notifications are already active.'}
+        raise HTTPException(status_code=400, detail='Email notifications are already active.')
 
     try:
         logger.info("Sending resume confirmation email to %s", email)
         confirmation_client.send_resume_confirmation_email(email)
-    except Exception as e:
+    except Exception as _:
         logger.exception("Error sending resume confirmation email to %s", email)
         raise HTTPException(status_code=500, detail='Unexpected error while sending resume email')
 

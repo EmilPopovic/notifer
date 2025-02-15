@@ -11,6 +11,7 @@ class UserCalendar(Base):
     calendar_auth = Column(String, nullable=False)
     activated = Column(Boolean, default=False, nullable=False)
     paused = Column(Boolean, default=False, nullable=False)
-    last_checked = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created = Column(DateTime, default=datetime.now, nullable=False)
+    last_checked = Column(DateTime, nullable=True)
     previous_calendar = Column(Text, nullable=True)
     previous_calendar_hash = Column(String, nullable=True)

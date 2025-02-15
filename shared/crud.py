@@ -1,3 +1,4 @@
+import pytz
 from datetime import datetime
 from sqlalchemy.orm import Session
 from shared.models import UserCalendar
@@ -12,7 +13,8 @@ def create_subscription(db: Session, email: str, calendar_auth: str) -> UserCale
         calendar_auth=calendar_auth,
         activated=False,
         paused=False,
-        last_checked=datetime.utcnow(),
+        created=datetime.now(tz=pytz.timezone('Europe/Paris')),
+        last_checked=None,
         previous_calendar=None,
         previous_calendar_hash=None
     )

@@ -4,7 +4,8 @@ let isProcessing = false;
 
 const statusMessages = {
     pauseSent: "📩 Pause confirmation email sent. Check your inbox (and spam folder).",
-    resumeSent: "📩 Resume confirmation email sent. Check your inbox.",
+    resumeSent: "📩 Resume confirmation email sent. Check your inbox (and spam folder).",
+    deleteSent: "📩 Delete confirmation email sent. Check your inbox (and spam folder).",
     subSuccess: "🎉 Confirmation email sent! Check your inbox to activate.",
     subError: "⚠️ Error processing your request. Please try again.",
     invalidEmail: "❌ Please enter a valid email address",
@@ -110,16 +111,15 @@ async function handleResume() {
     await handleManagementAction('request-resume');
 }
 
+async function handleDelete() {
+    if (isProcessing) return;
+    await handleManagementAction('request-delete');
+}
+
 async function handleManagementAction(endpoint) {
     clearErrors();
     const emailInput = document.getElementById('userEmail');
     const email = emailInput.value.trim();
-
-    if (!isValidEmail(email)) {
-        showError('userEmail', 'emailError', statusMessages.invalidEmail);
-        emailInput.focus();
-        return;
-    }
 
     isProcessing = true;
     toggleLoading(true);
@@ -138,10 +138,20 @@ async function handleManagementAction(endpoint) {
             showStatus('manageStatus', errorMessage, 'error', true);
             return;
         }
-
-        const successMessage = endpoint === 'request-pause'
-            ? statusMessages.pauseSent
-            : statusMessages.resumeSent;
+        
+        let successMessage = '';
+        
+        switch (endpoint) {
+            case 'request-pause':
+                successMessage = statusMessages.pauseSent;
+                break;
+            case 'request-resume':
+                successMessage = statusMessages.resumeSent;
+                break;
+            case 'request-delete':
+                successMessage = statusMessages.deleteSent;
+                break;
+        }
 
         showStatus('manageStatus', successMessage, 'success');
     } catch (error) {
@@ -157,14 +167,14 @@ function toggleLoading(isLoading) {
     const buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
         button.disabled = isLoading;
-        if (isLoading) {
-            button.innerHTML = '⏳ Processing...';
-            button.classList.add('loading');
-        } else {
-            button.innerHTML = button.dataset.originalText;
-            button.classList.remove('loading');
-        }
     });
+    
+    const loadingEl = document.getElementById('globalLoading');
+    if (isLoading) {
+        loadingEl.style.display = 'flex';
+    } else {
+        loadingEl.style.display = 'none';
+    }
 }
 
 
@@ -192,11 +202,43 @@ document.querySelectorAll('.status.persistent').forEach(el => {
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    const toggleButton = document.querySelector('.manage-subscription-toggle');
-    const manageContent = document.querySelector('#manageSubscriptionContent');
+function openManageModal() {
+    document.getElementById('manageModal').classList.add('active');
+}
 
-    toggleButton.addEventListener('click', () => {
-        manageContent.classList.toggle('open');
-    });
-});
+
+function closeManageModal() {
+    document.getElementById('manageModal').classList.remove('active');
+}
+
+
+function openModal(type) {
+    const modal = document.getElementById('infoModal');
+    const content = document.getElementById('infoModalContent');
+    let html = '';
+
+    switch(type) {
+        case 'contact':
+            html = `<h2>Contact</h2>
+                            <p>For support, please email: admin@emilpopovic.me</p>`;
+            break;
+        case 'disclaimer':
+            html = `<h2>Disclaimer</h2>
+                            <p>This service is provided "as-is" without any warranties. 
+                            We are not responsible for any missed events or notifications.</p>`;
+            break;
+        case 'github':
+            html = `<h2>GitHub Repository</h2>
+                            <p>Contribute or view the source code at:<br>
+                            <a href="https://github.com/emil-popovic/calendar-notifications" target="_blank">
+                                github.com/emil-popovic/calendar-notifications
+                            </a></p>`;
+            break;
+    }
+    content.innerHTML = html;
+    modal.classList.add('active');
+}
+
+function closeInfoModal() {
+    document.getElementById('infoModal').classList.remove('active');
+}

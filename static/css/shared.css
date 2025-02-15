@@ -25,12 +25,30 @@ body {
     background: white;
     border-radius: 12px;
     box-shadow: var(--shadow);
+    text-align: center;  /* Center all content */
+}
+
+.container h1 {
+    font-size: 2rem;
+    margin: 1.5rem 0;
+    color: var(--primary);
+}
+
+.container p {
+    font-size: 1.125rem;
+    margin: 1rem 0;
+}
+
+.confirmation-icon {
+    font-size: 4rem;
+    margin: 1rem 0;
+    display: inline-block;
 }
 
 /* Form Elements (for index.html) */
 .input-group {
     display: flex;
-    margin: 1.5rem 0;
+    margin: 1rem 0;
 }
 
 input[type="text"],
@@ -60,7 +78,6 @@ input:focus {
     transition: transform 0.2s, opacity 0.2s;
     text-align: center;
 }
-
 
 .button:hover {
     opacity: 0.95;
@@ -100,5 +117,22 @@ input:focus {
     background: rgba(44, 62, 80, 0.05);
     border-radius: 4px;
     display: inline-block;
+    margin: 1rem 0;
+}
+
+.success-icon {
+    color: var(--success);
+}
+
+.info-icon {
+    color: var(--secondary);
+}
+
+.email-display {
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: rgba(44, 62, 80, 0.05);
+    padding: 12px 20px;
+    border-radius: 6px;
     margin: 1rem 0;
 }

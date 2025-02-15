@@ -8,7 +8,7 @@ from shared.email_templates import (
     activation_email_content,
     deletion_email_content,
     pause_email_content,
-    resume_email_content,
+    resume_email_content
 )
 
 # Configure a logger for this module
@@ -55,10 +55,6 @@ class EmailClient:
             logger.exception("Failed to send email to %s: %s", recipient_email, e)
 
     def send_activate_confirmation_email(self, recipient_email: str):
-        """
-        Sends a confirmation email containing a magic link.
-        The magic link will point to your /activate endpoint with a token.
-        """
         logger.info("Sending activation confirmation email to %s", recipient_email)
         token = create_token(recipient_email, 'activate')
         subject, body = activation_email_content(self.base_url, token)
@@ -71,18 +67,12 @@ class EmailClient:
         self.send_email(recipient_email, subject, body)
 
     def send_pause_confirmation_email(self, recipient_email: str):
-        """
-        Sends an email to confirm pausing notifications.
-        """
         logger.info("Sending pause confirmation email to %s", recipient_email)
         token = create_token(recipient_email, 'pause')
         subject, body = pause_email_content(self.base_url, token)
         self.send_email(recipient_email, subject, body)
 
     def send_resume_confirmation_email(self, recipient_email: str):
-        """
-        Sends an email to confirm resuming notifications.
-        """
         logger.info("Sending resume confirmation email to %s", recipient_email)
         token = create_token(recipient_email, 'resume')
         subject, body = resume_email_content(self.base_url, token)
