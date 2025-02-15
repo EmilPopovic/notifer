@@ -13,21 +13,21 @@ def render_email(template_name: str, base_url: str, token: str):
     return template.render(base_url=base_url, token=token)
 
 def activation_email_content(base_url: str, token: str):
-    subject = 'Confirm Your Subscription'
+    subject = 'Potvrdi svoju pretplatu'
     body = render_email('activation', base_url, token)
     return subject, body
 
 def deletion_email_content(base_url: str, token: str):
-    subject = 'Confirm Account Deletion'
+    subject = 'Potvrdi brisanje računa'
     body = render_email('deletion', base_url, token)
     return subject, body
 
 def pause_email_content(base_url: str, token: str):
-    subject = 'Confirm Email Pause'
+    subject = 'Potvrdi pauziranje obavijesti'
     body = render_email('pause', base_url, token)
     return subject, body
 
 def resume_email_content(base_url: str, token: str):
-    subject = 'Confirm Resume Notifications'
+    subject = 'Potvrdi uključivanje obavijesti'
     body = render_email('resume', base_url, token)
     return subject, body

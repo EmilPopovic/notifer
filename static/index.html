@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hr">
 <head>
     <meta charset="UTF-8">
-    <title>Calendar Notifications</title>
+    <title>NotiFER</title>
     <link rel="stylesheet" href="/static/css/shared.css">
     <style>
         .hero {
@@ -49,7 +49,7 @@
         .subscribe-group input[type="text"] {
             flex: 1;
             padding: 16px;
-            font-size: 1.2rem;
+            font-size: 1rem;
             border: 1px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
@@ -59,7 +59,8 @@
         .subscribe-group .button {
             flex-shrink: 0;
             padding: 16px 24px;
-            font-size: 1.2rem;
+            font-size: 1rem;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -67,6 +68,12 @@
             box-sizing: border-box;
             height: 52px;
             white-space: nowrap;
+        }
+        
+        @media (max-width: 600px) {
+            .subscribe-group {
+                flex-direction: column;
+            }
         }
         
         .button-group {
@@ -98,6 +105,7 @@
             align-items: center;
             justify-content: center;
             z-index: 9999;
+            overflow: hidden;
         }
         
         .modal-overlay.active {
@@ -108,8 +116,10 @@
             background: #fff;
             border-radius: 12px;
             padding: 2rem;
-            width: 100%;
+            width: 90%;
             max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
             position: relative;
             box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         }
@@ -158,7 +168,7 @@
             position: fixed;
             bottom: 0;
             left: 0;
-            padding: 1rem;
+            padding: 2rem;
             font-size: 0.8rem;
             color: var(--text-muted);
             border-radius: 0 8px 0 0;
@@ -167,6 +177,7 @@
         .footer-links a {
             color: inherit;
             text-decoration: none;
+            font-weight: bold;
             margin-right: 1rem;
         }
 
@@ -184,26 +195,25 @@
 
 <!-- Hero Section -->
 <div class="hero">
-    <h1>Calendar Notifications</h1>
-    <p>Stay up to date with your upcoming events</p>
+    <h1>NotiFER</h1>
+    <p>Nikad ne propusti promjenu u rasporedu! 📅</p>
 </div>
 
 <!-- Main Container -->
 <div class="cards-container">
     <!-- Subscribe Card -->
     <div class="card subscribe-card">
-        <h2>Subscribe to Notifications</h2>
+        <h2>🚨 Pretplati se na obavijesti</h2>
         <form id="subscribeForm">
             <div class="subscribe-group">
                 <input
                         type="text"
                         id="calendarUrl"
-                        placeholder="Paste your calendar URL here">
-                <button type="submit" class="button">Subscribe</button>
+                        placeholder="Zalijepi link na svoj FER kalendar ovdje">
+                <button type="submit" class="button">Pretplati se</button>
             </div>
             <div class="notice">
-                You'll receive a confirmation email to activate your subscription.
-                Check your spam folder if you don't see it within 5 minutes.
+                Počinješ dobivati obavijesti tek nakon klika na gumb u mailu.
             </div>
             <div id="subscribeStatus" class="status"></div>
         </form>
@@ -212,7 +222,7 @@
     <!-- Small link to open the modal -->
     <div style="text-align: center; margin-bottom: 2rem;">
         <a href="#" class="manage-sub-link" onclick="openManageModal()">
-            Need to manage your subscription?
+            Želiš urediti svoju pretplatu?
         </a>
     </div>
 
@@ -221,28 +231,27 @@
         <div class="modal-content">
             <span class="close-button" onclick="closeManageModal()">&times;</span>
 
-            <h2>Manage Subscription</h2>
+            <h2>✏️ Uredi pretplatu</h2>
             <form id="manageForm">
                 <div class="input-group">
                     <label for="userEmail"></label><input
                             type="email"
                             id="userEmail"
-                            placeholder="Enter your registered email">
+                            placeholder="Upiši svoj registrirani email">
                 </div>
                 <div class="button-group">
                     <button type="button" class="button" onclick="handlePause()">
-                        Pause Notifications
+                        Pauziraj obavijesti
                     </button>
                     <button type="button" class="button" onclick="handleResume()">
-                        Resume Notifications
+                        Uključi obavijesti
                     </button>
-                    <button type="button" class="button" onclick=handleDelete()>
-                        Delete Account
+                    <button type="button" class="button" style="background-color: #DC3545" onclick=handleDelete()>
+                        Izbriši račun
                     </button>
                 </div>
                 <div class="notice">
-                    Need help? Contact support at admin@emilpopovic.me<br>
-                    Allow up to 15 minutes for changes to take effect.
+                    Promjena se provodi tek nakon potvrde mailom.
                 </div>
                 <div id="manageStatus" class="status"></div>
             </form>
@@ -250,9 +259,9 @@
     </div>
 
     <div class="footer-links">
-        <a href="#" onclick="event.preventDefault(); openModal('contact')">Contact</a>
-        <a href="#" onclick="event.preventDefault(); openModal('disclaimer')">Disclaimer</a>
-        <a href="#" onclick="event.preventDefault(); openModal('github')">GitHub</a>
+        <a href="#" onclick="event.preventDefault(); openModal('contact')">📞 Kontakt</a>
+        <a href="#" onclick="event.preventDefault(); openModal('disclaimer')">ℹ️ Info</a>
+        <a href="#" onclick="event.preventDefault(); openModal('github')">🧑‍💻 GitHub</a>
     </div>
 
     <!-- Info Modal -->

@@ -10,21 +10,21 @@ CALENDAR_PATH = '/_download/calevent/mycal.ics'
 def parse_calendar_url(url: str) -> dict[str, str]:
     parsed_url = urlparse(url)
     
-    if parsed_url.scheme != 'https':
-        raise InvalidURL('Not a URL')
+    if parsed_url.scheme not in ['http', 'https']:
+        raise InvalidURL('❌ Nije URL.')
     if not (parsed_url.netloc.endswith('fer.hr') or parsed_url.netloc.endswith('fer.unizg.hr')):
-        raise InvalidURL('Invalid domain')
+        raise InvalidURL('❌ Nije valjana domena.')
     if parsed_url.path != CALENDAR_PATH:
-        raise InvalidURL('Invalid path')
+        raise InvalidURL('❌ Nije valjan put.')
     
     parsed_query = parse_qs(parsed_url.query)
     user = parsed_query.get('user', [''])[0]
     auth = parsed_query.get('auth', [''])[0]
     
     if user == '':
-        raise InvalidURL('Invalid user')
+        raise InvalidURL('❌ Nije valjan korisnik.')
     if auth == '':
-        raise InvalidURL('Invalid auth')
+        raise InvalidURL('❌ Nije valjan autentikacijski token.')
     
     return {'user': user, 'auth': auth}
 

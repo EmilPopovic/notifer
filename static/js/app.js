@@ -3,15 +3,15 @@ let isProcessing = false;
 
 
 const statusMessages = {
-    pauseSent: "📩 Pause confirmation email sent. Check your inbox (and spam folder).",
-    resumeSent: "📩 Resume confirmation email sent. Check your inbox (and spam folder).",
-    deleteSent: "📩 Delete confirmation email sent. Check your inbox (and spam folder).",
-    subSuccess: "🎉 Confirmation email sent! Check your inbox to activate.",
-    subError: "⚠️ Error processing your request. Please try again.",
-    invalidEmail: "❌ Please enter a valid email address",
-    invalidUrl: "❌ Please enter a valid calendar URL",
-    serverError: "🔧 Server error. Please try again later.",
-    rateLimit: "⏳ Too many requests. Please wait before trying again.",
+    pauseSent: "📩 Email za potvrdu pauziranja obavijesti je poslan. Provjeri svoj inbox (i spam).",
+    resumeSent: "📩 Email za potvrdu uključivanja obavijesti je poslan. Provjeri svoj inbox (i spam).",
+    deleteSent: "📩 Email za potvrdu brisanja obavijesti je poslan. Provjeri svoj inbox (i spam).",
+    subSuccess: "🎉 Email za potvrdu poslan! Provjeri svoj inbox (i spam) da aktiviraš obavijesti.",
+    subError: "⚠️ Greška tijekom obrade zahtjeva. Pokušaj ponovno kasnije.",
+    invalidEmail: "❌ Molim upiši valjan email.",
+    invalidUrl: "❌ Molim upiši ispravan URL kalendara.",
+    serverError: "🔧 Greška poslužitelja. Pokušaj ponovno kasnije.",
+    rateLimit: "⏳ Previše zahtjeva. Pokušaj ponovno kasnije.",
 };
 
 
@@ -212,6 +212,28 @@ function closeManageModal() {
 }
 
 
+document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+        closeManageModal();
+        closeInfoModal();
+    } 
+});
+
+
+document.addEventListener('click', function (event) {
+    const manageModal = document.getElementById('manageModal');
+    const infoModal = document.getElementById('infoModal');
+    
+    if (event.target === manageModal) {
+        closeManageModal();
+    }
+    
+    if (event.target === infoModal) {
+        closeInfoModal();
+    }
+});
+
+
 function openModal(type) {
     const modal = document.getElementById('infoModal');
     const content = document.getElementById('infoModalContent');
@@ -219,19 +241,39 @@ function openModal(type) {
 
     switch(type) {
         case 'contact':
-            html = `<h2>Contact</h2>
-                            <p>For support, please email: admin@emilpopovic.me</p>`;
+            html = `<h2>📞 Kontakt</h2>
+                            <p>Za podršku i pitanja, pošalji mail na admin@emilpopovic.me.</p>`;
             break;
         case 'disclaimer':
-            html = `<h2>Disclaimer</h2>
-                            <p>This service is provided "as-is" without any warranties. 
-                            We are not responsible for any missed events or notifications.</p>`;
+            html = `<h2 id="-info">ℹ️ Info</h2>
+<p>Ova usluga dostupna je takva kakva jest i isključivo za udobnost kolegama studentima. <strong>Ja sam student koji samostalno razvija ovaj alat</strong> i nisam ni na koji način povezan s FER-om, odobren od strane njega niti službeno povezan s njim. <strong>Koristite na vlastitu odgovornost</strong>. Ne mogu se smatrati odgovornim za propuštenu nastavu, laboratorijske vježbe i druge posljedice koje mogu proizaći iz pogrešaka, kašnjenja ili odstupanja u obavijestima o rasporedu. <strong>Uvijek provjerite svoj raspored na službenoj stranici FER-a.</strong></p>
+<h3 id="-opseg-usluge-i-odgovornost">🔬 Opseg usluge i odgovornost</h3>
+<ul>
+<li><strong>Eksperimentalna priroda:</strong> Ovaj je alat eksperimentalan i može sadržavati bugove. Uvijek provjeri službeni raspored.</li>
+<li><strong>Odgovornost korisnika:</strong> Korisnik je odgovoran za provjeru rasporeda. Nisam odgovoran za izostanke korisnika s nastave.</li>
+</ul>
+<h3 id="-prikupljanje-i-sigurnost-podataka">🔒 Prikupljanje i sigurnost podataka</h3>
+<ul>
+<li><strong>Što se prikuplja:</strong> Jedino što ova aplikacija prikuplja je tvoja FER email adresa (npr. pi31415@fer.hr), token za autentikaciju kalendara te prošla verzija tvog kalendara.</li>
+<li><strong>Rukovanje podacima:</strong> Svi su podaci sigurno smješteni na Google Cloudu i njima se upravlja putem self-hosted usluga. Aplikacija ne koristi usluge treće strane.</li>
+<li><strong>Tvoj pristanak:</strong> Korištenjem ove usluge pristaješ na ovakvo rukovanje podacima. Iako se ulažu svi napori da se tvoji podaci zaštite, nijedan sustav ne može biti 100% siguran.</li>
+<li><strong>Brisanje podataka:</strong> Sve je podatke moguće izbrisati koristeći &quot;Izbriši račun&quot; funkciju. Jedino što je potrebno za brisanje podataka je pristup fer.hr mailu.</li>
+</ul>
+<h3 id="-dostupnost-usluge-i-promjene">🚧 Dostupnost usluge i promjene</h3>
+<ul>
+<li><strong>Bez garancije usluge:</strong> Mogu bilo kada modificirati, privremeno suspendirati ili ugasiti ovu uslugu. U tom ću se slučaju potruditi da korisnici budu dobiju obavijest o prekidu usluge.</li>
+<li><strong>Pouzdanost:</strong> Ciljam na što veću pouzdanost, ali ne mogu garantirati neprekinut pristup i savršenu funkcionalnost.</li>
+<li><strong>Vanjske promjene:</strong> Ova aplikacija ovisi o servisima koje ne kontroliram - FER-ovom sustavu kalendara i mailova - koji se bilo kada mogu promijeniti. Nisam odgovoran za takve prekide.</li>
+</ul>
+<h2 id="-poruka-korisniku">✨ Poruka korisniku</h2>
+<p>Točke gore zvuče opasno, ali i sam ovisim o i vjerujem ovoj aplikaciji. Ono što hoću reći je... <strong>Nemoj kriviti mene ako zakasniš na labos!!!</strong> :3</p>
+`;
             break;
         case 'github':
-            html = `<h2>GitHub Repository</h2>
-                            <p>Contribute or view the source code at:<br>
-                            <a href="https://github.com/emil-popovic/calendar-notifications" target="_blank">
-                                github.com/emil-popovic/calendar-notifications
+            html = `<h2>🧑‍💻 GitHub repozitorij</h2>
+                            <p>Cijeli NotiFER je open source na GitHubu:<br>
+                            <a href="https://github.com/EmilPopovic/NotiFER" target="_blank">
+                                github.com/EmilPopovic/NotiFER
                             </a></p>`;
             break;
     }

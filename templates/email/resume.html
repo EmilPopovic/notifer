@@ -1,13 +1,13 @@
 {% extends "base_email.html" %}
 
 {% block content %}
-<p style="text-align: left;">You have requested to resume your notifications.</p>
+<p style="text-align: left;">Zatraženo je ponovno uključivanje obavijesti. ▶️ Možeš ih pauzirati bilo kad.</p>
 
 <div style="text-align: left; margin: 20px 0;">
-    <a href="{{ base_url }}/resume?token={{ token }}" class="button">Resume Notifications</a>
+    <a href="{{ base_url }}/resume?token={{ token }}" class="button">Uključi obavijesti</a>
 </div>
 
-<p style="text-align: left;">If the button doesn't work, click or copy this link:</p>
+<p style="text-align: left;">Ako gumb ne radi, klikni ovaj link:</p>
 <p style="text-align: left;">
     <a href="{{ base_url }}/resume?token={{ token }}">{{ base_url }}/resume?token={{ token }}</a>
 </p>
