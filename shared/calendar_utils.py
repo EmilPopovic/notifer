@@ -36,6 +36,7 @@ def is_valid_ical(ical_string: str) -> bool:
     except Exception as _:
         return False
     
+    
 def is_valid_ical_url(url: str) -> bool:
     try:
         response = requests.get(url, timeout=10)

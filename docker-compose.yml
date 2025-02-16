@@ -3,23 +3,47 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile
+    ports:
+      - "${API_PORT}:${API_PORT}"
     container_name: fastapi_api
     env_file:
       - .env
-    ports:
-      - "${API_PORT}:${API_PORT}"
     depends_on:
       - redis
+      - email_worker
     networks:
       - backend
   
+  email_worker:
+    build:
+      context: .
+      dockerfile: email_worker/Dockerfile
+    scale: 5
+    command: rq worker email --url redis://redis:6379/0
+    env_file:
+      - .env
+    networks:
+      - backend
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    working_dir: /app
+  
   redis:
-    image: redis:7-alpine
-    container_name: fastapi_redis
+    image: redis:alpine
+    container_name: redis
+    command: redis-server --bind 0.0.0.0
     ports:
       - "6379:6379"
     networks:
       - backend
-        
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 networks:
   backend:
+    driver: bridge

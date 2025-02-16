@@ -46,7 +46,7 @@ FROM_EMAIL = CONFIRMATION_USERNAME
 API_URL = os.getenv('API_URL').replace('${API_PORT}', str(API_PORT))
 RATE_LIMIT = int(os.getenv('RATE_LIMIT', 5))
 
-confirmation_client = EmailClient(
+email_client = EmailClient(
     smtp_server=SMTP_SERVER,
     smtp_port=SMTP_PORT,
     username=CONFIRMATION_USERNAME,
@@ -156,12 +156,8 @@ async def subscribe(q: str, db: Session = Depends(get_db)):
         logger.info('Creating new subscription for %s', email)
         create_subscription(db, email, auth)
 
-    try:
-        logger.info('Sending activation confirmation email to %s', email)
-        confirmation_client.send_activate_confirmation_email(email)
-    except Exception as _:
-        logger.exception('Error sending activation email to %s', email)
-        raise HTTPException(status_code=500, detail='Neočekivana greška.')
+    logger.info('Enqueuing activation confirmation email to %s', email)
+    email_client.enqueue_send_activate_confirmation_email(email)
 
     logger.info('Subscription process completed for %s', email)
     return {'status': 'ok', 'email': email}
@@ -216,12 +212,8 @@ async def request_delete(email: str = Body(..., embed=True), db: Session = Depen
         logger.error('Deletion request failed: subscription not found for %s', email)
         raise HTTPException(status_code=404, detail='Pretplata nije pronađena.')
     
-    try:
-        logger.info('Sending deletion confirmation email to %s', email)
-        confirmation_client.send_delete_confirmation_email(email)
-    except Exception as _:
-        logger.exception('Error sending deletion email to %s', email)
-        raise HTTPException(status_code=500, detail='Neočekivana pogreška. Pokušaj ponovno kasnije.')
+    logger.info('Enqueuing deletion confirmation email to %s', email)
+    email_client.enqueue_send_delete_confirmation_email(email)
     
     return {'message': 'Deletion confirmation email sent.'}
 
@@ -280,12 +272,8 @@ async def request_pause(email: str = Body(..., embed=True), db: Session = Depend
         logger.info('Pause request: notifications already paused for %s', email)
         raise HTTPException(status_code=400, detail='Obavijesti su već pauzirane.')
 
-    try:
-        logger.info('Sending pause confirmation email to %s', email)
-        confirmation_client.send_pause_confirmation_email(email)
-    except Exception as _:
-        logger.exception('Error sending pause confirmation email to %s', email)
-        raise HTTPException(status_code=500, detail='Neočekivana greška. Pokušaj kasnije.')
+    logger.info('Enqueuing pause confirmation email to %s', email)
+    email_client.enqueue_send_pause_confirmation_email(email)
 
     return {'message': 'Pause confirmation email sent.'}
 
@@ -344,12 +332,8 @@ async def request_resume(email: str = Body(..., embed=True), db: Session = Depen
         logger.info('Resume request: notifications already active for %s', email)
         raise HTTPException(status_code=400, detail='Obavijesti su već aktivne.')
 
-    try:
-        logger.info('Sending resume confirmation email to %s', email)
-        confirmation_client.send_resume_confirmation_email(email)
-    except Exception as _:
-        logger.exception('Error sending resume confirmation email to %s', email)
-        raise HTTPException(status_code=500, detail='Neočekivana greška. Pokušaj kasnije.')
+    logger.info('Enqueuing resume confirmation email to %s', email)
+    email_client.enqueue_send_resume_confirmation_email(email)
 
     return {'message': 'Resume confirmation email sent.'}
 
@@ -398,4 +382,5 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
 
 if __name__ == '__main__':
     logger.info('Starting uvicorn server on port %s', API_PORT)
+    logger.info('Application url is %s', API_URL)
     uvicorn.run(app, host='0.0.0.0', port=API_PORT)
