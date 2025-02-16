@@ -4,9 +4,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from shared.models import Base
 
-DATABASE_URL = os.getenv('DATABASE_URL')
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+POSTGRES_PORT = os.getenv('POSTGRES_PORT')
 
-engine = create_engine(DATABASE_URL, connect_args={'check_same_thread': False})
+DATABASE_URI = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
+
+engine = create_engine(DATABASE_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

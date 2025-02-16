@@ -2,21 +2,12 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install system deps
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+COPY ./requirements.txt /app/requirements.txt
 
-# Install shared package
-COPY shared /app/shared
-RUN pip install --no-cache-dir -e /app/shared
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install calendar_worker dependencies
-COPY backend-worker/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt.txt
+COPY . /app
 
-# Copy calendar_worker code
-COPY backend-worker/app /app/app
+ENV PYTHONPATH="/app:${PYTHONPATH}"
 
-# Command to run the calendar_worker
-CMD ["python", "-m", "app.worker"]
+CMD ["python3", "/app/calendar_worker/app/main.py"]
