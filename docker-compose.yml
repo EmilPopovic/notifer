@@ -1,29 +1,25 @@
-version: '3.8'
-
 services:
   api:
     build:
       context: .
       dockerfile: api/Dockerfile
+    container_name: fastapi_api
+    env_file:
+      - .env
     ports:
       - "${API_PORT}:${API_PORT}"
-    volumes:
-      - ./volumes/db:/app/db
     depends_on:
-      - db
-    
-  backend-worker:
-    build:
-      context: .
-      dockerfile: worker/Dockerfile
-    volumes:
-      - ./volumes/db:/app/db
-    depends_on:
-      - db
-        
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      - redis
+    networks:
+      - backend
+  
+  redis:
+    image: redis:7-alpine
+    container_name: fastapi_redis
     ports:
-      - "8080:80"
+      - "6379:6379"
+    networks:
+      - backend
+        
+networks:
+  backend:

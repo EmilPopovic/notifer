@@ -201,7 +201,7 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
             'error.html',
             {
                 'request': request,
-                'title': 'Greška (._. )',
+                'title': 'Greška',
                 'message': 'Ovaj link nije valjan ili je istekao.',
                 'base_url': API_URL
             }
@@ -261,7 +261,7 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
             'error.html',
             {
                 'request': request,
-                'title': 'Greška (._. )',
+                'title': 'Greška',
                 'message': 'Ovaj link nije valjan ili je zastario.',
                 'base_url': API_URL
             }
@@ -325,7 +325,7 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
             'error.html',
             {
                 'request': request,
-                'title': 'Greška (._. )',
+                'title': 'Greška',
                 'message': 'Ovaj link nije valjan ili je zastario.',
                 'base_url': API_URL
             }
@@ -389,7 +389,7 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
             'error.html',
             {
                 'request': request,
-                'title': 'Greška (._. )',
+                'title': 'Greška',
                 'message': 'Ovaj link nije valjan ili je zastario.',
                 'base_url': API_URL
             }
@@ -398,4 +398,4 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
 
 if __name__ == '__main__':
     logger.info('Starting uvicorn server on port %s', API_PORT)
-    uvicorn.run(app, port=API_PORT)
+    uvicorn.run(app, host='0.0.0.0', port=API_PORT)

@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -e /app/shared
 
 # Install worker dependencies
 COPY backend-worker/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt.txt
 
 # Copy worker code
 COPY backend-worker/app /app/app

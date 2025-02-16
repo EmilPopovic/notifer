@@ -261,7 +261,7 @@ function openModal(type) {
 </ul>
 <h3 id="-dostupnost-usluge-i-promjene">🚧 Dostupnost usluge i promjene</h3>
 <ul>
-<li><strong>Bez garancije usluge:</strong> Mogu bilo kada modificirati, privremeno suspendirati ili ugasiti ovu uslugu. U tom ću se slučaju potruditi da korisnici budu dobiju obavijest o prekidu usluge.</li>
+<li><strong>Bez garancije usluge:</strong> Mogu bilo kada modificirati, privremeno suspendirati ili ugasiti ovu uslugu. U tom ću se slučaju potruditi da korisnici dobiju obavijest o prekidu usluge.</li>
 <li><strong>Pouzdanost:</strong> Ciljam na što veću pouzdanost, ali ne mogu garantirati neprekinut pristup i savršenu funkcionalnost.</li>
 <li><strong>Vanjske promjene:</strong> Ova aplikacija ovisi o servisima koje ne kontroliram - FER-ovom sustavu kalendara i mailova - koji se bilo kada mogu promijeniti. Nisam odgovoran za takve prekide.</li>
 </ul>
