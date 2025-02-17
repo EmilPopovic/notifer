@@ -1,0 +1,68 @@
+{% extends "base_email.html" %}
+
+{% block content %}
+<p style="text-align: left;">Imaš promjene u rasporedu ({{ count }}):</p>
+
+{% set max_to_show = 5 %}
+{% for change in event_changes[:max_to_show] %}
+    {% if change.old is none and change.new is not none %}
+        <!-- Novi događaj -->
+        <div style="border: 1px solid #b3e6cb; background: #e6ffed; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+            <div style="font-size: 16px; font-weight: bold;">➕ Novi događaj</div>
+            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.new.summary }}</p>
+            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.new.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.new.end | format_datetime }}</p>
+            {% if change.new.location %}
+                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.new.location }}</p>
+            {% endif %}
+        </div>
+    {% elif change.old is not none and change.new is none %}
+        <!-- Uklonjeni događaj -->
+        <div style="border: 1px solid #f5c6cb; background: #ffeef0; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+            <div style="font-size: 16px; font-weight: bold;">➖ Uklonjeni događaj</div>
+            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.new.summary }}</p>
+            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.new.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.new.end | format_datetime }}</p>
+            {% if change.new.location %}
+                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.new.location }}</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <!-- Ažurirani događaj (updated) -->
+        <div style="border: 1px solid #f4e5c6; background: #fff9ed; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+            <div style="font-size: 16px; font-weight: bold;">〰️ Ažurirani događaj</div>
+            <p style="margin: 5px 0;"><em>Staro:</em></p>
+            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.old.summary }}</p>
+            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.old.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.old.end | format_datetime }}</p>
+            {% if change.old.location %}
+                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.old.location }}</p>
+            {% endif %}
+            <hr style="border: none; border-top: 1px dashed #ccc; margin: 10px 0;">
+            <p style="margin: 5px 0;"><em>Novo:</em></p>
+            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.new.summary }}</p>
+            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.new.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.new.end | format_datetime }}</p>
+            {% if change.new.location %}
+                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.new.location }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endfor %}
+
+{% if event_changes|length > max_to_show %}
+    <p style="text-align: left; font-style: italic; color: #555;">
+        ... i još {{ event_changes|length - max_to_show }} događaja.
+    </p>
+{% endif %}
+
+<p style="text-align: left;">
+    Za više detalja, posjeti svoj službeni
+    <a href="https://www.fer.unizg.hr/kalendar">FER kalendar</a>.
+</p>
+
+<p style="text-align: left;">
+    Ne želiš više primati obavijesti?
+    <a href="{{ base_url }}/pause?token={{ token }}">Pauziraj ih!</a>
+</p>
+{% endblock %}

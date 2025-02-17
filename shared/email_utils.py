@@ -12,7 +12,8 @@ from shared.email_templates import (
     activation_email_content,
     deletion_email_content,
     pause_email_content,
-    resume_email_content
+    resume_email_content,
+    notification_email_content
 )
 
 redis_sync = redis.Redis.from_url(os.environ.get('REDIS_URL', 'redis://redis:6379/0'))

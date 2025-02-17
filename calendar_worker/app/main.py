@@ -99,9 +99,6 @@ def process_subscription(subscription: UserCalendar):
             logger.info('Detected %s event changes for %s', len(event_changes), subscription.email)
             email_client.enqueue_send_notification_email(subscription.email, event_changes)
         
-        logger.info('Enqueuing notification email for %s', subscription.email)
-        email_client.enqueue_send_notification_email(subscription.email)
-        
         subscription.previous_calendar = calendar_content
         subscription.previous_calendar_hash = new_hash
         subscription.last_checked = datetime.now()
