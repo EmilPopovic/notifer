@@ -6,6 +6,7 @@ import logging
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from shared.calendar_utils import EventChange
 from shared.token_utils import create_token
 from shared.email_templates import (
     activation_email_content,
@@ -92,6 +93,8 @@ class EmailClient:
         subject, body = resume_email_content(self.base_url, token)
         self.__enqueue_send(recipient_email, subject, body)
 
-    def enqueue_send_notification_email(self, recipient_email: str, body: str):
+    def enqueue_send_notification_email(self, recipient_email: str, event_changes: list[EventChange]):
         logger.info("Sending notification email to %s", recipient_email)
-        print('ENQUEUED EMAIL')
+        token = create_token(recipient_email, 'pause')
+        subject, body = notification_email_content(self.base_url, event_changes, token)
+        self.__enqueue_send(recipient_email, subject, body)

@@ -8,7 +8,7 @@ import hashlib
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from shared.calendar_utils import is_valid_ical
+from shared.calendar_utils import is_valid_ical, Event, EventChange, parse_ical_event, compute_ical_changes
 from shared.database import SessionLocal
 from shared.models import UserCalendar
 from shared.email_utils import EmailClient
@@ -37,16 +37,6 @@ email_queue = Queue('email', connection=redis_conn)
 
 def compute_hash(content: str) -> str:
     return hashlib.sha256(content.encode('utf-8')).hexdigest()
-
-
-def get_calendar_changes(old_calendar: str, new_calendar: str) -> str:
-    old_lines = old_calendar.splitlines()
-    new_lines = new_calendar.splitlines()
-    diff = difflib.unified_diff(old_lines, new_lines, fromfile='previous', tofile='current', lineterm='')
-    changes = '\n'.join(diff)
-    if not changes:
-        changes = 'A change was detected but no detailed differences could be extracted.'
-    return changes
 
 
 def fetch_calendar_with_retry(url: str, retries: int = 3, backoff_factor: float = 1.0) -> str | None:
@@ -102,10 +92,12 @@ def process_subscription(subscription: UserCalendar):
             session.commit()
             return
         
-        changes = get_calendar_changes(subscription.previous_calendar, calendar_content)
-        logger.info('Detected changes for %s:\n%s', subscription.email, changes)
-        
-        ...
+        event_changes = compute_ical_changes(old_ical=subscription.previous_calendar, new_ical=calendar_content)
+        if not event_changes:
+            logger.info('Calendar content changed but no event differences found for %s', subscription.email)
+        else:
+            logger.info('Detected %s event changes for %s', len(event_changes), subscription.email)
+            email_client.enqueue_send_notification_email(subscription.email, event_changes)
         
         logger.info('Enqueuing notification email for %s', subscription.email)
         email_client.enqueue_send_notification_email(subscription.email)
@@ -141,6 +133,8 @@ def main_loop():
         finally:
             session.close()
             
+        logger.info('Found %s subscriptions', len(subscriptions))
+            
         if not subscriptions:
             logger.info('No subscriptions found. Sleeping for %s seconds.', WORKER_INTERVAL)
             time.sleep(WORKER_INTERVAL)
@@ -153,7 +147,7 @@ def main_loop():
                 try:
                     future.result()
                 except Exception as e:
-                    logger.exception('Unhandlet error processing subscription for %s: %s', sub.email, e)
+                    logger.exception('Unhandled error processing subscription for %s: %s', sub.email, e)
                     
         logger.info('Cycle complete. Sleeping for %s seconds.', WORKER_INTERVAL)
         time.sleep(WORKER_INTERVAL)

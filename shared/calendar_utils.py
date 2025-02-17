@@ -1,10 +1,41 @@
+import logging
 import requests
 from icalendar import Calendar
 from requests.exceptions import RequestException
 from http.client import InvalidURL
 from urllib.parse import urlparse, parse_qs
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 CALENDAR_PATH = '/_download/calevent/mycal.ics'
+
+
+class ChangeType(Enum):
+    ADDED = 1
+    REMOVED = 2
+    TIME = 3
+    LOCATION = 4
+
+
+@dataclass
+class Event:
+    uid: str
+    summary: str
+    start: datetime
+    end: datetime
+    location: str | None = None
+
+
+@dataclass
+class EventChange:
+    old: Event | None
+    new: Event | None
+    change_type: list[ChangeType]
 
 
 def parse_calendar_url(url: str) -> dict[str, str]:
@@ -45,3 +76,58 @@ def is_valid_ical_url(url: str) -> bool:
         return is_valid_ical(ical_content)
     except RequestException as _:
         return False
+    
+
+def parse_ical_event(ical_content: str) -> list[Event]:
+    events = []
+    try:
+        cal = Calendar.from_ical(ical_content)
+        for component in cal.walk():
+            if component.name == 'VEVENT':
+                uid = str(component.get('uid'))
+                summary = component.get('summary')
+                dtstart = component.get('dtstart').dt
+                dtend = component.get('dtend').dt
+                location = component.get('location')
+                if location is not None:
+                    location = str(location)
+                events.append(Event(uid=uid, summary=summary, start=dtstart, end=dtend, location=location))
+    except Exception as e:
+        logger.exception('Failed to parse ical events: %s', e)
+    return events
+
+
+def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> list[EventChange]:
+    changes = []
+    old_dict = {e.uid: e for e in old_events}
+    new_dict = {e.uid: e for e in new_events}
+    
+    for uid, old_event in old_dict.items():
+        if uid not in new_dict:
+            changes.append(EventChange(old=old_event, new=None, change_type=[ChangeType.REMOVED]))
+            
+    for uid, new_events in new_dict.items():
+        if uid not in old_dict:
+            changes.append(EventChange(old=None, new=new_events, change_type=[ChangeType.ADDED]))
+    
+    for uid in set(old_dict.keys()).intersection(new_dict.keys()):
+        old_event = old_dict[uid]
+        new_event = new_dict[uid]
+        change_types = []
+        
+        if old_event.start != new_event.start or old_event.end != new_event.end:
+            change_types.append(ChangeType.TIME)
+            
+        if old_event.location != new_event.location:
+            change_types.append(ChangeType.LOCATION)
+        
+        if len(change_types) > 0:
+            changes.append(EventChange(old=old_event, new=new_event, change_type=change_types))
+            
+    return changes
+
+
+def compute_ical_changes(old_ical: str, new_ical: str) -> list[EventChange]:
+    old_events = parse_ical_event(old_ical)
+    new_events = parse_ical_event(new_ical)
+    return compute_event_changes(old_events, new_events)
