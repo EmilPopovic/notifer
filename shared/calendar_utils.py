@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 CALENDAR_PATH = '/_download/calevent/mycal.ics'
+EXCLUDED_SUBJECTS = ['Tjelesna i zdravstvena kultura', 'Physical Education and Welfare']
 
 
 class ChangeType(Enum):
@@ -85,7 +86,8 @@ def parse_ical_event(ical_content: str) -> list[Event]:
         for component in cal.walk():
             if component.name == 'VEVENT':
                 summary = component.get('summary')
-                if summary is None or not str(summary).strip():
+                if (summary is None or not str(summary).strip()
+                        or any(subj.lower() in summary.lower() for subj in EXCLUDED_SUBJECTS)):
                     continue
                 uid = str(component.get('uid'))
                 summary = str(summary)
@@ -100,20 +102,40 @@ def parse_ical_event(ical_content: str) -> list[Event]:
     return events
 
 
-def extract_base_summary(summary: str) -> str:
+def extract_base_summary(summary: str, timestamp: datetime) -> str:
     if not summary:
         return ''
-    return summary.split('(')[0].strip()
+    elif '(' in summary:
+        return f'{timestamp.year}{summary.split('(')[0].strip()}'.lower()
+    elif '[' in summary:
+        return f'{timestamp.year}{summary.split('[')[0].strip()}'.lower()
+    return f'{timestamp.year}{summary}'.lower()
+
+
+def build_singleton_event_dict(events: list[Event]) -> dict[str, Event]:
+    summary_to_events = {}
+    for event in events:
+        if event.summary:
+            key = extract_base_summary(event.summary, event.start)
+            summary_to_events.setdefault(key, []).append(event)
+    
+    result = {}
+    for key, event_list in summary_to_events.items():
+        if len(event_list) == 1:
+            result[key] = event_list[0]
+        else:
+            logger.warning('Ignoring dublicate events with base summary: %s', key)
+    return result
 
 
 def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> list[EventChange]:
     changes = []
     
     def get_key(event: Event) -> str:
-        return extract_base_summary(event.summary)
+        return extract_base_summary(event.summary, event.start)
     
-    old_dict = {get_key(e): e for e in old_events}
-    new_dict = {get_key(e): e for e in new_events}
+    old_dict = build_singleton_event_dict(old_events)
+    new_dict = build_singleton_event_dict(new_events)
     
     for key, old_event in old_dict.items():
         if key not in new_dict:

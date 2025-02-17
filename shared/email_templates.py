@@ -16,13 +16,8 @@ WEEKDAY_MAP = {
 }
 
 def format_datetime(value: datetime.datetime) -> str:
-    """
-    Format a datetime object as "srijeda, 18.6.2025 16:00"
-    """
-    # Get the weekday in Croatian
     weekday_en = value.strftime("%A")
     weekday_hr = WEEKDAY_MAP.get(weekday_en, weekday_en)
-    # Get day, month, year, and time (no leading zeros for day and month)
     day = value.day
     month = value.month
     year = value.year

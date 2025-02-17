@@ -3,12 +3,11 @@ import time
 import logging
 
 import requests
-import difflib
 import hashlib
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from shared.calendar_utils import is_valid_ical, Event, EventChange, parse_ical_event, compute_ical_changes
+from shared.calendar_utils import is_valid_ical, compute_ical_changes
 from shared.database import SessionLocal
 from shared.models import UserCalendar
 from shared.email_utils import EmailClient

@@ -5,7 +5,7 @@
 
 {% set max_to_show = 5 %}
 {% for change in event_changes[:max_to_show] %}
-    {% if change.old is none and change.new is not none %}
+    {% if not change.old and change.new %}
         <!-- Novi događaj -->
         <div style="border: 1px solid #b3e6cb; background: #e6ffed; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
             <div style="font-size: 16px; font-weight: bold;">➕ Novi događaj</div>
@@ -16,18 +16,18 @@
                 <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.new.location }}</p>
             {% endif %}
         </div>
-    {% elif change.old is not none and change.new is none %}
+    {% elif change.old and not change.new %}
         <!-- Uklonjeni događaj -->
         <div style="border: 1px solid #f5c6cb; background: #ffeef0; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
             <div style="font-size: 16px; font-weight: bold;">➖ Uklonjeni događaj</div>
-            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.new.summary }}</p>
-            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.new.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.new.end | format_datetime }}</p>
-            {% if change.new.location %}
-                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.new.location }}</p>
+            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.old.summary }}</p>
+            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.old.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.old.end | format_datetime }}</p>
+            {% if change.old.location %}
+                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.old.location }}</p>
             {% endif %}
         </div>
-    {% else %}
+    {% elif change.old and change.new %}
         <!-- Ažurirani događaj (updated) -->
         <div style="border: 1px solid #f4e5c6; background: #fff9ed; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
             <div style="font-size: 16px; font-weight: bold;">〰️ Ažurirani događaj</div>
