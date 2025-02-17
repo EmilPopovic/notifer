@@ -84,8 +84,11 @@ def parse_ical_event(ical_content: str) -> list[Event]:
         cal = Calendar.from_ical(ical_content)
         for component in cal.walk():
             if component.name == 'VEVENT':
-                uid = str(component.get('uid'))
                 summary = component.get('summary')
+                if summary is None or not str(summary).strip():
+                    continue
+                uid = str(component.get('uid'))
+                summary = str(summary)
                 dtstart = component.get('dtstart').dt
                 dtend = component.get('dtend').dt
                 location = component.get('location')
@@ -97,22 +100,32 @@ def parse_ical_event(ical_content: str) -> list[Event]:
     return events
 
 
+def extract_base_summary(summary: str) -> str:
+    if not summary:
+        return ''
+    return summary.split('(')[0].strip()
+
+
 def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> list[EventChange]:
     changes = []
-    old_dict = {e.uid: e for e in old_events}
-    new_dict = {e.uid: e for e in new_events}
     
-    for uid, old_event in old_dict.items():
-        if uid not in new_dict:
+    def get_key(event: Event) -> str:
+        return extract_base_summary(event.summary)
+    
+    old_dict = {get_key(e): e for e in old_events}
+    new_dict = {get_key(e): e for e in new_events}
+    
+    for key, old_event in old_dict.items():
+        if key not in new_dict:
             changes.append(EventChange(old=old_event, new=None, change_type=[ChangeType.REMOVED]))
             
-    for uid, new_events in new_dict.items():
-        if uid not in old_dict:
+    for key, new_events in new_dict.items():
+        if key not in old_dict:
             changes.append(EventChange(old=None, new=new_events, change_type=[ChangeType.ADDED]))
     
-    for uid in set(old_dict.keys()).intersection(new_dict.keys()):
-        old_event = old_dict[uid]
-        new_event = new_dict[uid]
+    for key in set(old_dict.keys()).intersection(new_dict.keys()):
+        old_event = old_dict[key]
+        new_event = new_dict[key]
         change_types = []
         
         if old_event.start != new_event.start or old_event.end != new_event.end:
