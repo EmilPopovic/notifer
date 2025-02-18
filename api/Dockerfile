@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
 
-EXPOSE ${API_PORT}
+EXPOSE 8000
 
 ENV PYTHONPATH="/app:${PYTHONPATH}"
 

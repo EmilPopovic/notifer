@@ -36,8 +36,7 @@ services:
       - db-password
       - update-password
     environment:
-      - API_PORT=8000
-      - API_URL=https://notifer.emilpopovic.me
+      - API_URL=http://localhost:8000
       - POSTGRES_HOST=db
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - POSTGRES_USER=postgres
@@ -81,9 +80,9 @@ services:
     secrets:
       - db-password
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_DB=app
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
