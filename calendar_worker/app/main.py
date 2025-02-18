@@ -18,8 +18,8 @@ from rq import Queue
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-WORKER_INTERVAL = int(os.getenv('WORKER_INTERVAL', 300))
-BASE_CALENDAR_URL = os.getenv('BASE_CALENDAR_URL', 'https://www.fer.unizg.hr/_download/calevent/mycal.ics')
+WORKER_INTERVAL = 300
+BASE_CALENDAR_URL = 'https://www.fer.unizg.hr/_download/calevent/mycal.ics'
 
 email_client = EmailClient(
     smtp_server=os.getenv('SMTP_SERVER'),
@@ -30,9 +30,10 @@ email_client = EmailClient(
     base_url=os.getenv('API_URL').replace('${API_PORT}', str(os.getenv('API_PORT'))),
 )
 
-redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
 redis_conn = redis.Redis.from_url(redis_url)
 email_queue = Queue('email', connection=redis_conn)
+
 
 def compute_hash(content: str) -> str:
     return hashlib.sha256(content.encode('utf-8')).hexdigest()
@@ -53,6 +54,7 @@ def fetch_calendar_with_retry(url: str, retries: int = 3, backoff_factor: float 
         logger.info('Retrying in %s seconds.', sleep_time)
         time.sleep(sleep_time)
     return None
+
 
 def process_subscription(subscription: UserCalendar):
     session = SessionLocal()

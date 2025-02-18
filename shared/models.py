@@ -4,6 +4,7 @@ from datetime import datetime
 
 Base = declarative_base()
 
+
 class UserCalendar(Base):
     __tablename__ = 'user_calendars'
 

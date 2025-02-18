@@ -29,6 +29,9 @@ from shared.email_utils import EmailClient
 from shared.token_utils import decode_token
 
 
+# region setup
+
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
@@ -36,7 +39,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 API_PORT = int(os.getenv('API_PORT'))
-RECIPIENT_DOMAIN = os.getenv('RECIPIENT_DOMAIN')
+RECIPIENT_DOMAIN = 'fer.hr'
 
 SMTP_SERVER = os.getenv('SMTP_SERVER')
 SMTP_PORT = int(os.getenv('SMTP_PORT'))
@@ -44,7 +47,6 @@ CONFIRMATION_USERNAME = os.getenv('CONFIRMATION_USERNAME')
 CONFIRMATION_PASSWORD = os.getenv('CONFIRMATION_PASSWORD')
 FROM_EMAIL = CONFIRMATION_USERNAME
 API_URL = os.getenv('API_URL').replace('${API_PORT}', str(API_PORT))
-RATE_LIMIT = int(os.getenv('RATE_LIMIT', 5))
 
 email_client = EmailClient(
     smtp_server=SMTP_SERVER,
@@ -55,8 +57,27 @@ email_client = EmailClient(
     base_url=API_URL
 )
 
-REDIS_URL = os.getenv('REDIS_URL')
+REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
 redis = aioredis.from_url(REDIS_URL)
+
+
+async def rate_limit_exceeded_callback(request:Request, _, pexpire: int):
+    logger.warning(f'Rate limit exceeded for client {request.client.host} on endpoint {request.url.path}')
+    
+    raise HTTPException(
+        status_code=429,
+        detail=f'⏳ Previše zahtjeva. Pokušaj ponovno za {pexpire // 1000 // 60} minuta.',
+        headers={'Retry-After': str(pexpire)}
+    )
+
+GLOBAL_RATE_LIMIT = 15
+GLOBAL_RATE_LIMIT_MINUTES = 15
+
+global_limiter = RateLimiter(
+    times=GLOBAL_RATE_LIMIT,
+    minutes=GLOBAL_RATE_LIMIT_MINUTES,
+    callback=rate_limit_exceeded_callback
+)
 
 
 @asynccontextmanager
@@ -73,7 +94,6 @@ app = FastAPI(lifespan=lifespan)
 app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
-#app.add_middleware(HTTPSRedirectMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[API_URL],
@@ -83,11 +103,15 @@ app.add_middleware(
 )
 
 
+# endregion
+# region utility endpoints
+
+
 @app.middleware('http')
 async def log_requests(request: Request, call_next):
-    logger.info('Incoming request: %s %s', request.method, request.url)
+    logger.info(f'Incoming request: {request.method} {request.url}')
     response = await call_next(request)
-    logger.info('Completed request: %s %s with status %s', request.method, request.url, response.status_code)
+    logger.info(f'Completed request: {request.method} {request.url} with status {response.status_code}')
     return response
 
 
@@ -99,7 +123,7 @@ async def redis_health():
         logger.info('Redis health check passed')
         return {'status': 'ok'}
     except Exception as e:
-        logger.error('Redis health check failed: %s', str(e))
+        logger.error(f'Redis health check failed: str(e)')
         return {'status': 'error', 'detail': str(e)}
 
 
@@ -121,56 +145,59 @@ async def health():
     return {'status': 'ok'}
 
 
-@app.post('/subscribe', dependencies=[Depends(RateLimiter(times=RATE_LIMIT, minutes=15))])
+# endregion
+# region user endpoints
+
+@app.post('/subscribe', dependencies=[Depends(global_limiter)])
 async def subscribe(q: str, db: Session = Depends(get_db)):
-    logger.info('Subscription request received with query: %s', q)
+    logger.info(f'Subscription request received with query: {q}')
     try:
         parsed_url = parse_calendar_url(q)
     except InvalidURL as e:
-        logger.error('❌ Invalid calendar URL: %s', str(e))
+        logger.error(f'Invalid calendar URL: {str(e)}')
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as _:
-        logger.exception('Unexpected error while parsing calendar URL')
+    except Exception as e:
+        logger.exception(f'Unexpected error while parsing calendar URL: {str(e)}')
         raise HTTPException(status_code=500, detail='🔧 Neočekivana greška.')
 
     if not is_valid_ical_url(q):
-        logger.error('Invalid iCal URL provided: %s', q)
+        logger.error(f'Invalid iCal URL provided: {q}')
         raise HTTPException(status_code=400, detail='❌ Na URL-u nije valjan iCal dokument.')
 
     user = parsed_url['user']
     auth = parsed_url['auth']
     email = f'{user}@{RECIPIENT_DOMAIN}'
 
-    logger.info('Creating subscription for email: %s', email)
+    logger.info(f'Creating subscription for email: {email}')
 
     existing = get_subscription(db, email)
     if existing:
         if existing.activated:
-            logger.info('Subscription for %s already activated', email)
-            raise HTTPException(status_code=400, detail='Pretplata već aktivirana.')
+            logger.info(f'Subscription for {email} already activated')
+            raise HTTPException(status_code=400, detail='🪄 Pretplata već aktivirana.')
         else:
-            logger.info('Updating calendar auth for existing subscription %s', email)
+            logger.info(f'Updating calendar auth for existing subscription {email}')
             existing.calendar_auth = auth
             db.commit()
     else:
-        logger.info('Creating new subscription for %s', email)
+        logger.info(f'Creating new subscription for {email}')
         create_subscription(db, email, auth)
 
-    logger.info('Enqueuing activation confirmation email to %s', email)
+    logger.info(f'Enqueuing activation confirmation email to {email}')
     email_client.enqueue_send_activate_confirmation_email(email)
 
-    logger.info('Subscription process completed for %s', email)
+    logger.info(f'Subscription process completed for {email}')
     return {'status': 'ok', 'email': email}
 
 
 @app.get('/activate', response_class=HTMLResponse)
 async def activate(request: Request, token: str, db: Session = Depends(get_db)):
-    logger.info('Activation requested with token: %s', token)
+    logger.info(f'Activation requested with token: {token}')
     try:
         email = decode_token(token, 'activate')
         subscription = update_activation(db, email, True)
         if not subscription:
-            logger.error('Activation failed: subscription not found for %s', email)
+            logger.error(f'Activation failed: subscription not found for {email}')
             return templates.TemplateResponse(
                 'error.html',
                 {
@@ -181,7 +208,7 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
                 }
             )
 
-        logger.info('Subscription activated for %s', email)
+        logger.info(f'Subscription activated for {email}')
         return templates.TemplateResponse(
             'activate.html',
             {
@@ -204,15 +231,15 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
         )
 
 
-@app.post('/request-delete', dependencies=[Depends(RateLimiter(times=RATE_LIMIT, minutes=15))])
+@app.post('/request-delete', dependencies=[Depends(global_limiter)])
 async def request_delete(email: str = Body(..., embed=True), db: Session = Depends(get_db)):
-    logger.info('Deletion request received for email: %s', email)
+    logger.info(f'Deletion request received for email: {email}')
     subscription = get_subscription(db, email)
     if not subscription:
-        logger.error('Deletion request failed: subscription not found for %s', email)
-        raise HTTPException(status_code=404, detail='Pretplata nije pronađena.')
+        logger.error(f'Deletion request failed: subscription not found for {email}')
+        raise HTTPException(status_code=404, detail='🗃️ Pretplata nije pronađena.')
     
-    logger.info('Enqueuing deletion confirmation email to %s', email)
+    logger.info(f'Enqueuing deletion confirmation email to {email}')
     email_client.enqueue_send_delete_confirmation_email(email)
     
     return {'message': 'Deletion confirmation email sent.'}
@@ -220,12 +247,12 @@ async def request_delete(email: str = Body(..., embed=True), db: Session = Depen
 
 @app.get('/delete')
 async def delete_account(request: Request, token: str, db: Session = Depends(get_db)):
-    logger.info('Delete account requested with token: %s', token)
+    logger.info(f'Delete account requested with token: {token}')
     try:
         email = decode_token(token, 'delete')
         success = delete_user(db, email)
         if not success:
-            logger.error('Delete account failed: account not found or already deleted for %s', email)
+            logger.error(f'Delete account failed: account not found or already deleted for {email}')
             return templates.TemplateResponse(
                 'error.html',
                 {
@@ -236,7 +263,7 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
                 }
             )
         
-        logger.info('Account deleted successfully for %s', email)
+        logger.info(f'Account deleted successfully for {email}')
         return templates.TemplateResponse(
             'delete.html',
             {
@@ -248,7 +275,7 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
         )
     
     except Exception as _:
-        logger.exception('Error processing delete account request with token: %s', token)
+        logger.exception(f'Error processing delete account request with token: {token}')
         return templates.TemplateResponse(
             'error.html',
             {
@@ -260,19 +287,19 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
         )
 
 
-@app.post('/request-pause', dependencies=[Depends(RateLimiter(times=RATE_LIMIT, minutes=15))])
+@app.post('/request-pause', dependencies=[Depends(global_limiter)])
 async def request_pause(email: str = Body(..., embed=True), db: Session = Depends(get_db)):
-    logger.info('Pause request received for email: %s', email)
+    logger.info(f'Pause request received for email: {email}')
     subscription = get_subscription(db, email)
     if not subscription or not subscription.activated:
-        logger.error('Pause request failed: subscription not found for %s', email)
-        raise HTTPException(status_code=404, detail='Pretplata nije pronađena.')
+        logger.error(f'Pause request failed: subscription not found for {email}')
+        raise HTTPException(status_code=404, detail='🗃️ Pretplata nije pronađena.')
 
     if subscription.paused:
-        logger.info('Pause request: notifications already paused for %s', email)
-        raise HTTPException(status_code=400, detail='Obavijesti su već pauzirane.')
+        logger.info(f'Pause request: notifications already paused for {email}')
+        raise HTTPException(status_code=400, detail='🪄 Obavijesti su već pauzirane.')
 
-    logger.info('Enqueuing pause confirmation email to %s', email)
+    logger.info(f'Enqueuing pause confirmation email to {email}')
     email_client.enqueue_send_pause_confirmation_email(email)
 
     return {'message': 'Pause confirmation email sent.'}
@@ -280,12 +307,12 @@ async def request_pause(email: str = Body(..., embed=True), db: Session = Depend
 
 @app.get('/pause', response_class=HTMLResponse)
 async def pause_notifications(request: Request, token: str, db: Session = Depends(get_db)):
-    logger.info('Pause notifications requested with token: %s', token)
+    logger.info(f'Pause notifications requested with token: {token}')
     try:
         email = decode_token(token, 'pause')
         subscription = update_paused(db, email, True)
         if not subscription:
-            logger.error('Pause notifications failed: subscription not found for %s', email)
+            logger.error(f'Pause notifications failed: subscription not found for {email}')
             return templates.TemplateResponse(
                 'error.html',
                 {
@@ -296,7 +323,7 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
                 }
             )
 
-        logger.info('Email notifications paused for %s', email)
+        logger.info(f'Email notifications paused for {email}')
         return templates.TemplateResponse(
             'pause.html',
             {
@@ -308,7 +335,7 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
         )
 
     except Exception as _:
-        logger.exception('Error processing pause notifications with token: %s', token)
+        logger.exception(f'Error processing pause notifications with token: {token}')
         return templates.TemplateResponse(
             'error.html',
             {
@@ -320,19 +347,19 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
         )
 
 
-@app.post('/request-resume', dependencies=[Depends(RateLimiter(times=RATE_LIMIT, minutes=15))])
+@app.post('/request-resume', dependencies=[Depends(global_limiter)])
 async def request_resume(email: str = Body(..., embed=True), db: Session = Depends(get_db)):
-    logger.info('Resume request received for email: %s', email)
+    logger.info(f'Resume request received for email: {email}')
     subscription = get_subscription(db, email)
     if not subscription or not subscription.activated:
-        logger.error('Resume request failed: subscription not found for %s', email)
-        raise HTTPException(status_code=404, detail='Pretplata nije pronađena.')
+        logger.error(f'Resume request failed: subscription not found for {email}')
+        raise HTTPException(status_code=404, detail='🗃️ Pretplata nije pronađena.')
 
     if not subscription.paused:
-        logger.info('Resume request: notifications already active for %s', email)
-        raise HTTPException(status_code=400, detail='Obavijesti su već aktivne.')
+        logger.info(f'Resume request: notifications already active for {email}')
+        raise HTTPException(status_code=400, detail='🪄 Obavijesti su već aktivne.')
 
-    logger.info('Enqueuing resume confirmation email to %s', email)
+    logger.info(f'Enqueuing resume confirmation email to {email}')
     email_client.enqueue_send_resume_confirmation_email(email)
 
     return {'message': 'Resume confirmation email sent.'}
@@ -340,12 +367,12 @@ async def request_resume(email: str = Body(..., embed=True), db: Session = Depen
 
 @app.get('/resume', response_class=HTMLResponse)
 async def resume_notifications(request: Request, token: str, db: Session = Depends(get_db)):
-    logger.info('Resume notifications requested with token: %s', token)
+    logger.info(f'Resume notifications requested with token: {token}')
     try:
         email = decode_token(token, 'resume')
         subscription = update_paused(db, email, False)
         if not subscription:
-            logger.error('Resume notifications failed: subscription not found for %s', email)
+            logger.error(f'Resume notifications failed: subscription not found for {email}')
             return templates.TemplateResponse(
                 'error.html',
                 {
@@ -356,7 +383,7 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
                 }
             )
 
-        logger.info('Email notifications resumed for %s', email)
+        logger.info(f'Email notifications resumed for {email}')
         return templates.TemplateResponse(
             'resume.html',
             {
@@ -368,7 +395,7 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
         )
 
     except Exception as _:
-        logger.exception('Error processing resume notifications with token: %s', token)
+        logger.exception(f'Error processing resume notifications with token: {token}')
         return templates.TemplateResponse(
             'error.html',
             {
@@ -380,7 +407,10 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
         )
 
 
+# endregion
+
+
 if __name__ == '__main__':
-    logger.info('Starting uvicorn server on port %s', API_PORT)
-    logger.info('Application url is %s', API_URL)
+    logger.info(f'Starting uvicorn server on port {API_PORT}')
+    logger.info(f'Application url is {API_URL}')
     uvicorn.run(app, host='0.0.0.0', port=API_PORT)
