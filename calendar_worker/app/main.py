@@ -11,6 +11,7 @@ from shared.calendar_utils import is_valid_ical, compute_ical_changes
 from shared.database import SessionLocal
 from shared.models import UserCalendar
 from shared.email_utils import EmailClient
+from shared.secrets import get_secret
 
 import redis
 from rq import Queue
@@ -25,7 +26,7 @@ email_client = EmailClient(
     smtp_server=os.getenv('SMTP_SERVER'),
     smtp_port=int(os.getenv('SMTP_PORT', 587)),
     username=os.getenv('UPDATE_USERNAME'),
-    password=os.getenv('UPDATE_PASSWORD'),
+    password=get_secret('UPDATE_PASSWORD_FILE'),
     from_email=os.getenv('UPDATE_USERNAME'),
     base_url=os.getenv('API_URL').replace('${API_PORT}', str(os.getenv('API_PORT'))),
 )

@@ -27,6 +27,7 @@ from shared.crud import (
 )
 from shared.email_utils import EmailClient
 from shared.token_utils import decode_token
+from shared.secrets import get_secret
 
 
 # region setup
@@ -38,13 +39,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-API_PORT = int(os.getenv('API_PORT'))
+API_PORT = int(os.getenv('API_PORT', 8000))
 RECIPIENT_DOMAIN = 'fer.hr'
 
 SMTP_SERVER = os.getenv('SMTP_SERVER')
 SMTP_PORT = int(os.getenv('SMTP_PORT'))
 CONFIRMATION_USERNAME = os.getenv('CONFIRMATION_USERNAME')
-CONFIRMATION_PASSWORD = os.getenv('CONFIRMATION_PASSWORD')
+CONFIRMATION_PASSWORD = get_secret('CONFIRMATION_PASSWORD_FILE')
 FROM_EMAIL = CONFIRMATION_USERNAME
 API_URL = os.getenv('API_URL').replace('${API_PORT}', str(API_PORT))
 
