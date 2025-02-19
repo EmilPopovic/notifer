@@ -35,8 +35,6 @@ services:
       - "traefik.http.routers.api.rule=Host(`notifer.emilpopovic.me`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=le"
-    expose:
-      - "8000"
     secrets:
       - db-password
       - jwt-key
