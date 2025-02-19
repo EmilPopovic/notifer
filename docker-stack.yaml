@@ -58,12 +58,9 @@ services:
       update_config:
         order: start-first
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      email_worker:
-        condition: service_started
+      - redis
+      - db
+      - email_worker
     networks:
       - backend
 
@@ -90,14 +87,10 @@ services:
     networks:
       - backend
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      email_worker:
-        condition: service_started
-      api:
-        condition: service_started
+      - redis
+      - db
+      - email_worker
+      - api
   
   email_worker:
     image: emilpopovic/notifer_email_worker:${GIT_COMMIT_HASH:-LATEST}
@@ -106,10 +99,8 @@ services:
     networks:
       - backend
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+      - redis
+      - db
   
   redis:
     image: redis:alpine
