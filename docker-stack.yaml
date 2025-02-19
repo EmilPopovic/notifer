@@ -133,7 +133,7 @@ services:
 
 networks:
   backend:
-    driver: bridge
+    driver: overlay
 
 volumes:
   postgres_data:
