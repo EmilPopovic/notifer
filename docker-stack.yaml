@@ -25,8 +25,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - traefik_cert
-    networks:
-      - backend
 
   api:
     image: emilpopovic/notifer_api:${GIT_COMMIT_HASH:-latest}
@@ -61,8 +59,6 @@ services:
       - redis
       - db
       - email_worker
-    networks:
-      - backend
 
   calendar_worker:
     image: emilpopovic/notifer_calendar_worker:${GIT_COMMIT_HASH:-LATEST}
@@ -84,8 +80,6 @@ services:
       - SMTP_PORT=587
       - UPDATE_USERNAME=obico.updates@gmail.com
       - UPDATE_PASSWORD_FILE=/run/secrets/update-password
-    networks:
-      - backend
     depends_on:
       - redis
       - db
@@ -97,16 +91,12 @@ services:
     deploy:
       replicas: 5
     command: rq worker email --url redis://redis:6379/0
-    networks:
-      - backend
     depends_on:
       - redis
       - db
   
   redis:
     image: redis:alpine
-    networks:
-      - backend
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -123,17 +113,11 @@ services:
       - POSTGRES_DB=app
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 3s
       retries: 5
-
-networks:
-  backend:
-    driver: overlay
 
 volumes:
   postgres_data:

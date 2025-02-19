@@ -25,14 +25,9 @@ services:
       - CONFIRMATION_USERNAME=obico.updates@gmail.com
       - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      email_worker:
-        condition: service_started
-    networks:
-      - backend
+      - redis
+      - db
+      - email_worker
     
   calendar_worker:
     build:
@@ -56,17 +51,11 @@ services:
       - SMTP_PORT=587
       - UPDATE_USERNAME=obico.updates@gmail.com
       - UPDATE_PASSWORD_FILE=/run/secrets/update-password
-    networks:
-      - backend
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      email_worker:
-        condition: service_started
-      api:
-        condition: service_started
+      - redis
+      - db
+      - email_worker
+      - api
   
   email_worker:
     build:
@@ -74,18 +63,12 @@ services:
       dockerfile: email_worker/Dockerfile
     scale: 5
     command: rq worker email --url redis://redis:6379/0
-    networks:
-      - backend
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+      - redis
+      - db
   
   redis:
     image: redis:alpine
-    networks:
-      - backend
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -101,8 +84,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./secrets/db-password.txt:/run/secrets/db-password:ro
-    networks:
-      - backend
     ports:
       - "5432:5432"
     healthcheck:
@@ -110,10 +91,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-    
-networks:
-  backend:
-    driver: bridge
 
 volumes:
   postgres_data:
