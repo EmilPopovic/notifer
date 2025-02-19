@@ -13,10 +13,10 @@ services:
       - ./secrets/confirmation-password.txt:/run/secrets/confirmation-password:ro
     environment:
       - API_URL=http://localhost:8000
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=app
+      - POSTGRES_USER=postgres.zjslydzomixtnrauxppc
+      - POSTGRES_DB=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_SSLMODE=disable
       - SECRET_KEY_FILE=/run/secrets/jwt-key
@@ -26,7 +26,6 @@ services:
       - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
     depends_on:
       - redis
-      - db
       - email_worker
     
   calendar_worker:
@@ -40,10 +39,10 @@ services:
     environment:
       - API_PORT=8000
       - API_URL=http://localhost:8000
-      - POSTGRES_HOST=db
+      - POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=app
+      - POSTGRES_USER=postgres.zjslydzomixtnrauxppc
+      - POSTGRES_DB=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_SSLMODE=disable
       - SECRET_KEY_FILE=/run/secrets/jwt-key
@@ -53,7 +52,6 @@ services:
       - UPDATE_PASSWORD_FILE=/run/secrets/update-password
     depends_on:
       - redis
-      - db
       - email_worker
       - api
   
@@ -65,7 +63,6 @@ services:
     command: rq worker email --url redis://redis:6379/0
     depends_on:
       - redis
-      - db
   
   redis:
     image: redis:alpine
@@ -74,23 +71,3 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-      
-  db:
-    image: postgres:13-alpine
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_DB=app
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./secrets/db-password.txt:/run/secrets/db-password:ro
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-volumes:
-  postgres_data:
