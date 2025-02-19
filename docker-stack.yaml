@@ -61,7 +61,7 @@ services:
       - email_worker
 
   calendar_worker:
-    image: emilpopovic/notifer_calendar_worker:${GIT_COMMIT_HASH:-LATEST}
+    image: emilpopovic/notifer_calendar_worker:${GIT_COMMIT_HASH:-latest}
     secrets:
       - db-password
       - update-password
@@ -86,7 +86,7 @@ services:
       - api
   
   email_worker:
-    image: emilpopovic/notifer_email_worker:${GIT_COMMIT_HASH:-LATEST}
+    image: emilpopovic/notifer_email_worker:${GIT_COMMIT_HASH:-latest}
     deploy:
       replicas: 5
     command: rq worker email --url redis://redis:6379/0
