@@ -3,6 +3,8 @@ import jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 
+from shared.secrets import get_secret
+
 
 SECRET_KEY = get_secret('SECRET_KEY_FILE')
 ALGORITHM = os.getenv('ALGORITHM', 'HS256')

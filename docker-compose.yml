@@ -1,40 +1,16 @@
+# this file is used for local development only
+
 services:
   api:
     build:
       context: .
       dockerfile: api/Dockerfile
     ports:
-      - "${API_PORT}:${API_PORT}"
-    secrets:
-      - db-password
-      - jwt-key
-      - confirmation-password
-    environment:
-      - POSTGRES_HOST=db
-      - POSTGRES_PASSWORD_FILE=/run/secret/db-password
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=app
-      - POSTGRES_PORT=5432
-      - POSTGRES_SSLMODE=disable
-      - SECRET_KEY_FILE=/run/secrets/jwt-key
-      - SMTP_SERVER=smtp.gmail.com
-      - SMTP_PORT=587
-      - CONFIRMATION_USERNAME=obico.updates@gmail.com
-      - CONFIRMATION_PASSWORD_FILE=/run/secret/confirmation-password
-    depends_on:
-      - redis
-      - email_worker
-      - db
-    networks:
-      - backend
-    
-  calendar_worker:
-    build:
-      context: .
-      dockerfile: calendar_worker/Dockerfile
-    secrets:
-      - db-password
-      - update-password
+      - "8000:8000"
+    volumes:
+      - ./secrets/db-password.txt:/run/secrets/db-password:ro
+      - ./secrets/jwt-key.txt:/run/secrets/jwt-key:ro
+      - ./secrets/confirmation-password.txt:/run/secrets/confirmation-password:ro
     environment:
       - API_URL=http://localhost:8000
       - POSTGRES_HOST=db
@@ -43,6 +19,39 @@ services:
       - POSTGRES_DB=app
       - POSTGRES_PORT=5432
       - POSTGRES_SSLMODE=disable
+      - SECRET_KEY_FILE=/run/secrets/jwt-key
+      - SMTP_SERVER=smtp.gmail.com
+      - SMTP_PORT=587
+      - CONFIRMATION_USERNAME=obico.updates@gmail.com
+      - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      email_worker:
+        condition: service_started
+    networks:
+      - backend
+    
+  calendar_worker:
+    build:
+      context: .
+      dockerfile: calendar_worker/Dockerfile
+    volumes:
+      - ./secrets/db-password.txt:/run/secrets/db-password:ro
+      - ./secrets/update-password.txt:/run/secrets/update-password:ro
+      - ./secrets/jwt-key.txt:/run/secrets/jwt-key:ro
+    environment:
+      - API_PORT=8000
+      - API_URL=http://localhost:8000
+      - POSTGRES_HOST=db
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=app
+      - POSTGRES_PORT=5432
+      - POSTGRES_SSLMODE=disable
+      - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
       - SMTP_PORT=587
       - UPDATE_USERNAME=obico.updates@gmail.com
@@ -50,9 +59,14 @@ services:
     networks:
       - backend
     depends_on:
-      - redis
-      - email_worker
-      - db
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      email_worker:
+        condition: service_started
+      api:
+        condition: service_started
   
   email_worker:
     build:
@@ -63,7 +77,10 @@ services:
     networks:
       - backend
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
   
   redis:
     image: redis:alpine
@@ -77,18 +94,19 @@ services:
       
   db:
     image: postgres:13-alpine
-    secrets:
-      - db-password
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - POSTGRES_DB=app
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./secrets/db-password.txt:/run/secrets/db-password:ro
     networks:
       - backend
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -99,13 +117,3 @@ networks:
 
 volumes:
   postgres_data:
-    
-secrets:
-  db-password:
-    file: ./secrets/db-password.txt
-  jwt-key:
-    file: ./secrets/jwt-key.txt
-  confirmation-password:
-    file: ./secrets/confirmation-password.txt
-  update-password:
-    file: ./secrets/update-password.txt

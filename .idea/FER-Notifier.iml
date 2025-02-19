@@ -6,7 +6,9 @@
       <sourceFolder url="file://$MODULE_DIR$/calendar_worker/app" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/email_worker/app" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/.venv/Scripts" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/secrets" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (NotiFER)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

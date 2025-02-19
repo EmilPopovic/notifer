@@ -85,8 +85,12 @@ global_limiter = RateLimiter(
 async def lifespan(_: FastAPI):
     logger.info('Initializing database and Redis connection...')
     init_db()
+    logger.info('Database initialized. Starting Redis...')
+    
     await FastAPILimiter.init(redis)
+    
     yield
+    
     logger.info('Shutting down: closing Redis connection...')
     await redis.aclose()
 

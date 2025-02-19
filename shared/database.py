@@ -1,7 +1,7 @@
 import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from shared.models import Base
 from shared.secrets import get_secret
 
@@ -19,7 +19,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_db():
     if os.getenv('DEV', 'false').lower() in ['true', '1', 'yes']:
-        Base.metadata.drop_all(bind=engine)
+        Base.metadata.drop_all(engine)
     Base.metadata.create_all(bind=engine)
 
 
