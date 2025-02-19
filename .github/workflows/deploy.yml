@@ -15,7 +15,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         
-      - name: Log in to GitHub Container Registry
+      - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           registry: docker.io
@@ -25,7 +25,7 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@v4
         with:
-          context: ./api
+          context: .
           file: ./api/Dockerfile
           push: true
           tags: | 
@@ -35,7 +35,7 @@ jobs:
       - name: Build and push Calendar Worker image
         uses: docker/build-push-action@v4
         with:
-          context: ./calendar_worker
+          context: .
           file: ./calendar_worker/Dockerfile
           push: true
           tags: |
@@ -45,7 +45,7 @@ jobs:
       - name: Build and push Email Worker image
         uses: docker/build-push-action@v4
         with:
-          context: ./email_worker
+          context: .
           file: ./email_worker/Dockerfile
           push: true
           tags: |
