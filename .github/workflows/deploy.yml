@@ -65,7 +65,7 @@ jobs:
           echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> ./envfile
           
       - name: Create Docker Secrets
-        uses: appleboy/ssh-actions@v0.1.7
+        uses: appleboy/ssh-action@v0.1.7
         with:
           host: notifer.emilpopovic.me
           username: deploy
