@@ -4,6 +4,7 @@ services:
   traefik:
     image: traefik:v3.1
     command:
+      - "--api.insecure=false"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:8080"
@@ -23,17 +24,19 @@ services:
         published: 8443
         target: 8443
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik_cert:/letsencrypt
 
   api:
     image: emilpopovic/notifer_api:${GIT_COMMIT_HASH:-latest}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.whoami.loadbalancer.port=8000"
+      - "traefik.http.services.api.loadbalancer.port=8000"
       - "traefik.http.routers.api.rule=Host(`notifer.emilpopovic.me`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=le"
+    ports:
+      - "8000:8000"
     secrets:
       - db-password
       - jwt-key
