@@ -31,12 +31,12 @@ services:
     image: emilpopovic/notifer_api:${GIT_COMMIT_HASH:-latest}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.api.loadbalancer.port=8000"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
       - "traefik.http.routers.api.rule=Host(`notifer.emilpopovic.me`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=le"
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     secrets:
       - db-password
       - jwt-key
