@@ -48,7 +48,7 @@ function showStatus(elementId, message, type, persistent = false) {
     if (!persistent) {
         setTimeout(() => {
             statusEl.style.display = 'none';
-        }, 5000);
+        }, 10000);
     }
 }
 
