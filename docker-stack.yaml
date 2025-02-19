@@ -53,8 +53,8 @@ services:
       - SMTP_PORT=587
       - CONFIRMATION_USERNAME=obico.updates@gmail.com
       - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
-    scale: 3
     deploy:
+      replicas: 3
       update_config:
         order: start-first
     depends_on:
@@ -94,7 +94,8 @@ services:
   
   email_worker:
     image: emilpopovic/notifer_email_worker:${GIT_COMMIT_HASH:-LATEST}
-    scale: 5
+    deploy:
+      replicas: 5
     command: rq worker email --url redis://redis:6379/0
     networks:
       - backend

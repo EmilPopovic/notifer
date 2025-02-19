@@ -62,7 +62,7 @@ jobs:
         
       - name: Create env file
         run: |
-          echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> ./envfile
+          echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
           
       - name: Create Docker Secrets
         uses: appleboy/ssh-action@v0.1.7
@@ -88,7 +88,7 @@ jobs:
             create_secret "db-password" "${{ secrets.DB_PASSWORD }}"
             create_secret "jwt-key" "${{ secrets.JWT_KEY }}"
             create_secret "confirmation-password" "${{ secrets.CONFIRMATION_PASSWORD }}"
-            create_secret "update-passwrod" "${{ secrets.UPDATE_PASSWORD }}"
+            create_secret "update-password" "${{ secrets.UPDATE_PASSWORD }}"
         
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
