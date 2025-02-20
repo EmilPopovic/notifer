@@ -240,6 +240,10 @@ function openModal(type) {
     let html = '';
 
     switch(type) {
+        case 'howto':
+            html = `<h2 id="-kako-do-linka-">🤔 Kako do linka?</h2>
+<p>Link na tvoj FER kalendar <em>nije</em> <a href="https://www.fer.unizg.hr/kalendar">https://www.unizg.fer.hr/kalendar</a>, ali ipak trebaš otići na tu stranicu! Ispod donjeg desnog kuta kalendara, nalazi se &quot;Preuzmi moje aktivnosti u iCal formatu&quot; gumb. Nemoj ga stiskati! 🛑 Desnim klikom (ili ako si na mobitelu, dugim pritiskom 📱) na njega možeš kopirati link na koji vodi. 🔗 Format tog linka je https://www.fer.unizg.hr/_downloads/calevent/mycal.ics?user=[tvoj_username]&amp;auth=[tvoj_token]. To je link koji trebaš upisati u NotiFER.</p>`
+            break;
         case 'contact':
             html = `<h2>📞 Kontakt</h2>
                             <p>Za podršku i pitanja, pošalji mail na admin@emilpopovic.me.</p>`;
@@ -257,7 +261,7 @@ function openModal(type) {
 <li><strong>Što se prikuplja:</strong> Jedino što ova aplikacija prikuplja je tvoja FER email adresa (npr. pi31415@fer.hr), token za autentikaciju kalendara te prošla verzija tvog kalendara.</li>
 <li><strong>Rukovanje podacima:</strong> Svi su podaci sigurno smješteni u usluzi Supabase, a aplikacija je hostana na mojem poslužitelju u Zagrebu.</li>
 <li><strong>Tvoj pristanak:</strong> Korištenjem ove usluge pristaješ na ovakvo rukovanje podacima. Iako se ulažu svi napori da se tvoji podaci zaštite, nijedan sustav ne može biti 100% siguran.</li>
-<li><strong>Brisanje podataka:</strong> Sve je podatke moguće izbrisati koristeći &quot;Izbriši račun&quot; funkciju. Jedino što je potrebno za brisanje podataka je pristup fer.hr mailu.</li>
+<li><strong>Brisanje podataka:</strong> Sve je podatke moguće izbrisati koristeći &quot;Izbriši račun&quot; funkciju. Jedino što je potrebno za brisanje podataka je pristup fer.hr mailu. Ako ti to nije po volji, pošalji mi poruku.</li>
 </ul>
 <h3 id="-dostupnost-usluge-i-promjene">🚧 Dostupnost usluge i promjene</h3>
 <ul>

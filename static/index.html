@@ -38,13 +38,49 @@
             padding: 2rem;
             margin-bottom: 1rem;
         }
-
+        
         .subscribe-group {
             display: flex;
-            align-items: stretch;
             gap: 1rem;
-            margin: 1.5rem 0;
+            margin: 1.5rem 0 0.5rem;
+        }
+        
+        .input-with-icon {
+            position: relative;
+            flex: 1;
+        }
+        
+        .input-with-icon input {
             width: 100%;
+            padding-right: 40px;
+            box-sizing: border-box;
+        }
+        
+        .help-icon {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            background: var(--secondary);
+            color: #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 600px) {
+            .subscribe-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .button {
+                margin-top: 0;
+            }
         }
         
         .subscribe-group input[type="text"] {
@@ -93,6 +129,11 @@
             color: var(--text-muted);
             margin-top: 1rem;
             line-height: 1.4;
+            text-decoration: none;
+        }
+        
+        .notice:hover {
+            text-decoration: underline;
         }
         
         .modal-overlay {
@@ -207,15 +248,16 @@
         <h2 style="margin-top: 0">🚨 Pretplati se na obavijesti</h2>
         <form id="subscribeForm">
             <div class="subscribe-group">
-                <input
-                        type="text"
-                        id="calendarUrl"
-                        placeholder="Ovdje zalijepi link na svoj FER kalendar">
+                <div class="input-with-icon">
+                    <input
+                            type="text"
+                            id="calendarUrl"
+                            placeholder="Zalijepi link na svoj FER kalendar">
+                    <span class="help-icon" onclick="openModal('howto')">?</span>
+                </div>
                 <button type="submit" class="button">Pretplati se</button>
             </div>
-            <div class="notice">
-                Počinješ dobivati obavijesti tek nakon klika na gumb u mailu.
-            </div>
+
             <div id="subscribeStatus" class="status"></div>
         </form>
     </div>
