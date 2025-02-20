@@ -28,6 +28,7 @@ from shared.crud import (
 from shared.email_utils import EmailClient
 from shared.token_utils import decode_token
 from shared.secrets import get_secret
+from shared.emoji_utils import emojify
 
 
 # region setup
@@ -203,7 +204,7 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
         subscription = update_activation(db, email, True)
         if not subscription:
             logger.error(f'Activation failed: subscription not found for {email}')
-            return templates.TemplateResponse(
+            response = templates.TemplateResponse(
                 'error.html',
                 {
                     'request': request,
@@ -212,9 +213,10 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
                     'base_url': API_URL
                 }
             )
+            return emojify(response)
 
         logger.info(f'Subscription activated for {email}')
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             'activate.html',
             {
                 'request': request,
@@ -222,10 +224,11 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
                 'base_url': API_URL,
             }
         )
+        return emojify(response)
 
     except Exception as _:
         logger.exception('Activation failed due to invalid or expired token')
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             'error.html',
             {
                 'request': request,
@@ -234,6 +237,7 @@ async def activate(request: Request, token: str, db: Session = Depends(get_db)):
                 'base_url': API_URL
             }
         )
+        return emojify(response)
 
 
 @app.post('/request-delete', dependencies=[Depends(global_limiter)])
@@ -258,7 +262,7 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
         success = delete_user(db, email)
         if not success:
             logger.error(f'Delete account failed: account not found or already deleted for {email}')
-            return templates.TemplateResponse(
+            response = templates.TemplateResponse(
                 'error.html',
                 {
                     'request': request,
@@ -267,9 +271,10 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
                     'base_url': API_URL
                 }
             )
+            return emojify(response)
         
         logger.info(f'Account deleted successfully for {email}')
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             'delete.html',
             {
                 'title': 'Račun izbrisan',
@@ -278,10 +283,11 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
                 'base_url': API_URL
             }
         )
+        return emojify(response)
     
     except Exception as _:
         logger.exception(f'Error processing delete account request with token: {token}')
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             'error.html',
             {
                 'request': request,
@@ -290,6 +296,7 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
                 'base_url': API_URL
             }
         )
+        return emojify(response)
 
 
 @app.post('/request-pause', dependencies=[Depends(global_limiter)])
@@ -318,7 +325,7 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
         subscription = update_paused(db, email, True)
         if not subscription:
             logger.error(f'Pause notifications failed: subscription not found for {email}')
-            return templates.TemplateResponse(
+            response = templates.TemplateResponse(
                 'error.html',
                 {
                     'request': request,
@@ -327,9 +334,10 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
                     'base_url': API_URL
                 }
             )
+            return emojify(response)
 
         logger.info(f'Email notifications paused for {email}')
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             'pause.html',
             {
                 'title': 'Obavijesti pauzirane',
@@ -338,10 +346,11 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
                 'base_url': API_URL
             }
         )
+        return emojify(response)
 
     except Exception as _:
         logger.exception(f'Error processing pause notifications with token: {token}')
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             'error.html',
             {
                 'request': request,
@@ -350,6 +359,7 @@ async def pause_notifications(request: Request, token: str, db: Session = Depend
                 'base_url': API_URL
             }
         )
+        return emojify(response)
 
 
 @app.post('/request-resume', dependencies=[Depends(global_limiter)])
@@ -378,7 +388,7 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
         subscription = update_paused(db, email, False)
         if not subscription:
             logger.error(f'Resume notifications failed: subscription not found for {email}')
-            return templates.TemplateResponse(
+            response = templates.TemplateResponse(
                 'error.html',
                 {
                     'request': request,
@@ -387,9 +397,10 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
                     'base_url': API_URL
                 }
             )
+            return emojify(response)
 
         logger.info(f'Email notifications resumed for {email}')
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             'resume.html',
             {
                 'title': 'Uključene obavijesti',
@@ -398,10 +409,11 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
                 'base_url': API_URL
             }
         )
+        return emojify(response)
 
     except Exception as _:
         logger.exception(f'Error processing resume notifications with token: {token}')
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             'error.html',
             {
                 'request': request,
@@ -410,6 +422,7 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
                 'base_url': API_URL
             }
         )
+        return emojify(response)
 
 
 # endregion

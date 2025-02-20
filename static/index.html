@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="hr">
 <head>
+    <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>NotiFER</title>
@@ -227,6 +228,12 @@
             text-decoration: underline;
         }
 
+        img.emoji {
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.1em; /* Align better with text */
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -302,9 +309,9 @@
     </div>
 
     <div class="footer-links">
-        <a href="#" onclick="event.preventDefault(); openModal('contact')">📞 Kontakt</a>
-        <a href="#" onclick="event.preventDefault(); openModal('disclaimer')">ℹ️ Info</a>
-        <a href="#" onclick="event.preventDefault(); openModal('github')">🧑‍💻 GitHub</a>
+        <a href="#" onclick="openModal('contact')">📞 Kontakt</a>
+        <a href="#" onclick="openModal('disclaimer')">ℹ️ Info</a>
+        <a href="#" onclick="openModal('github')">🧑‍💻 GitHub</a>
     </div>
 
     <!-- Info Modal -->
@@ -323,5 +330,10 @@
 </div>
 
 <script src="/static/js/app.js"></script>
+<script type="module">
+    twemoji.parse(document.body, { 
+        base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/",
+    });
+</script>
 </body>
 </html>

@@ -31,18 +31,20 @@ env.filters['format_datetime'] = format_datetime
 
 def render_confirmation_email(template_name: str, base_url: str, token: str):
     template = env.get_template(f'{template_name}.html')
-    return template.render(base_url=base_url, token=token, title='✅ Potvrdi akciju')
+    body = template.render(base_url=base_url, token=token, title='✅ Potvrdi akciju')
+    return body
 
 
 def render_notification_email(template_name: str, base_url: str, event_changes: list[EventChange], token: str):
     template = env.get_template(f'{template_name}.html')
-    return template.render(
+    body = template.render(
         event_changes=event_changes,
         count=len(event_changes), 
         base_url=base_url, 
         token=token,
-        title='🚨 Promjene u rasporedu'
+        title='🔔 Promjene u rasporedu'
     )
+    return body
 
 
 def activation_email_content(base_url: str, token: str):

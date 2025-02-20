@@ -59,7 +59,6 @@ services:
     build:
       context: .
       dockerfile: email_worker/Dockerfile
-    scale: 5
     command: rq worker email --url redis://redis:6379/0
     depends_on:
       - redis

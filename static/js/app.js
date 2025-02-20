@@ -98,6 +98,8 @@ async function handleSubscribe(event) {
         isProcessing = false;
         toggleLoading(false);
     }
+    
+    
 }
 
 
@@ -160,6 +162,10 @@ async function handleManagementAction(endpoint) {
         isProcessing = false;
         toggleLoading(false);
     }
+
+    twemoji.parse(document.content, {
+        base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/"
+    });
 }
 
 
@@ -203,7 +209,13 @@ document.querySelectorAll('.status.persistent').forEach(el => {
 
 
 function openManageModal() {
-    document.getElementById('manageModal').classList.add('active');
+    const modal = document.getElementById('manageModal');
+    modal.classList.add('active');
+    
+    twemoji.parse(modal, {
+        folder: 'svg',
+        ext: '.svg'
+    });
 }
 
 
@@ -283,6 +295,10 @@ function openModal(type) {
     }
     content.innerHTML = html;
     modal.classList.add('active');
+
+    twemoji.parse(content, {
+        base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/"
+    });
 }
 
 function closeInfoModal() {
