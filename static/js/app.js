@@ -254,7 +254,7 @@ function openModal(type) {
     switch(type) {
         case 'howto':
             html = `<h2 id="-kako-do-linka-">🤔 Kako do linka?</h2>
-<p>Link na tvoj FER kalendar <em>nije</em> <a href="https://www.fer.unizg.hr/kalendar">https://www.unizg.fer.hr/kalendar</a>, ali ipak trebaš otići na tu stranicu! Ispod donjeg desnog kuta kalendara, nalazi se &quot;Preuzmi moje aktivnosti u iCal formatu&quot; gumb. Nemoj ga stiskati! 🛑 Desnim klikom (ili ako si na mobitelu, dugim pritiskom 📱) na njega možeš kopirati link na koji vodi. 🔗 Format tog linka je https://www.fer.unizg.hr/_downloads/calevent/mycal.ics?user=[tvoj_username]&amp;auth=[tvoj_token]. To je link koji trebaš upisati u NotiFER.</p>`
+<p>Link na tvoj FER kalendar <em>nije</em> <a href="https://www.fer.unizg.hr/kalendar">https://www.fer.unizg.hr/kalendar</a>, ali ipak trebaš otići na tu stranicu! Ispod donjeg desnog kuta kalendara, nalazi se &quot;Preuzmi moje aktivnosti u iCal formatu&quot; gumb. Nemoj ga stiskati! 🛑 Desnim klikom (ili ako si na mobitelu, dugim pritiskom 📱) na njega možeš kopirati link na koji vodi. 🔗 Format tog linka je https://www.fer.unizg.hr/_downloads/calevent/mycal.ics?user=[tvoj_username]&amp;auth=[tvoj_token]. To je link koji trebaš upisati u NotiFER.</p>`
             break;
         case 'contact':
             html = `<h2>📞 Kontakt</h2>
