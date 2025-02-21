@@ -34,9 +34,15 @@ from shared.emoji_utils import emojify
 # region setup
 
 
+LOG_FORMAT = (
+    "%(asctime)s | %(levelname)-8s | %(name)s | %(filename)s:%(lineno)d | "
+    "%(funcName)s() | %(threadName)s | %(message)s"
+)
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+    format=LOG_FORMAT,
+    datefmt="%Y-%m-%d %H:%M:%S"
 )
 logger = logging.getLogger(__name__)
 
@@ -46,17 +52,21 @@ RECIPIENT_DOMAIN = 'fer.hr'
 SMTP_SERVER = os.getenv('SMTP_SERVER')
 SMTP_PORT = int(os.getenv('SMTP_PORT'))
 CONFIRMATION_USERNAME = os.getenv('CONFIRMATION_USERNAME')
+RESEND_API_KEY = get_secret('RESEND_API_KEY_FILE')
+CONFIRMATION_FALLBACK_USERNAME = os.getenv('CONFIRMATION_FALLBACK_USERNAME')
 CONFIRMATION_PASSWORD = get_secret('CONFIRMATION_PASSWORD_FILE')
-FROM_EMAIL = CONFIRMATION_USERNAME
+FROM_EMAIL = CONFIRMATION_FALLBACK_USERNAME
 API_URL = os.getenv('API_URL').replace('${API_PORT}', str(API_PORT))
 
 email_client = EmailClient(
-    smtp_server=SMTP_SERVER,
-    smtp_port=SMTP_PORT,
-    username=CONFIRMATION_USERNAME,
-    password=CONFIRMATION_PASSWORD,
-    from_email=FROM_EMAIL,
-    base_url=API_URL
+    resend_from_email=CONFIRMATION_USERNAME,
+    resend_api_key=RESEND_API_KEY,
+    fallback_smtp_server=SMTP_SERVER,
+    fallback_smtp_port=SMTP_PORT,
+    fallback_username=CONFIRMATION_FALLBACK_USERNAME,
+    fallback_password=CONFIRMATION_PASSWORD,
+    fallback_from_email=FROM_EMAIL,
+    api_base_url=API_URL
 )
 
 REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')

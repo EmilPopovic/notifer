@@ -9,7 +9,16 @@ from datetime import datetime
 from enum import Enum
 
 
-logging.basicConfig(level=logging.INFO)
+LOG_FORMAT = (
+    "%(asctime)s | %(levelname)-8s | %(name)s | %(filename)s:%(lineno)d | "
+    "%(funcName)s() | %(threadName)s | %(message)s"
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=LOG_FORMAT,
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
 logger = logging.getLogger(__name__)
 
 CALENDAR_PATH = '/_download/calevent/mycal.ics'

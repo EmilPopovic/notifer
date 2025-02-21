@@ -271,7 +271,7 @@ function openModal(type) {
 <h3 id="-prikupljanje-i-sigurnost-podataka">🔒 Prikupljanje i sigurnost podataka</h3>
 <ul>
 <li><strong>Što se prikuplja:</strong> Jedino što ova aplikacija prikuplja je tvoja FER email adresa (npr. pi31415@fer.hr), token za autentikaciju kalendara te prošla verzija tvog kalendara.</li>
-<li><strong>Rukovanje podacima:</strong> Svi su podaci sigurno smješteni u usluzi Supabase, a aplikacija je hostana na mojem poslužitelju u Zagrebu.</li>
+<li><strong>Rukovanje podacima:</strong> Svi su podaci sigurno smješteni u usluzi Supabase, aplikacija je hostana na mojem poslužitelju u Zagrebu, a mailovi se šalju koristeći Resend.com.</li>
 <li><strong>Tvoj pristanak:</strong> Korištenjem ove usluge pristaješ na ovakvo rukovanje podacima. Iako se ulažu svi napori da se tvoji podaci zaštite, nijedan sustav ne može biti 100% siguran.</li>
 <li><strong>Brisanje podataka:</strong> Sve je podatke moguće izbrisati koristeći &quot;Izbriši račun&quot; funkciju. Jedino što je potrebno za brisanje podataka je pristup fer.hr mailu. Ako ti to nije po volji, pošalji mi poruku.</li>
 </ul>

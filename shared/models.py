@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Text
+from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, Date
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -16,3 +16,9 @@ class UserCalendar(Base):
     last_checked = Column(DateTime, nullable=True)
     previous_calendar = Column(Text, nullable=True)
     previous_calendar_hash = Column(String, nullable=True)
+
+
+class ResendUsage(Base):
+    __tablename__ = 'resend_usage'
+    date = Column(Date, primary_key=True)
+    count = Column(Integer, default=0, nullable=False)

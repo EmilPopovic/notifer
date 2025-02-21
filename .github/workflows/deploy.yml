@@ -89,6 +89,7 @@ jobs:
             create_secret "jwt-key" "${{ secrets.JWT_KEY }}"
             create_secret "confirmation-password" "${{ secrets.CONFIRMATION_PASSWORD }}"
             create_secret "update-password" "${{ secrets.UPDATE_PASSWORD }}"
+            create_secret "resend-api-key" "${{ secrets.RESEND_API_KEY }}"
         
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1

@@ -16,19 +16,30 @@ from shared.secrets import get_secret
 import redis
 from rq import Queue
 
-logging.basicConfig(level=logging.INFO)
+LOG_FORMAT = (
+    "%(asctime)s | %(levelname)-8s | %(name)s | %(filename)s:%(lineno)d | "
+    "%(funcName)s() | %(threadName)s | %(message)s"
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=LOG_FORMAT,
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
 logger = logging.getLogger(__name__)
 
 WORKER_INTERVAL = 300
 BASE_CALENDAR_URL = 'https://www.fer.unizg.hr/_download/calevent/mycal.ics'
 
 email_client = EmailClient(
-    smtp_server=os.getenv('SMTP_SERVER'),
-    smtp_port=int(os.getenv('SMTP_PORT', 587)),
-    username=os.getenv('UPDATE_USERNAME'),
-    password=get_secret('UPDATE_PASSWORD_FILE'),
-    from_email=os.getenv('UPDATE_USERNAME'),
-    base_url=os.getenv('API_URL').replace('${API_PORT}', str(os.getenv('API_PORT'))),
+    resend_from_email=os.getenv('RESEND_FROM_EMAIL'),
+    resend_api_key=get_secret('RESEND_API_KEY_FILE'),
+    fallback_smtp_server=os.getenv('SMTP_SERVER'),
+    fallback_smtp_port=int(os.getenv('SMTP_PORT', 587)),
+    fallback_username=os.getenv('UPDATE_FALLBACK_USERNAME'),
+    fallback_password=get_secret('UPDATE_PASSWORD_FILE'),
+    fallback_from_email=os.getenv('UPDATE_USERNAME'),
+    api_base_url=os.getenv('API_URL').replace('${API_PORT}', str(os.getenv('API_PORT'))),
 )
 
 redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')

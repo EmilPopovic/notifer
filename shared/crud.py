@@ -1,7 +1,8 @@
 import pytz
-from datetime import datetime
+from datetime import datetime, date
+from sqlalchemy import func
 from sqlalchemy.orm import Session
-from shared.models import UserCalendar
+from shared.models import UserCalendar, ResendUsage
 
 
 def create_subscription(db: Session, email: str, calendar_auth: str) -> UserCalendar:
@@ -88,3 +89,21 @@ def delete_user(db: Session, email: str) -> bool:
     db.delete(sub)
     db.commit()
     return True
+
+
+def get_resend_usage_for_date(db: Session, usage_date: date) -> int:
+    record = db.query(ResendUsage).filter(ResendUsage.date == usage_date).first()
+    return record.count if record else 0
+
+def get_monthly_resend_usage(db: Session, start_date: date) -> int:
+    total = db.query(func.sum(ResendUsage.count)).filter(ResendUsage.date >= start_date).scalar()
+    return total if total else 0
+
+def increment_resend_usage(db: Session, usage_date: date):
+    record = db.query(ResendUsage).filter(ResendUsage.date == usage_date).first()
+    if record:
+        record.count += 1
+    else:
+        record = ResendUsage(date=usage_date, count=1)
+        db.add(record)
+    db.commit()

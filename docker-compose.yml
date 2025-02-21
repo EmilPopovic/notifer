@@ -10,6 +10,7 @@ services:
     volumes:
       - ./secrets/db-password.txt:/run/secrets/db-password:ro
       - ./secrets/jwt-key.txt:/run/secrets/jwt-key:ro
+      - ./secrets/resend-api-key.txt:/run/secrets/resend-api-key:ro
       - ./secrets/confirmation-password.txt:/run/secrets/confirmation-password:ro
     environment:
       - API_URL=http://localhost:8000
@@ -22,7 +23,9 @@ services:
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
       - SMTP_PORT=587
-      - CONFIRMATION_USERNAME=notifer.updates@gmail.com
+      - CONFIRMATION_USERNAME=confirm.test@notifer.emilpopovic.me
+      - RESEND_API_KEY_FILE=/run/secrets/resend-api-key
+      - CONFIRMATION_FALLBACK_USERNAME=notifer.updates@gmail.com
       - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
     depends_on:
       - redis
@@ -34,8 +37,9 @@ services:
       dockerfile: calendar_worker/Dockerfile
     volumes:
       - ./secrets/db-password.txt:/run/secrets/db-password:ro
-      - ./secrets/update-password.txt:/run/secrets/update-password:ro
       - ./secrets/jwt-key.txt:/run/secrets/jwt-key:ro
+      - ./secrets/resend-api-key.txt:/run/secrets/resend-api-key:ro
+      - ./secrets/update-password.txt:/run/secrets/update-password:ro
     environment:
       - API_PORT=8000
       - API_URL=http://localhost:8000
@@ -48,7 +52,9 @@ services:
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
       - SMTP_PORT=587
-      - UPDATE_USERNAME=notifer.updates@gmail.com
+      - UPDATE_USERNAME=updates.test@notifer.emilpopovic.me
+      - RESEND_API_KEY_FILE=/run/secrets/resend-api-key
+      - UPDATE_FALLBACK_USERNAME=notifer.updates@gmail.com
       - UPDATE_PASSWORD_FILE=/run/secrets/update-password
     depends_on:
       - redis
@@ -59,6 +65,15 @@ services:
     build:
       context: .
       dockerfile: email_worker/Dockerfile
+    volumes:
+      - ./secrets/db-password.txt:/run/secrets/db-password:ro
+    environment:
+      - POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_USER=postgres.zjslydzomixtnrauxppc
+      - POSTGRES_DB=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_SSLMODE=disable
     command: rq worker email --url redis://redis:6379/0
     depends_on:
       - redis

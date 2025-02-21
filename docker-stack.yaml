@@ -38,6 +38,7 @@ services:
     secrets:
       - db-password
       - jwt-key
+      - resend-api-key
       - confirmation-password
     environment:
       - API_URL=https://notifer.emilpopovic.me
@@ -50,7 +51,9 @@ services:
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
       - SMTP_PORT=587
-      - CONFIRMATION_USERNAME=notifer.updates@gmail.com
+      - CONFIRMATION_USERNAME=confirm@notifer.emilpopovic.me
+      - RESEND_API_KEY_FILE=/run/secrets/resend-api-key
+      - CONFIRMATION_FALLBACK_USERNAME=notifer.updates@gmail.com
       - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
     deploy:
       replicas: 3
@@ -64,8 +67,9 @@ services:
     image: emilpopovic/notifer_calendar_worker:${GIT_COMMIT_HASH:-latest}
     secrets:
       - db-password
-      - update-password
       - jwt-key
+      - resend-api-key
+      - update-password
     environment:
       - API_PORT=8000
       - API_URL=https://notifer.emilpopovic.me
@@ -78,7 +82,9 @@ services:
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
       - SMTP_PORT=587
-      - UPDATE_USERNAME=notifer.updates@gmail.com
+      - UPDATE_USERNAME=updates@notifer.emilpopovic.me
+      - RESEND_API_KEY_FILE=/run/secrets/resend-api-key
+      - UPDATE_FALLBACK_USERNAME=notifer.updates@gmail.com
       - UPDATE_PASSWORD_FILE=/run/secrets/update-password
     depends_on:
       - redis
@@ -90,6 +96,15 @@ services:
     deploy:
       replicas: 5
     command: rq worker email --url redis://redis:6379/0
+    secrets:
+      - db-password
+    environment:
+      - POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_USER=postgres.zjslydzomixtnrauxppc
+      - POSTGRES_DB=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_SSLMODE=disable
     depends_on:
       - redis
   
@@ -112,4 +127,6 @@ secrets:
   confirmation-password:
     external: true
   update-password:
+    external: true
+  resend-api-key:
     external: true
