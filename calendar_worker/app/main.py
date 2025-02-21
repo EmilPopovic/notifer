@@ -28,7 +28,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-WORKER_INTERVAL = 20
+WORKER_INTERVAL = 300
 BASE_CALENDAR_URL = 'https://www.fer.unizg.hr/_download/calevent/mycal.ics'
 
 email_client = EmailClient(
