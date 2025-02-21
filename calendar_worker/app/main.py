@@ -28,11 +28,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-WORKER_INTERVAL = 300
+WORKER_INTERVAL = 20
 BASE_CALENDAR_URL = 'https://www.fer.unizg.hr/_download/calevent/mycal.ics'
 
 email_client = EmailClient(
-    resend_from_email=os.getenv('RESEND_FROM_EMAIL'),
+    resend_from_email=os.getenv('UPDATE_USERNAME'),
     resend_api_key=get_secret('RESEND_API_KEY_FILE'),
     fallback_smtp_server=os.getenv('SMTP_SERVER'),
     fallback_smtp_port=int(os.getenv('SMTP_PORT', 587)),
