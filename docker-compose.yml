@@ -22,7 +22,7 @@ services:
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
       - SMTP_PORT=587
-      - CONFIRMATION_USERNAME=obico.updates@gmail.com
+      - CONFIRMATION_USERNAME=notifer.updates@gmail.com
       - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
     depends_on:
       - redis
@@ -48,7 +48,7 @@ services:
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
       - SMTP_PORT=587
-      - UPDATE_USERNAME=obico.updates@gmail.com
+      - UPDATE_USERNAME=notifer.updates@gmail.com
       - UPDATE_PASSWORD_FILE=/run/secrets/update-password
     depends_on:
       - redis
