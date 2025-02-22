@@ -28,7 +28,7 @@ NotiFER is built with the following technologies:
 - **Docker & Docker Swarm/Compose**: For containerization and deployment.
 - **External Services**: Utilizes services like Supabase for database management and Resend for email delivery.
 
-## ⏭️ Deployment
+## ⏭️ Deployment [![Phare badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fstatus.notifer.emilpopovic.me%2Fshield-badges%2Fstatus.json&style=flat)](https://status.notifer.emilpopovic.me)
 
 The project includes a sophisticated CI/CD pipeline that builds and deploys the containers to a production environment using Docker Swarm. This pipeline automates:
 
