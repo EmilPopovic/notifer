@@ -125,7 +125,9 @@ app.add_middleware(
 
 @app.middleware('http')
 async def log_requests(request: Request, call_next):
-    logger.info(f'Incoming request: {request.method} {request.url}')
+    forwarded_for = request.headers.get('X-Forwarded-For')
+    client_ip = forwarded_for.split(',')[0] if forwarded_for else request.client.host
+    logger.info(f'Incoming request from {client_ip}: {request.method} {request.url}')
     response = await call_next(request)
     logger.info(f'Completed request: {request.method} {request.url} with status {response.status_code}')
     return response
