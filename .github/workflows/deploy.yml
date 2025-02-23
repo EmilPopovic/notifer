@@ -92,7 +92,8 @@ jobs:
             create_secret "resend-api-key" "${{ secrets.RESEND_API_KEY }}"
             create_secret "cloudflare-api-token" "${{ secrets.CLOUDFLARE_API_TOKEN }}"
             create_secret "dashboard-auth" "${{ secrets.DASHBOARD_AUTH }}"
-        
+      
+      
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:
