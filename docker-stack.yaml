@@ -4,42 +4,16 @@ services:
   traefik:
     image: traefik:v3.1
     command:
-      - "--api=true"
-      # - "--api.dashboard=true"
-      # - "--api.insecure=false"
-      
+      - "--api.insecure=false"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.file.filename=/traefik_dynamic.yml"
-      
       - "--entrypoints.web.address=:8080"
       - "--entryPoints.websecure.address=:8443"
-      
-      - "--certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory"
-      - "--certificatesresolvers.le.acme.dnschallenge=true"
-      - "--certificatesresolvers.le.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
       - "--certificatesresolvers.le.acme.email=admin@emilpopovic.me"
       - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
-      
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-        
-      - "--log.level=DEBUG"
-    labels:
-      - "traefik.enable=true"
-      # - "traefik.http.routers.dashboard.rule=Host(`traefik.notifer.emilpopovic.me`)"
-      # - "traefik.http.routers.dashboard.service=api@internal"
-      # - "traefik.http.routers.dashboard.entrypoints=websecure"
-      # - "traefik.http.routers.dashboard.tls=true"
-      # - "traefik.http.routers.dashboard.tls.certresolver=le"
-      # - "traefik.http.middlewares.auth-dashboard.basicauth.userfile=/run/secrets/dashboard-auth"
-      # - "traefik.http.routers.dashboard.middlewares=auth-dashboard"
-    secrets:
-      - cloudflare-api-token
-      # - dashboard-auth
-    environment:
-      - CF_DNS_API_TOKEN_FILE=/run/secrets/cloudflare-api-token
-      # - DASHBOARD_AUTH_FILE=/run/secrets/dashboard-auth
     ports:
       - mode: host
         protocol: tcp
@@ -52,7 +26,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik_cert:/letsencrypt
-      - ./traefik_dynamic.yml:/traefik_dynamic.yml
 
   api:
     image: emilpopovic/notifer_api:${GIT_COMMIT_HASH:-latest}
@@ -156,8 +129,4 @@ secrets:
   update-password:
     external: true
   resend-api-key:
-    external: true
-  cloudflare-api-token:
-    external: true
-  dashboard-auth:
     external: true
