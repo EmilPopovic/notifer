@@ -94,7 +94,7 @@ services:
   email_worker:
     image: emilpopovic/notifer_email_worker:${GIT_COMMIT_HASH:-latest}
     deploy:
-      replicas: 5
+      replicas: 1
     command: rq worker email --url redis://redis:6379/0
     secrets:
       - db-password

@@ -1,5 +1,0 @@
-http:
-  middlewares:
-    auth:
-      basicAuth:
-        usersFile: /run/secrets/dashboard-auth

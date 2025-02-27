@@ -1,4 +1,6 @@
 import os
+from time import sleep
+
 import redis
 import resend
 from rq import Queue
@@ -42,6 +44,7 @@ logger = logging.getLogger(__name__)
 
 RESEND_DAILIY_LIMIT = 95
 RESEND_MONTLY_LIMIT = 2950
+RESEND_SECOND_LIMIT = 2
 
 
 def can_send_with_resend() -> bool:
@@ -132,6 +135,9 @@ class EmailClient:
         try:
             resend.Emails.send(params)
             logger.info(f'Email sent via Resend to {recipient_email}')
+            delay = 1 / RESEND_SECOND_LIMIT
+            logger.info(f'Waiting for Resend delay: {delay}s')
+            sleep(delay)
         except Exception as e:
             logger.exception(f'Failed to send email via Resend to {recipient_email}: {e}')
     
