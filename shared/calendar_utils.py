@@ -139,21 +139,31 @@ def build_singleton_event_dict(events: list[Event]) -> dict[str, Event]:
 
 def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> list[EventChange]:
     changes = []
-    
-    def get_key(event: Event) -> str:
-        return extract_base_summary(event.summary, event.start)
-    
-    old_dict = build_singleton_event_dict(old_events)
-    new_dict = build_singleton_event_dict(new_events)
-    
+
+    # build dicts of strictly different events
+    old_dict: dict[str, Event] = build_singleton_event_dict(old_events)
+    new_dict: dict[str, Event] = build_singleton_event_dict(new_events)
+
+    # ignore events that have already happened
+    for key, old_event in list(old_dict.items()):
+        if old_event.end < datetime.now():
+            del old_dict[key]
+
+    for key, new_event in list(new_dict.items()):
+        if new_event.end < datetime.now():
+            del new_dict[key]
+
+    # check for removed events
     for key, old_event in old_dict.items():
         if key not in new_dict:
             changes.append(EventChange(old=old_event, new=None, change_type=[ChangeType.REMOVED]))
-            
+
+    # check for added events
     for key, new_events in new_dict.items():
         if key not in old_dict:
             changes.append(EventChange(old=None, new=new_events, change_type=[ChangeType.ADDED]))
-    
+
+    # check changed events
     for key in set(old_dict.keys()).intersection(new_dict.keys()):
         old_event = old_dict[key]
         new_event = new_dict[key]
