@@ -1,3 +1,4 @@
+import pytz
 import logging
 import requests
 from icalendar import Calendar
@@ -144,13 +145,27 @@ def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> l
     old_dict: dict[str, Event] = build_singleton_event_dict(old_events)
     new_dict: dict[str, Event] = build_singleton_event_dict(new_events)
 
+    current_time = datetime.now(pytz.UTC)
+
+    def is_past_event(event: Event) -> bool:
+        event_end = event.end
+
+        # If the event time is naive (no timezone info), assume it's in UTC
+        if event_end.tzinfo is None:
+            event_end = pytz.UTC.localize(event_end)
+        # If it's already timezone-aware, convert to UTC for comparison
+        else:
+            event_end = event_end.astimezone(pytz.UTC)
+
+        return event_end < current_time
+
     # ignore events that have already happened
     for key, old_event in list(old_dict.items()):
-        if old_event.end < datetime.now():
+        if is_past_event(old_event):
             del old_dict[key]
 
     for key, new_event in list(new_dict.items()):
-        if new_event.end < datetime.now():
+        if is_past_event(new_event):
             del new_dict[key]
 
     # check for removed events
