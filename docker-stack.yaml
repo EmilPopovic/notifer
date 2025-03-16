@@ -180,7 +180,7 @@ services:
       /bin/sh -c "
       echo 'Waiting for MinIO to be ready...'
       
-      until mc alias set local http://minio:9000 admin \"$(cat /run/secrets/s3-password)\"; do
+      until mc alias set local http://minio:9000 admin \"$$\(cat /run/secrets/s3-password\)\"; do
         echo 'MinIO not ready yet, waiting...';
         sleep 5;
       done;
