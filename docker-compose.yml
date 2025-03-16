@@ -12,13 +12,14 @@ services:
       - ./secrets/jwt-key.txt:/run/secrets/jwt-key:ro
       - ./secrets/resend-api-key.txt:/run/secrets/resend-api-key:ro
       - ./secrets/confirmation-password.txt:/run/secrets/confirmation-password:ro
+      - ./secrets/s3-password.txt:/run/secrets/s3-password:ro
     environment:
       - API_URL=http://localhost:8000
-      - POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
+      - POSTGRES_HOST=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_USER=postgres.zjslydzomixtnrauxppc
+      - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5432
+      - POSTGRES_PORT=5433
       - POSTGRES_SSLMODE=disable
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
@@ -27,9 +28,14 @@ services:
       - RESEND_API_KEY_FILE=/run/secrets/resend-api-key
       - CONFIRMATION_FALLBACK_USERNAME=notifer.updates@gmail.com
       - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
+      - S3_BUCKET=calendar
+      - S3_ENDPOINT=http://minio:9000
+      - S3_USER=admin
+      - S3_PASSWORD_FILE=/run/secrets/s3-password
     depends_on:
       - redis
       - email_worker
+      - postgres
     
   calendar_worker:
     build:
@@ -40,14 +46,16 @@ services:
       - ./secrets/jwt-key.txt:/run/secrets/jwt-key:ro
       - ./secrets/resend-api-key.txt:/run/secrets/resend-api-key:ro
       - ./secrets/update-password.txt:/run/secrets/update-password:ro
+      - ./secrets/s3-password.txt:/run/secrets/s3-password:ro
     environment:
+      - WORKER_INTERVAL=45
       - API_PORT=8000
       - API_URL=http://localhost:8000
-      - POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
+      - POSTGRES_HOST=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_USER=postgres.zjslydzomixtnrauxppc
+      - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5432
+      - POSTGRES_PORT=5433
       - POSTGRES_SSLMODE=disable
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
@@ -56,27 +64,35 @@ services:
       - RESEND_API_KEY_FILE=/run/secrets/resend-api-key
       - UPDATE_FALLBACK_USERNAME=notifer.updates@gmail.com
       - UPDATE_PASSWORD_FILE=/run/secrets/update-password
+      - S3_BUCKET=calendar
+      - S3_ENDPOINT=http://minio:9000
+      - S3_USER=admin
+      - S3_PASSWORD_FILE=/run/secrets/s3-password
     depends_on:
       - redis
       - email_worker
       - api
+      - postgres
+      - minio
+      - minio-create-bucket
   
   email_worker:
     build:
       context: .
       dockerfile: email_worker/Dockerfile
+    command: rq worker email --url redis://redis:6379/0
     volumes:
       - ./secrets/db-password.txt:/run/secrets/db-password:ro
     environment:
-      - POSTGRES_HOST=aws-0-eu-central-1.pooler.supabase.com
+      - POSTGRES_HOST=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_USER=postgres.zjslydzomixtnrauxppc
+      - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5432
+      - POSTGRES_PORT=5433
       - POSTGRES_SSLMODE=disable
-    command: rq worker email --url redis://redis:6379/0
     depends_on:
       - redis
+      - postgres
   
   redis:
     image: redis:alpine
@@ -85,3 +101,72 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+  postgres:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./secrets/db-password.txt:/run/secrets/db-password:ro
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_DB=postgres
+    command: -p 5433
+    ports:
+      - "5433:5433"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-p", "5433" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: quay.io/minio/minio
+    entrypoint: sh -c "
+      export MINIO_ROOT_PASSWORD=$(cat /run/secrets/s3-password) &&
+      minio server /data --address ':9000' --console-address ':9090'"
+    volumes:
+      - minio_data:/data
+      - ./secrets/s3-password.txt:/run/secrets/s3-password:ro
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    environment:
+      - MINIO_ROOT_USER=admin
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  minio-create-bucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    volumes:
+      - ./secrets/s3-password.txt:/run/secrets/s3-password:ro
+    entrypoint: |
+      /bin/sh -c "
+      echo 'Waiting for MinIO to be ready...'
+
+      until mc alias set local http://minio:9000 admin \"$(cat /run/secrets/s3-password)\"; do
+        echo 'MinIO not ready yet, waiting...';
+        sleep 5;
+      done;
+
+      echo 'Successfully connected to MinIO'
+
+      if mc mb --ignore-existing local/calendar; then
+      echo 'Bucket created successfully.';
+        mc anonymous set none local/calendar;
+        exit 0;
+      else
+        echo 'Failed to create bucket';
+        exit 1;
+      fi;
+      "
+
+
+volumes:
+  postgres_data:
+  minio_data:

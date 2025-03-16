@@ -1,5 +1,7 @@
 import os
 import logging
+from time import sleep
+
 from redis import asyncio as aioredis
 from contextlib import asynccontextmanager
 from http.client import InvalidURL
@@ -29,6 +31,7 @@ from shared.email_utils import EmailClient
 from shared.token_utils import decode_token
 from shared.secrets import get_secret
 from shared.emoji_utils import emojify
+from shared.s3_utils import S3Utils
 
 
 # region setup
@@ -91,19 +94,23 @@ global_limiter = RateLimiter(
     callback=rate_limit_exceeded_callback
 )
 
+s3 = S3Utils(
+    endpoint_url=os.getenv('S3_ENDPOINT'),
+    aws_access_key_id=os.getenv('S3_USER'),
+    aws_secret_access_key=get_secret('S3_PASSWORD_FILE'),
+    bucket_name=os.getenv('S3_BUCKET')
+)
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    logger.info('Initializing database and Redis connection...')
-    init_db()
-    logger.info('Database initialized. Starting Redis...')
-    
+    logger.info('Starting redis')
     await FastAPILimiter.init(redis)
     
     yield
     
     logger.info('Shutting down: closing Redis connection...')
-    await redis.aclose()
+    await redis.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -284,7 +291,9 @@ async def delete_account(request: Request, token: str, db: Session = Depends(get
                 }
             )
             return emojify(response)
-        
+
+        s3.delete_calendar(email)
+
         logger.info(f'Account deleted successfully for {email}')
         response = templates.TemplateResponse(
             'delete.html',
@@ -441,6 +450,11 @@ async def resume_notifications(request: Request, token: str, db: Session = Depen
 
 
 if __name__ == '__main__':
+    sleep(5)
+    logger.info(f'Initializing database')
+    init_db()
+    logger.info('Database initialized')
+
     logger.info(f'Starting uvicorn server on port {API_PORT}')
     logger.info(f'Application url is {API_URL}')
     uvicorn.run(app, host='0.0.0.0', port=API_PORT)

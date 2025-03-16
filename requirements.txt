@@ -13,3 +13,4 @@ rq~=2.1.0
 psycopg2-binary~=2.9.10
 emoji~=2.14.1
 resend~=2.6.0
+boto3~=1.37.9

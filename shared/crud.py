@@ -4,6 +4,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from shared.models import UserCalendar, ResendUsage
 
+# region calendars
 
 def create_subscription(db: Session, email: str, calendar_auth: str) -> UserCalendar:
     """
@@ -16,7 +17,7 @@ def create_subscription(db: Session, email: str, calendar_auth: str) -> UserCale
         paused=False,
         created=datetime.now(tz=pytz.timezone('Europe/Paris')),
         last_checked=None,
-        previous_calendar=None,
+        previous_calendar_url=None,
         previous_calendar_hash=None
     )
     db.add(new_sub)
@@ -60,7 +61,7 @@ def update_paused(db: Session, email: str, paused: bool) -> UserCalendar | None:
     return sub
 
 
-def update_calendar(db: Session, email: str, new_calendar_content: str, new_calendar_hash: str) -> UserCalendar | None:
+def update_calendar_url(db: Session, email: str, new_calendar_url: str, new_calendar_hash: str) -> UserCalendar | None:
     """
     Update the stored calendar content, hash, and last check time for a user.
     """
@@ -68,7 +69,7 @@ def update_calendar(db: Session, email: str, new_calendar_content: str, new_cale
     if not sub:
         return None
 
-    sub.previous_calendar = new_calendar_content
+    sub.previous_calendar = new_calendar_url
     sub.previous_calendar_hash = new_calendar_hash
     sub.last_checked = datetime.utcnow()
 
@@ -90,6 +91,8 @@ def delete_user(db: Session, email: str) -> bool:
     db.commit()
     return True
 
+# endregion
+# region resend
 
 def get_resend_usage_for_date(db: Session, usage_date: date) -> int:
     record = db.query(ResendUsage).filter(ResendUsage.date == usage_date).first()
@@ -107,3 +110,5 @@ def increment_resend_usage(db: Session, usage_date: date):
         record = ResendUsage(date=usage_date, count=1)
         db.add(record)
     db.commit()
+
+# endregion

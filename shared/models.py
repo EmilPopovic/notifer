@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, Date
+from sqlalchemy import Column, String, Boolean, DateTime, Integer, Date
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -14,7 +14,7 @@ class UserCalendar(Base):
     paused = Column(Boolean, default=False, nullable=False)
     created = Column(DateTime, default=datetime.now, nullable=False)
     last_checked = Column(DateTime, nullable=True)
-    previous_calendar = Column(Text, nullable=True)
+    previous_calendar_url = Column(String, nullable=True)
     previous_calendar_hash = Column(String, nullable=True)
 
 

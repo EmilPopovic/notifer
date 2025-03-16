@@ -1,0 +1,33 @@
+name: Migrate User Data from Supabase
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Dependencies
+        run: pip install psycopg2-binary
+
+      - name: Migrate Data from Supabase to PostgreSQL
+        env:
+          SUPABASE_DB: postgres
+          SUPABASE_USER: postgres.zjslydzomixtnrauxppc
+          SUPABASE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SUPABASE_HOST: aws-0-eu-central-1.pooler.supabase.com
+          LOCAL_DB: postgres
+          LOCAL_USER: postgres
+          LOCAL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          LOCAL_HOST: localhost
+          LOCAL_PORT: 5433
+        run: |
+          python scripts/migrate.py

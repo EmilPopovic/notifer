@@ -27,6 +27,7 @@ EXCLUDED_SUBJECTS = ['Tjelesna i zdravstvena kultura', 'Physical Education and W
 
 
 class ChangeType(Enum):
+    NONE = 0
     ADDED = 1
     REMOVED = 2
     TIME = 3
