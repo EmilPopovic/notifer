@@ -47,7 +47,7 @@ services:
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5432
+      - POSTGRES_PORT=5433
       - POSTGRES_SSLMODE=disable
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
@@ -85,7 +85,7 @@ services:
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5432
+      - POSTGRES_PORT=5433
       - POSTGRES_SSLMODE=disable
       - SECRET_KEY_FILE=/run/secrets/jwt-key
       - SMTP_SERVER=smtp.gmail.com
@@ -118,7 +118,7 @@ services:
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5432
+      - POSTGRES_PORT=5433
       - POSTGRES_SSLMODE=disable
     depends_on:
       - redis
