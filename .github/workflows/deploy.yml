@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-  
+
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -92,8 +92,8 @@ jobs:
             create_secret "resend-api-key" "${{ secrets.RESEND_API_KEY }}"
             create_secret "cloudflare-api-token" "${{ secrets.CLOUDFLARE_API_TOKEN }}"
             create_secret "dashboard-auth" "${{ secrets.DASHBOARD_AUTH }}"
-      
-      
+            create_sectre "s3-password" "${{ secrets.S3_PASSWORD }}"
+
       - name: Docker Stack Deploy
         uses: cssnr/stack-deploy-action@v1
         with:
