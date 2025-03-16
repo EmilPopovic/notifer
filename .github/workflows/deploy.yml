@@ -31,6 +31,7 @@ jobs:
           tags: | 
             ${{ secrets.DOCKERHUB_USERNAME }}/notifer_api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/notifer_api:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
           
       - name: Build and push Calendar Worker image
         uses: docker/build-push-action@v4
@@ -41,6 +42,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/notifer_calendar_worker:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/notifer_calendar_worker:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
           
       - name: Build and push Email Worker image
         uses: docker/build-push-action@v4
@@ -51,6 +53,7 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/notifer_email_worker:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/notifer_email_worker:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
           
   deploy:
     runs-on: ubuntu-latest
