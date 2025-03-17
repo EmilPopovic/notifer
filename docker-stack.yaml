@@ -142,7 +142,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - POSTGRES_DB=postgres
-    command: -p 5433
+    command: postgres -c listen_addresses='*' -p 5433
     ports:
       - "5433:5433"
     healthcheck:
