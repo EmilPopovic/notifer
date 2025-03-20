@@ -2,6 +2,7 @@ import os
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
 
 from shared.models import Base
 from shared.secrets import get_secret
@@ -26,7 +27,14 @@ POSTGRES_PORT = os.getenv('POSTGRES_PORT')
 
 DATABASE_URI = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
 
-engine = create_engine(DATABASE_URI)
+engine = create_engine(
+    DATABASE_URI,
+    poolclass=QueuePool,
+    pool_size=5,
+    max_overflow=10,
+    pool_recycle=300,
+    pool_pre_ping=True
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
