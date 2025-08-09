@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     
     @property
     def s3_endpoint(self) -> str:
-        return self._get_config_value('s3', 'endpoint_internal') or os.getenv('S3_ENDPOINT', 'http://minio:9000')
+        return self._get_config_value('s3', 'endpoint_internal') or os.getenv('S3_ENDPOINT', 'http://minio:9002')
     
     @property
     def s3_user(self) -> str:

@@ -42,7 +42,7 @@ scrape_configs:
   # MinIO metrics
   - job_name: 'minio'
     static_configs:
-      - targets: ['minio:9000']
+      - targets: ['minio:9002']
     metrics_path: '/minio/v2/metrics/cluster'
     scrape_interval: 60s
 

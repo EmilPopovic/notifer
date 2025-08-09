@@ -32,7 +32,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    
+
   calendar_worker:
     container_name: calendar-worker
     build:
@@ -62,7 +62,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-  
+
   email_worker:
     container_name: email-worker
     build:
@@ -89,7 +89,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-  
+
   redis:
     container_name: redis
     image: redis:7.4.5-alpine
@@ -170,15 +170,15 @@ services:
       - notifer
       - proxy-network
     ports:
-      - "9000:9000"
+      - "9002:9002"
       - "9001:9001"
     environment:
       - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=${S3_PASSWORD}
       - MINIO_PROMETHEUS_AUTH_TYPE=public
-    command: server /data --address ":9000" --console-address ":9001"
+    command: server /data --address ":9002" --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:9002/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -204,7 +204,7 @@ services:
       /bin/sh -c "
       echo 'Waiting for MinIO to be ready...'
 
-      until mc alias set local http://minio:9000 admin \"$$S3_PASSWORD\"; do
+      until mc alias set local http://minio:9002 admin \"$$S3_PASSWORD\"; do
         echo 'MinIO not ready yet, waiting...';
         sleep 5;
       done;
