@@ -94,7 +94,7 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
     ```
 
 6. **Set up a reverse proxy (optional):**
-    The app runs on port 8080. Metrics are available for Prometheus/Grafana integration.
+    The app runs on port 8026. Metrics are available for Prometheus/Grafana integration.
 
 ---
 

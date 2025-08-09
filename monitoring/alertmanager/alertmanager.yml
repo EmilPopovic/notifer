@@ -18,17 +18,17 @@ route:
 receivers:
   - name: 'default-receiver'
     webhook_configs:
-      - url: 'http://api:8080/webhook'
+      - url: 'http://api:8026/webhook'
         send_resolved: true
 
   - name: 'critical-alerts'
     webhook_configs:
-      - url: 'http://api:8080/webhook'
+      - url: 'http://api:8026/webhook'
         send_resolved: true
 
   - name: 'warning-alerts'
     webhook_configs:
-      - url: 'http://api:8080/webhook'
+      - url: 'http://api:8026/webhook'
         send_resolved: true
 
 inhibit_rules:

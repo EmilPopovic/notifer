@@ -52,7 +52,7 @@ docker compose up --build -d
 ### 4. Reverse Proxy (Recommended)
 
 Run behind Nginx/Apache for HTTPS and domain routing.
-Expose port 8080 internally (and optionally port 3000 for Grafana).
+Expose port 8026 internally (and optionally port 3000 for Grafana).
 
 ### 5. Monitoring
 

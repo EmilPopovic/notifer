@@ -120,7 +120,7 @@ class Settings(BaseSettings):
     smtp_password: str = os.getenv('SMTP_UPDATE_PASSWORD', '')
 
     # API configuration
-    api_url: str = os.getenv('API_URL', '').replace('${API_PORT}', str(os.getenv('API_PORT', '8000')))
+    api_url: str = os.getenv('API_URL', '').replace('${API_PORT}', str(os.getenv('API_PORT', '8026')))
 
     class Config:
         env_file = '.env'

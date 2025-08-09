@@ -35,7 +35,7 @@ scrape_configs:
   # NotiFER API metrics
   - job_name: 'notifer-api'
     static_configs:
-      - targets: ['api:8080']
+      - targets: ['api:8026']
     metrics_path: '/metrics'
     scrape_interval: 30s
 
