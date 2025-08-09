@@ -152,6 +152,15 @@ Add a subscription by calendar URL (activated by default).
 
 - `200 OK` with subscription status
 
+**Usage:**
+
+```bash
+curl -X POST <base-url>/uni/subscribe/url \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"q": "<calendar-url>", "language": "<lang>"}'
+```
+
 ---
 
 ### `POST /uni/subscribe/username`
@@ -169,6 +178,15 @@ Add a subscription by username and calendar auth (activated by default).
 
 - `200 OK` with subscription status
 
+**Usage:**
+
+```bash
+curl -X POST <base-url>/uni/subscribe/username \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "<username>", "auth": "<calendar-auth>", "language": "<lang>"}'
+```
+
 ---
 
 ### `POST /uni/pause`
@@ -182,6 +200,15 @@ Pause notifications for a user by username.
 **Response:**
 
 - `200 OK` with status
+
+**Usage:**
+
+```bash
+curl -X POST <base-url>/uni/pause \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "<username>"}'
+```
 
 ---
 
@@ -197,6 +224,15 @@ Resume notifications for a user by username.
 
 - `200 OK` with status
 
+**Usage:**
+
+```bash
+curl -X POST <base-url>/uni/resume \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "<username>"}'
+```
+
 ---
 
 ### `POST /uni/delete`
@@ -210,6 +246,15 @@ Delete a subscription by username.
 **Response:**  
 
 - `200 OK` with status
+
+**Usage:**
+
+```bash
+curl -X POST <base-url>/uni/delete \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "<username>"}'
+```
 
 ---
 
@@ -225,6 +270,28 @@ Get subscription info by username.
 **Response:**  
 
 - `200 OK` with subscription details
+
+**Usage:**
+
+```bash
+curl -X GET "<base-url>/uni/info?username=<username>" \
+  -H "Authorization: Bearer <token>"
+```
+
+### `GET /uni/info/all`
+
+Get info about all subscriptions.
+
+**Response:**  
+
+- `200 OK` with list of subscription details
+
+**Usage:**
+
+```bash
+curl -X GET "<base-url>/uni/info/all" \
+  -H "Authorization: Bearer <token>"
+```
 
 ---
 

@@ -53,6 +53,10 @@ class Settings(BaseSettings):
         return self._get_config_value('components', 'frontend', 'true').lower() == 'true'
     
     @property
+    def allow_query_all_enabled(self) -> bool:
+        return self._get_config_value('components', 'allow_query_all', 'true').lower() == 'true'
+    
+    @property
     def notifer_api_token_hash(self) -> str:
         return os.getenv('NOTIFER_API_TOKEN_HASH', '')
 

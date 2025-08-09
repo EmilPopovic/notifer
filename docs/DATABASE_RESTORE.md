@@ -1,6 +1,4 @@
-# PLACEHOLDER_TITLE
-
-## Restore Database Backup
+# Database Restoration Process
 
 1. **Prepare your backup file:**
 

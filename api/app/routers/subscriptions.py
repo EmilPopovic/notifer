@@ -290,3 +290,12 @@ async def university_get_info_by_username(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     
+@router.get('/uni/info/all',
+            dependencies=[Depends(verify_notifer_token), require_component_enabled('allow_query_all_enabled'), require_component_enabled('admin_api_enabled')])
+async def university_get_all_info(subscription_service: SubscriptionService = Depends(get_subscription_service)):
+    '''Get info about all subscribers.'''
+    try:
+        info = subscription_service.get_all()
+        return info
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

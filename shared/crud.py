@@ -34,6 +34,13 @@ def get_subscription(db: Session, email: str) -> UserCalendar | None:
     return db.query(UserCalendar).filter(UserCalendar.email == email).first()
 
 
+def get_all_subscriptions(db: Session) -> list[UserCalendar]:
+    """
+    Retreive all subscriptions.
+    """
+    return db.query(UserCalendar).all()
+
+
 def get_user_language(db: Session, email: str) -> str:
     """
     Get user's preferred language, defaulting to Croatian.

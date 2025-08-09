@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 import logging
 
 from shared.calendar_utils import parse_calendar_url, is_valid_ical_url
-from shared.crud import create_subscription, get_subscription, update_activation, delete_user, update_paused
+from shared.crud import create_subscription, get_subscription, update_activation, delete_user, update_paused, get_all_subscriptions
 from shared.token_utils import decode_token, TokenExpiredError, TokenValidationError
 from ..exceptions import (
     InvalidCalendarUrlError,
@@ -120,6 +120,19 @@ class SubscriptionService:
             'language': sub.language,
             'last_checked': sub.last_checked
         }
+    
+    def get_all(self):
+        subs = get_all_subscriptions(self.db)
+        return [{
+                'email': sub.email,
+                'activated': sub.activated,
+                'paused': sub.paused,
+                'created': sub.created,
+                'language': sub.language,
+                'last_checked': sub.last_checked
+            }
+            for sub in subs
+        ]
     
     def validate_subscription_for_action(self, email: str, action: str) -> None:
         '''Validate subscription exists and is in correct state for action.'''
