@@ -271,6 +271,7 @@ services:
       - GF_INSTALL_PLUGINS=redis-datasource
     networks:
       - notifer
+      - proxy-network
     env_file:
       - .env
     restart: unless-stopped
