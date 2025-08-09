@@ -7,3 +7,4 @@
 !.env.example
 
 /db_backups/db_*
+/db_backups/backup.dump

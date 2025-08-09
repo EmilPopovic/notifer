@@ -161,6 +161,24 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  db_restore:
+    container_name: db-restore
+    image: postgres:15.8-alpine
+    networks:
+      - notifer
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./db_backups:/backups
+    command: |
+      pg_restore -h postgres -U postgres -d postgres --clean --if-exists --verbose /backups/backup.dump
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - restore
+    restart: "no"
+
   minio:
     container_name: minio
     image: quay.io/minio/minio
