@@ -1,0 +1,404 @@
+/* ========================================
+   Hero Section
+   ======================================== */
+.hero {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    position: relative;
+}
+
+.hero h1 {
+    font-size: clamp(2rem, 5vw, 2.5rem);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 700;
+    color: #000;
+    line-height: 1.2;
+}
+
+.hero p {
+    font-size: 1.125rem;
+    color: var(--text-muted);
+    margin: 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ========================================
+   Main Layout
+   ======================================== */
+.cards-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem 0;
+    min-height: calc(100vh - 200px);
+}
+
+.card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.card h2 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    color: #000;
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+/* ========================================
+   Subscribe Form
+   ======================================== */
+.subscribe-group {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0 var(--spacing-xs);
+    align-items: flex-start;
+    width: 100%;
+}
+
+.input-with-icon {
+    position: relative;
+    flex: 1;
+    width: 100%;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding: 16px 50px 16px 16px;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-sizing: border-box;
+    height: 52px;
+    min-width: 0;
+}
+
+.help-icon {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: var(--secondary);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border: 2px solid white;
+    box-shadow: var(--shadow-light);
+}
+
+.help-icon:hover {
+    background: var(--primary);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.subscribe-group .button {
+    flex-shrink: 0;
+    padding: 16px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    height: 52px;
+    white-space: nowrap;
+    min-width: 140px;
+}
+
+/* ========================================
+   Management Section
+   ======================================== */
+.manage-sub-link {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-decoration: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius);
+    transition: var(--transition);
+    display: inline-block;
+}
+
+.manage-sub-link:hover {
+    text-decoration: underline;
+    color: var(--secondary);
+    background: rgba(52, 152, 219, 0.05);
+}
+
+.button-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.button-group .button {
+    width: 100%;
+    justify-content: center;
+}
+
+.notice {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: var(--spacing-md);
+    line-height: 1.4;
+    padding: var(--spacing-sm);
+    background: rgba(102, 102, 102, 0.05);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--text-muted);
+}
+
+/* ========================================
+   Modals
+   ======================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: var(--spacing-sm);
+    box-sizing: border-box;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--radius-large);
+    padding: var(--spacing-lg);
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalEnter 0.2s ease-out;
+}
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+    color: var(--text-muted);
+    background: white;
+}
+
+.close-button:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--primary);
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+.footer-links {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: rgba(248, 249, 250, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(221, 221, 221, 0.5);
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    z-index: 50;
+}
+
+.footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.footer-links a:hover {
+    background: white;
+    color: var(--secondary);
+    box-shadow: var(--shadow-light);
+    text-decoration: none;
+}
+
+.footer-links .version {
+    color: var(--text-light);
+    font-size: 0.7rem;
+    font-weight: normal;
+    opacity: 0.6;
+    margin-left: auto;
+}
+
+/* ========================================
+   Loading States
+   ======================================== */
+.global-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(2px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.global-loading.active {
+    display: flex;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--secondary);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+@media (max-width: 768px) {
+    .hero {
+        padding: 2rem 1rem 1.5rem;
+    }
+    
+    .card {
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .subscribe-group {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        width: 100%;
+    }
+
+    .input-with-icon {
+        width: 100%;
+    }
+
+    .input-with-icon input {
+        width: 100%;
+        padding-right: 45px;
+        box-sizing: border-box;
+    }
+    
+    .subscribe-group .button {
+        width: 100%;
+        min-width: auto;
+        box-sizing: border-box;
+    }
+    
+    .button-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        margin: var(--spacing-sm);
+        padding: var(--spacing-md);
+        max-height: 90vh;
+    }
+    
+    .footer-links {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 1.75rem;
+    }
+
+    .card {
+        padding: var(--spacing-md);
+        margin: 0 0.5rem var(--spacing-sm);
+        box-sizing: border-box;
+    }
+    
+    .cards-container {
+        padding: 0 0.75rem 5rem;
+    }
+    
+    .input-with-icon input {
+        padding-right: 45px;
+        font-size: 16px;
+    }
+    
+    .help-icon {
+        width: 24px;
+        height: 24px;
+        right: 10px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================
+   High contrast mode support
+   ======================================== */
+@media (prefers-contrast: high) {
+    :root {
+        --border: #000;
+        --shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .button {
+        border: 2px solid currentColor;
+    }
+}

@@ -6,19 +6,20 @@ from shared.models import UserCalendar, ResendUsage
 
 # region calendars
 
-def create_subscription(db: Session, email: str, calendar_auth: str) -> UserCalendar:
+def create_subscription(db: Session, email: str, calendar_auth: str, language: str = 'hr', activated: bool = False) -> UserCalendar:
     """
     Create a new user subscription entry.
     """
     new_sub = UserCalendar(
         email=email,
         calendar_auth=calendar_auth,
-        activated=False,
+        activated=activated,
         paused=False,
         created=datetime.now(tz=pytz.timezone('Europe/Paris')),
         last_checked=None,
         previous_calendar_url=None,
-        previous_calendar_hash=None
+        previous_calendar_hash=None,
+        language=language
     )
     db.add(new_sub)
     db.commit()
@@ -31,6 +32,28 @@ def get_subscription(db: Session, email: str) -> UserCalendar | None:
     Retreive a subscription for the given email.
     """
     return db.query(UserCalendar).filter(UserCalendar.email == email).first()
+
+
+def get_user_language(db: Session, email: str) -> str:
+    """
+    Get user's preferred language, defaulting to Croatian.
+    """
+    subscription = get_subscription(db, email)
+    if subscription and subscription.language:
+        return subscription.language
+    return 'hr'
+
+
+def update_user_language(db: Session, email: str, language: str) -> bool:
+    """
+    Update user's language preference.
+    """
+    subscription = get_subscription(db, email)
+    if subscription:
+        subscription.language = language
+        db.commit()
+        return True
+    return False
 
 
 def update_activation(db: Session, email: str, activated: bool) -> UserCalendar | None:
@@ -98,9 +121,11 @@ def get_resend_usage_for_date(db: Session, usage_date: date) -> int:
     record = db.query(ResendUsage).filter(ResendUsage.date == usage_date).first()
     return record.count if record else 0
 
+
 def get_monthly_resend_usage(db: Session, start_date: date) -> int:
     total = db.query(func.sum(ResendUsage.count)).filter(ResendUsage.date >= start_date).scalar()
     return total if total else 0
+
 
 def increment_resend_usage(db: Session, usage_date: date):
     record = db.query(ResendUsage).filter(ResendUsage.date == usage_date).first()

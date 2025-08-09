@@ -1,119 +1,261 @@
+/* ========================================
+   CSS Custom Properties (Variables)
+   ======================================== */
 :root {
-    --primary: #2c3e50;
-    --secondary: #3498db;
+    --primary: #00819c;
+    --secondary: #5bc0de;
     --success: #34c759;
     --error: #ff3b30;
+    --warning: #ff9500;
     --background: #f8f9fa;
+    --text-primary: #000;
     --text-muted: #666;
-    --shadow: 0 4px 16px rgba(0,0,0,0.1);
+    --text-light: #999;
+    --border: #ddd;
+    --border-focus: var(--secondary);
+    --border-error: var(--error);
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --radius: 6px;
+    --radius-large: 12px;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --transition: all 0.2s ease;
 }
 
+/* ========================================
+   Base Styles
+   ======================================== */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     line-height: 1.6;
     margin: 0;
+    padding: 0;
     background-color: var(--background);
-    color: var(--primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+@-moz-document url-prefix() {
+    body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+        font-family: inherit;
+    }
+
+    button,
+    .button {
+        font-family: inherit;
+    }
+}
+
+* {
+    font-family: inherit;
+}
+
+input[type="text"],
+input[type="email"],
+button,
+.button {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* ========================================
+   Container Layouts
+   ======================================== */
 .container {
     max-width: 600px;
-    margin: 2rem auto;
-    padding: 2rem;
+    margin: var(--spacing-lg) auto;
+    padding: var(--spacing-lg);
     background: white;
-    border-radius: 12px;
+    border-radius: var(--radius-large);
     box-shadow: var(--shadow);
     text-align: center;
 }
 
 .container h1 {
     font-size: 2rem;
-    margin: 1.5rem 0;
+    font-weight: 700;
+    margin: var(--spacing-md) 0;
     color: var(--primary);
 }
 
 .container p {
     font-size: 1.125rem;
-    margin: 1rem 0;
+    margin: var(--spacing-sm) 0;
+    line-height: 1.5;
 }
 
-.confirmation-icon {
-    font-size: 4rem;
-    margin: 1rem 0;
-    display: inline-block;
-}
-
+/* ========================================
+   Form Elements
+   ======================================== */
 .input-group {
     display: flex;
-    margin: 1rem 0;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin: var(--spacing-sm) 0;
 }
 
 input[type="text"],
 input[type="email"] {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     font-size: 1rem;
+    transition: var(--transition);
+    box-sizing: border-box;
+    background: white;
 }
 
-input:focus {
-    outline: 2px solid var(--secondary);
-    border-color: transparent;
+input[type="text"]:focus,
+input[type="email"]:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
+input[type="text"].input-error,
+input[type="email"].input-error {
+    border-color: var(--border-error);
+    box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
+}
+
+input[type="text"]:disabled,
+input[type="email"]:disabled {
+    background-color: #f5f5f5;
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
 .button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 12px 24px;
     background: var(--secondary);
-    color: white !important;
+    color: white;
     text-decoration: none;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: transform 0.2s, opacity 0.2s;
+    transition: var(--transition);
     text-align: center;
+    min-height: 44px; /* Better accessibility */
+    box-sizing: border-box;
 }
 
-.button:hover {
-    opacity: 0.95;
+.button:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
+.button:active {
+    transform: translateY(0);
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.button.button-error,
+.button#delete {
+    background-color: var(--error);
+}
+
+.button.button-success {
+    background-color: var(--success);
+}
+
+.button.button-secondary {
+    background-color: white;
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+}
+
+/* ========================================
+   Status Messages
+   ======================================== */
 .status {
-    padding: 1rem;
-    border-radius: 6px;
-    margin: 1.5rem 0;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius);
+    margin: 0;
+    margin-top: var(--spacing-md);
     display: none;
+    font-size: 0.95rem;
+    line-height: 1.4;
 }
 
 .status.visible {
     display: block;
 }
 
-.success {
+.status.success {
     background: #e6ffed;
     border: 1px solid #b3e6cb;
-    margin-bottom: 0;
+    color: #1e7e34;
 }
 
-.error {
+.status.error {
     background: #ffeef0;
     border: 1px solid #f5c6cb;
-    margin-bottom: 0;
+    color: #721c24;
 }
 
-.email-address {
-    font-weight: 500;
-    padding: 8px 16px;
-    background: rgba(44, 62, 80, 0.05);
-    border-radius: 4px;
-    display: inline-block;
-    margin: 1rem 0;
+.status.warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
 }
 
+.status.persistent {
+    cursor: pointer;
+    position: relative;
+}
+
+.status.persistent::after {
+    content: " (click to dismiss)";
+    opacity: 0.7;
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+/* ========================================
+   Error Messages
+   ======================================== */
+.error-message {
+    color: var(--error);
+    font-size: 0.875rem;
+    margin-top: var(--spacing-xs);
+    display: none;
+    text-align: left;
+}
+
+.error-message.visible {
+    display: block;
+}
+
+/* ========================================
+   Special Elements
+   ======================================== */
 .confirmation-icon {
     font-size: 4rem;
-    margin: 1rem 0;
+    margin: var(--spacing-sm) 0;
+    display: inline-block;
 }
 
 .success-icon {
@@ -124,11 +266,42 @@ input:focus {
     color: var(--secondary);
 }
 
+.email-address,
 .email-display {
-    font-size: 1.2rem;
     font-weight: 500;
-    background: rgba(44, 62, 80, 0.05);
     padding: 12px 20px;
-    border-radius: 6px;
-    margin: 1rem 0;
+    background: rgba(44, 62, 80, 0.05);
+    border-radius: var(--radius);
+    display: inline-block;
+    margin: var(--spacing-sm) 0;
+    font-size: 1.1rem;
+    border: 1px solid rgba(44, 62, 80, 0.1);
+}
+
+/* ========================================
+   Emoji Support
+   ======================================== */
+img.emoji {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.1em;
+    display: inline-block;
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus indicators for keyboard navigation */
+.button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--secondary);
+    outline-offset: 2px;
 }

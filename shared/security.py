@@ -2,7 +2,7 @@ import secrets
 import hmac
 from hashlib import sha256
 
-def generate_csrf_token(secret_key: str = None) -> str:
+def generate_csrf_token(secret_key: str | None = None) -> str:
     # Generate random token
     token = secrets.token_urlsafe(32)
 

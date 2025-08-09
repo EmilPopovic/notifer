@@ -9,22 +9,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
-
-LOG_FORMAT = (
-    "%(asctime)s | %(levelname)-8s | %(name)s | %(filename)s:%(lineno)d | "
-    "%(funcName)s() | %(threadName)s | %(message)s"
-)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format=LOG_FORMAT,
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
 logger = logging.getLogger(__name__)
 
 CALENDAR_PATH = '/_download/calevent/mycal.ics'
 EXCLUDED_SUBJECTS = ['Tjelesna i zdravstvena kultura', 'Physical Education and Welfare']
-
 
 class ChangeType(Enum):
     NONE = 0
@@ -32,7 +20,6 @@ class ChangeType(Enum):
     REMOVED = 2
     TIME = 3
     LOCATION = 4
-
 
 @dataclass
 class Event:
@@ -42,35 +29,32 @@ class Event:
     end: datetime
     location: str | None = None
 
-
 @dataclass
 class EventChange:
     old: Event | None
     new: Event | None
     change_type: list[ChangeType]
 
-
 def parse_calendar_url(url: str) -> dict[str, str]:
     parsed_url = urlparse(url)
     
     if parsed_url.scheme not in ['http', 'https']:
-        raise InvalidURL('❌ Nije URL.')
+        raise InvalidURL('Not a URL.')
     if not (parsed_url.netloc.endswith('fer.hr') or parsed_url.netloc.endswith('fer.unizg.hr')):
-        raise InvalidURL('❌ Nije valjana domena.')
+        raise InvalidURL('Invalid domain.')
     if parsed_url.path != CALENDAR_PATH:
-        raise InvalidURL('❌ Nije valjan put.')
+        raise InvalidURL('Invalid path.')
     
     parsed_query = parse_qs(parsed_url.query)
     user = parsed_query.get('user', [''])[0]
     auth = parsed_query.get('auth', [''])[0]
     
     if user == '':
-        raise InvalidURL('❌ Nije valjan korisnik.')
+        raise InvalidURL('Invalid user.')
     if auth == '':
-        raise InvalidURL('❌ Nije valjan autentikacijski token.')
+        raise InvalidURL('Invalid token.')
     
     return {'user': user, 'auth': auth}
-
 
 def is_valid_ical(ical_string: str) -> bool:
     try:
@@ -78,7 +62,6 @@ def is_valid_ical(ical_string: str) -> bool:
         return True
     except Exception as _:
         return False
-    
     
 def is_valid_ical_url(url: str) -> bool:
     try:
@@ -88,7 +71,6 @@ def is_valid_ical_url(url: str) -> bool:
         return is_valid_ical(ical_content)
     except RequestException as _:
         return False
-    
 
 def parse_ical_event(ical_content: str) -> list[Event]:
     events = []
@@ -112,7 +94,6 @@ def parse_ical_event(ical_content: str) -> list[Event]:
         logger.exception('Failed to parse ical events: %s', e)
     return events
 
-
 def extract_base_summary(summary: str, timestamp: datetime) -> str:
     if not summary:
         return ''
@@ -121,7 +102,6 @@ def extract_base_summary(summary: str, timestamp: datetime) -> str:
     elif '[' in summary:
         return f'{timestamp.year}{summary.split('[')[0].strip()}'.lower()
     return f'{timestamp.year}{summary}'.lower()
-
 
 def build_singleton_event_dict(events: list[Event]) -> dict[str, Event]:
     summary_to_events = {}
@@ -137,7 +117,6 @@ def build_singleton_event_dict(events: list[Event]) -> dict[str, Event]:
         else:
             logger.warning('Ignoring dublicate events with base summary: %s', key)
     return result
-
 
 def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> list[EventChange]:
     changes = []
@@ -175,9 +154,9 @@ def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> l
             changes.append(EventChange(old=old_event, new=None, change_type=[ChangeType.REMOVED]))
 
     # check for added events
-    for key, new_events in new_dict.items():
+    for key, new_event in new_dict.items():
         if key not in old_dict:
-            changes.append(EventChange(old=None, new=new_events, change_type=[ChangeType.ADDED]))
+            changes.append(EventChange(old=None, new=new_event, change_type=[ChangeType.ADDED]))
 
     # check changed events
     for key in set(old_dict.keys()).intersection(new_dict.keys()):
@@ -195,7 +174,6 @@ def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> l
             changes.append(EventChange(old=old_event, new=new_event, change_type=change_types))
             
     return changes
-
 
 def compute_ical_changes(old_ical: str, new_ical: str) -> list[EventChange]:
     old_events = parse_ical_event(old_ical)

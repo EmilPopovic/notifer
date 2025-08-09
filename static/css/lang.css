@@ -1,0 +1,67 @@
+/* ========================================
+   Language Switcher
+   ======================================== */
+.language-switcher {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 24px;
+    padding: 4px;
+    box-shadow: var(--shadow-light);
+    border: 1px solid rgba(44, 62, 80, 0.08);
+    z-index: 100;
+}
+
+.language-switcher button {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 20px;
+    transition: var(--transition);
+    color: var(--text-muted);
+    min-width: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.language-switcher button:hover:not(.active) {
+    background: rgba(52, 152, 219, 0.08);
+    color: var(--secondary);
+}
+
+.language-switcher button.active {
+    background: var(--secondary);
+    color: white;
+    box-shadow: 0 1px 3px rgba(52, 152, 219, 0.3);
+}
+
+.language-switcher button:focus-visible {
+    outline: 2px solid var(--secondary);
+    outline-offset: 1px;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+    .language-switcher {
+        top: 0.75rem;
+        right: 0.75rem;
+        padding: 2px;
+        border-radius: 20px;
+    }
+    
+    .language-switcher button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        min-width: 32px;
+        min-height: 32px;
+        border-radius: 16px;
+    }
+}

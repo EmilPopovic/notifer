@@ -1,335 +1,99 @@
 <!DOCTYPE html>
 <html lang="hr">
 <head>
-    <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
     <title>NotiFER</title>
     <link rel="stylesheet" href="/static/css/shared.css">
-    <style>
-        .hero {
-            text-align: center;
-            padding: 3rem 1rem;
-        }
-        
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .hero p {
-            font-size: 1.125rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-        
-        .cards-container {
-            max-width: 900px;
-            margin: 1rem auto;
-            padding: 0 1rem;
-        }
-        
-        .card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .subscribe-group {
-            display: flex;
-            gap: 1rem;
-            margin: 1.5rem 0 0.5rem;
-        }
-        
-        .input-with-icon {
-            position: relative;
-            flex: 1;
-        }
-        
-        .input-with-icon input {
-            width: 100%;
-            padding-right: 40px;
-            box-sizing: border-box;
-        }
-        
-        .help-icon {
-            position: absolute;
-            top: 50%;
-            right: 12px;
-            transform: translateY(-50%);
-            background: var(--secondary);
-            color: #fff;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        
-        @media (max-width: 600px) {
-            .subscribe-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .button {
-                margin-top: 0;
-            }
-        }
-        
-        .subscribe-group input[type="text"] {
-            flex: 1;
-            padding: 16px;
-            font-size: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            height: 52px;
-        }
-        
-        .subscribe-group .button {
-            flex-shrink: 0;
-            padding: 16px 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            box-sizing: border-box;
-            height: 52px;
-            white-space: nowrap;
-        }
-        
-        @media (max-width: 600px) {
-            .subscribe-group {
-                flex-direction: column;
-            }
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        
-        .button-group button {
-            flex: 1;
-            text-align: center;
-        }
-        
-        .notice {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-top: 1rem;
-            line-height: 1.4;
-            text-decoration: none;
-        }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.4);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            overflow: hidden;
-        }
-        
-        .modal-overlay.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: #fff;
-            border-radius: 12px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-        }
-        
-        .close-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .manage-sub-link {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .manage-sub-link:hover {
-            text-decoration: underline;
-        }
-        
-        .global-loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-
-        .spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid var(--secondary);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-        
-        .footer-links {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            padding: 2rem;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            border-radius: 0 8px 0 0;
-        }
-
-        .footer-links a {
-            color: inherit;
-            text-decoration: none;
-            font-weight: bold;
-            margin-right: 1rem;
-        }
-
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
-
-        img.emoji {
-            width: 1em;
-            height: 1em;
-            vertical-align: -0.1em; /* Align better with text */
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="/static/css/lang.css">
 </head>
 <body>
 
 <!-- Hero Section -->
 <div class="hero">
-    <h1>NotiFER</h1>
-    <p>Nikad ne propusti promjenu u rasporedu! 📅</p>
+    <h1 data-i18n="title">NotiFER</h1>
+    <p data-i18n="heroText">Nikad ne propusti promjenu u rasporedu!</p>
 </div>
 
 <!-- Main Container -->
 <div class="cards-container">
+
     <!-- Subscribe Card -->
     <div class="card subscribe-card">
-        <h2 style="margin-top: 0">🚨 Pretplati se na obavijesti</h2>
+        <h2 data-i18n="subscribeText" style="margin-top: 0">Pretplati se na obavijesti</h2>
         <form id="subscribeForm">
             <div class="subscribe-group">
                 <div class="input-with-icon">
                     <input
-                            type="text"
-                            id="calendarUrl"
-                            placeholder="Zalijepi link na svoj FER kalendar">
-                    <span class="help-icon" onclick="openModal('howto')">?</span>
+                        type="text"
+                        id="calendarUrl"
+                        data-i18n="placeholders.calendarUrl"
+                        placeholder="Zalijepi link na svoj FER kalendar">
+                    <span class="help-icon" onclick="app.ui.openModal('infoModal', window.modalContents?.howto)">?</span>
                 </div>
-                <button type="submit" class="button">Pretplati se</button>
+                <button type="submit" class="button" data-i18n="subscribeButton">Pretplati se</button>
             </div>
-
             <div id="subscribeStatus" class="status"></div>
+            <div id="urlError" class="error-message"></div>
         </form>
     </div>
 
-    <!-- Small link to open the modal -->
+    <!-- Manage Link -->
     <div style="text-align: center; margin-bottom: 2rem;">
-        <a href="#" class="manage-sub-link" onclick="openManageModal()">
-            Želiš urediti svoju pretplatu?
-        </a>
+        <a href="#" class="manage-sub-link" data-i18n="manageButton" onclick="app.ui.openModal('manageModal')">Želiš urediti svoju pretplatu?</a>
     </div>
 
-    <!-- The Modal (hidden by default) -->
+    <!-- Management Modal -->
     <div class="modal-overlay" id="manageModal">
         <div class="modal-content">
-            <span class="close-button" onclick="closeManageModal()">&times;</span>
+            <span class="close-button" onclick="app.ui.closeModal('manageModal')">&times;</span>
 
-            <h2 style="margin-top: 0">✏️ Uredi pretplatu</h2>
+            <h2 data-i18n="manageModalTitle" style="margin-top: 0">Uredi pretplatu</h2>
             <form id="manageForm">
                 <div class="input-group">
-                    <label for="userEmail"></label><input
-                            type="email"
-                            id="userEmail"
-                            placeholder="Upiši svoj registrirani email">
+                    <input
+                        type="email"
+                        id="userEmail"
+                        data-i18n="placeholders.userEmail"
+                        placeholder="Upiši svoj registrirani email">
+                    <div id="emailError" class="error-message"></div>
                 </div>
                 <div class="button-group">
-                    <button type="button" class="button" onclick="handlePause()">
-                        Pauziraj obavijesti
-                    </button>
-                    <button type="button" class="button" onclick="handleResume()">
-                        Uključi obavijesti
-                    </button>
-                    <button type="button" class="button" style="background-color: #DC3545" onclick=handleDelete()>
-                        Izbriši račun
-                    </button>
+                    <button type="button" class="button" data-action="pause" data-i18n="pauseButton">Pauziraj obavijesti</button>
+                    <button type="button" class="button" data-action="resume" data-i18n="resumeButton">Uključi obavijesti</button>
+                    <button type="button" class="button" data-action="delete" data-i18n="deleteButton">Izbriši račun</button>
                 </div>
-                <div class="notice">
-                    Promjena se provodi tek nakon potvrde mailom.
-                </div>
+                <div class="notice" data-i18n="manageNotice">Promjena se provodi tek nakon potvrde mailom.</div>
                 <div id="manageStatus" class="status"></div>
             </form>
         </div>
     </div>
 
+    <!-- Footer Links -->
     <div class="footer-links">
-        <a href="#" onclick="openModal('contact')">📞 Kontakt</a>
-        <a href="#" onclick="openModal('disclaimer')">ℹ️ Info</a>
-        <a href="#" onclick="openModal('github')">🧑‍💻 GitHub</a>
+        <a href="#" data-i18n="contact" onclick="app.ui.openModal('infoModal', window.modalContents?.contact)">Kontakt</a>
+        <a href="#" data-i18n="info" onclick="app.ui.openModal('infoModal', window.modalContents?.disclaimer)">Info</a>
+        <a href="#" data-i18n="github" onclick="app.ui.openModal('infoModal', window.modalContents?.github)">GitHub</a>
+        <span class="version">v2.0.0</span>
     </div>
 
     <!-- Info Modal -->
     <div class="modal-overlay" id="infoModal">
         <div class="modal-content">
-            <span class="close-button" onclick="closeInfoModal()">&times;</span>
+            <span class="close-button" onclick="app.ui.closeModal('infoModal')">&times;</span>
             <div id="infoModalContent"></div>
         </div>
     </div>
 
 </div>
 
-<!-- Global Loading Spinner -->
-<div id="globalLoading" class="global-loading">
-    <div class="spinner"></div>
-</div>
-
+<!-- Scripts -->
+<script src="/static/js/translations.js"></script>
+<script src="/static/js/api-client.js"></script>
+<script src="/static/js/ui-manager.js"></script>
 <script src="/static/js/app.js"></script>
-<script type="module">
-    twemoji.parse(document.body, { 
-        base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/",
-    });
-</script>
+
 </body>
 </html>

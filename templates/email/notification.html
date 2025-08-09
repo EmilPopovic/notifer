@@ -1,50 +1,50 @@
 {% extends "base_email.html" %}
 
 {% block content %}
-<p style="text-align: left;">Imaš promjene u rasporedu ({{ count }}):</p>
+<p style="text-align: left;">{{ t.text.replace('{{ count }}', count|string) }}</p>
 
 {% set max_to_show = 5 %}
 {% for change in event_changes[:max_to_show] %}
     {% if not change.old and change.new %}
-        <!-- Novi događaj -->
+        <!-- New event -->
         <div style="border: 1px solid #b3e6cb; background: #e6ffed; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-            <div style="font-size: 16px; font-weight: bold;">➕ Novi događaj</div>
-            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.new.summary }}</p>
-            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.new.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.new.end | format_datetime }}</p>
+            <div style="font-size: 16px; font-weight: bold;">{{ t.new_event }}</div>
+            <p style="margin: 5px 0;"><strong>{{ t.title_label }}</strong> {{ change.new.summary }}</p>
+            <p style="margin: 5px 0;"><strong>{{ t.start_label }}</strong> {{ change.new.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>{{ t.end_label }}</strong> {{ change.new.end | format_datetime }}</p>
             {% if change.new.location %}
-                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.new.location }}</p>
+                <p style="margin: 5px 0;"><strong>{{ t.location_label }}</strong> {{ change.new.location }}</p>
             {% endif %}
         </div>
     {% elif change.old and not change.new %}
-        <!-- Uklonjeni događaj -->
+        <!-- Removed event -->
         <div style="border: 1px solid #f5c6cb; background: #ffeef0; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-            <div style="font-size: 16px; font-weight: bold;">➖ Uklonjeni događaj</div>
-            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.old.summary }}</p>
-            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.old.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.old.end | format_datetime }}</p>
+            <div style="font-size: 16px; font-weight: bold;">{{ t.removed_event }}</div>
+            <p style="margin: 5px 0;"><strong>{{ t.title_label }}</strong> {{ change.old.summary }}</p>
+            <p style="margin: 5px 0;"><strong>{{ t.start_label }}</strong> {{ change.old.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>{{ t.end_label }}</strong> {{ change.old.end | format_datetime }}</p>
             {% if change.old.location %}
-                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.old.location }}</p>
+                <p style="margin: 5px 0;"><strong>{{ t.location_label }}</strong> {{ change.old.location }}</p>
             {% endif %}
         </div>
     {% elif change.old and change.new %}
-        <!-- Ažurirani događaj (updated) -->
+        <!-- Updated event -->
         <div style="border: 1px solid #f4e5c6; background: #fff9ed; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-            <div style="font-size: 16px; font-weight: bold;">〰️ Ažurirani događaj</div>
-            <p style="margin: 5px 0;"><em>Staro:</em></p>
-            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.old.summary }}</p>
-            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.old.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.old.end | format_datetime }}</p>
+            <div style="font-size: 16px; font-weight: bold;">{{ t.updated_event }}</div>
+            <p style="margin: 5px 0;"><em>{{ t.old }}</em></p>
+            <p style="margin: 5px 0;"><strong>{{ t.title_label }}</strong> {{ change.old.summary }}</p>
+            <p style="margin: 5px 0;"><strong>{{ t.start_label }}</strong> {{ change.old.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>{{ t.end_label }}</strong> {{ change.old.end | format_datetime }}</p>
             {% if change.old.location %}
-                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.old.location }}</p>
+                <p style="margin: 5px 0;"><strong>{{ t.location_label }}</strong> {{ change.old.location }}</p>
             {% endif %}
             <hr style="border: none; border-top: 1px dashed #ccc; margin: 10px 0;">
-            <p style="margin: 5px 0;"><em>Novo:</em></p>
-            <p style="margin: 5px 0;"><strong>Naslov:</strong> {{ change.new.summary }}</p>
-            <p style="margin: 5px 0;"><strong>Početak:</strong> {{ change.new.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>Završetak:</strong> {{ change.new.end | format_datetime }}</p>
+            <p style="margin: 5px 0;"><em>{{ t.new }}</em></p>
+            <p style="margin: 5px 0;"><strong>{{ t.title_label }}</strong> {{ change.new.summary }}</p>
+            <p style="margin: 5px 0;"><strong>{{ t.start_label }}</strong> {{ change.new.start | format_datetime }}</p>
+            <p style="margin: 5px 0;"><strong>{{ t.end_label }}</strong> {{ change.new.end | format_datetime }}</p>
             {% if change.new.location %}
-                <p style="margin: 5px 0;"><strong>Lokacija:</strong> {{ change.new.location }}</p>
+                <p style="margin: 5px 0;"><strong>{{ t.location_label }}</strong> {{ change.new.location }}</p>
             {% endif %}
         </div>
     {% endif %}
@@ -52,17 +52,17 @@
 
 {% if event_changes|length > max_to_show %}
     <p style="text-align: left; font-style: italic; color: #555;">
-        ... i još {{ event_changes|length - max_to_show }} događaja.
+        {{ t.more_events.replace('{{ count }}', (event_changes|length - max_to_show)|string) }}
     </p>
 {% endif %}
 
 <p style="text-align: left;">
-    Za više detalja, posjeti svoj službeni
-    <a href="https://www.fer.unizg.hr/kalendar">FER kalendar</a>.
+    {{ t.details_text }}
+    <a href="https://www.fer.unizg.hr/kalendar">{{ t.fer_calendar }}</a>.
 </p>
 
 <p style="text-align: left;">
-    Ne želiš više primati obavijesti?
-    <a href="{{ base_url }}/pause?token={{ token }}">Pauziraj ih!</a>
+    {{ t.unsubscribe_text }}
+    <a href="{{ base_url }}/pause?token={{ token }}">{{ t.unsubscribe_link }}</a>
 </p>
 {% endblock %}

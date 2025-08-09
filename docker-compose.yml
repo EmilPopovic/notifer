@@ -1,172 +1,340 @@
-# this file is used for local development only
+# Do not modify this file, only use .env and config/app.conf for configuration
+
+name: notifer
 
 services:
   api:
+    container_name: api
     build:
       context: .
       dockerfile: api/Dockerfile
     ports:
-      - "8000:8000"
+      - "${API_PORT:-8080}:8080"
+    networks:
+      - notifer
+      - proxy-network
     volumes:
-      - ./secrets/db-password.txt:/run/secrets/db-password:ro
-      - ./secrets/jwt-key.txt:/run/secrets/jwt-key:ro
-      - ./secrets/resend-api-key.txt:/run/secrets/resend-api-key:ro
-      - ./secrets/confirmation-password.txt:/run/secrets/confirmation-password:ro
-      - ./secrets/s3-password.txt:/run/secrets/s3-password:ro
-    environment:
-      - API_URL=http://localhost:8000
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5433
-      - POSTGRES_SSLMODE=disable
-      - SECRET_KEY_FILE=/run/secrets/jwt-key
-      - SMTP_SERVER=smtp.gmail.com
-      - SMTP_PORT=587
-      - CONFIRMATION_USERNAME=confirm.test@notifer.emilpopovic.me
-      - RESEND_API_KEY_FILE=/run/secrets/resend-api-key
-      - CONFIRMATION_FALLBACK_USERNAME=notifer.updates@gmail.com
-      - CONFIRMATION_PASSWORD_FILE=/run/secrets/confirmation-password
-      - S3_BUCKET=calendar
-      - S3_ENDPOINT=http://minio:9000
-      - S3_USER=admin
-      - S3_PASSWORD_FILE=/run/secrets/s3-password
+      - ./config:/app/config:ro
+    env_file:
+      - .env
+    restart: unless-stopped
     depends_on:
-      - redis
-      - email_worker
-      - postgres
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      email_worker:
+        condition: service_started
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     
   calendar_worker:
+    container_name: calendar-worker
     build:
       context: .
       dockerfile: calendar_worker/Dockerfile
+    ports:
+      - "8001:8001"
+    networks:
+      - notifer
     volumes:
-      - ./secrets/db-password.txt:/run/secrets/db-password:ro
-      - ./secrets/jwt-key.txt:/run/secrets/jwt-key:ro
-      - ./secrets/resend-api-key.txt:/run/secrets/resend-api-key:ro
-      - ./secrets/update-password.txt:/run/secrets/update-password:ro
-      - ./secrets/s3-password.txt:/run/secrets/s3-password:ro
-    environment:
-      - WORKER_INTERVAL=45
-      - API_PORT=8000
-      - API_URL=http://localhost:8000
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5433
-      - POSTGRES_SSLMODE=disable
-      - SECRET_KEY_FILE=/run/secrets/jwt-key
-      - SMTP_SERVER=smtp.gmail.com
-      - SMTP_PORT=587
-      - UPDATE_USERNAME=updates.test@notifer.emilpopovic.me
-      - RESEND_API_KEY_FILE=/run/secrets/resend-api-key
-      - UPDATE_FALLBACK_USERNAME=notifer.updates@gmail.com
-      - UPDATE_PASSWORD_FILE=/run/secrets/update-password
-      - S3_BUCKET=calendar
-      - S3_ENDPOINT=http://minio:9000
-      - S3_USER=admin
-      - S3_PASSWORD_FILE=/run/secrets/s3-password
+      - ./config:/app/config:ro
+    env_file:
+      - .env
     depends_on:
-      - redis
-      - email_worker
-      - api
-      - postgres
-      - minio
-      - minio-create-bucket
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-create-bucket:
+        condition: service_completed_successfully
+      api:
+        condition: service_started
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
   
   email_worker:
+    container_name: email-worker
     build:
       context: .
       dockerfile: email_worker/Dockerfile
     command: rq worker email --url redis://redis:6379/0
-    volumes:
-      - ./secrets/db-password.txt:/run/secrets/db-password:ro
+    networks:
+      - notifer
     environment:
       - POSTGRES_HOST=postgres
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_PORT=5433
+      - POSTGRES_PORT=5432
       - POSTGRES_SSLMODE=disable
+    restart: unless-stopped
     depends_on:
-      - redis
-      - postgres
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
   
   redis:
-    image: redis:alpine
+    container_name: redis
+    image: redis:7.4.5-alpine
+    tmpfs:
+      - /data
+    networks:
+      - notifer
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
-      retries: 5
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   postgres:
-    image: postgres:15-alpine
+    container_name: postgres
+    image: postgres:15.8-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./secrets/db-password.txt:/run/secrets/db-password:ro
+    networks:
+      - notifer
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=postgres
-    command: -p 5433
+    command: -p 5432
     ports:
-      - "5433:5433"
+      - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres", "-p", "5433" ]
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-p", "5432" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db_backup:
+    container_name: db-backup
+    image: postgres:15.8-alpine
+    networks:
+      - notifer
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./db_backups:/backups
+    tmpfs:
+      - /var/lib/postgresql/data
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "while true; do
+        TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S);
+        pg_dump -h postgres -U postgres -d postgres -F c -f /backups/db_$${TIMESTAMP}.dump;
+        find /backups -type f -mtime +7 -delete;
+        sleep 14400;
+      done"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio
+    volumes:
+      - minio_data:/data
+    networks:
+      - notifer
+      - proxy-network
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=${S3_PASSWORD}
+      - MINIO_PROMETHEUS_AUTH_TYPE=public
+    command: server /data --address ":9000" --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  minio:
-    image: quay.io/minio/minio
-    entrypoint: sh -c "
-      export MINIO_ROOT_PASSWORD=$(cat /run/secrets/s3-password) &&
-      minio server /data --address ':9000' --console-address ':9090'"
-    volumes:
-      - minio_data:/data
-      - ./secrets/s3-password.txt:/run/secrets/s3-password:ro
-    ports:
-      - "9000:9000"
-      - "9090:9090"
-    environment:
-      - MINIO_ROOT_USER=admin
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
-      interval: 5s
-      timeout: 3s
-      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   minio-create-bucket:
+    container_name: minio-create-bucket
     image: minio/mc
     depends_on:
-      - minio
-    volumes:
-      - ./secrets/s3-password.txt:/run/secrets/s3-password:ro
+      minio:
+        condition: service_healthy
+    networks:
+      - notifer
+    environment:
+      - S3_PASSWORD=${S3_PASSWORD}
     entrypoint: |
       /bin/sh -c "
       echo 'Waiting for MinIO to be ready...'
 
-      until mc alias set local http://minio:9000 admin \"$(cat /run/secrets/s3-password)\"; do
+      until mc alias set local http://minio:9000 admin \"$$S3_PASSWORD\"; do
         echo 'MinIO not ready yet, waiting...';
         sleep 5;
       done;
 
       echo 'Successfully connected to MinIO'
 
-      if mc mb --ignore-existing local/calendar; then
-      echo 'Bucket created successfully.';
-        mc anonymous set none local/calendar;
-        exit 0;
-      else
-        echo 'Failed to create bucket';
-        exit 1;
-      fi;
+      mc mb local/calendar --ignore-existing
+      echo 'Bucket created successfully'
+      mc anonymous set none local/calendar
+      echo 'Access permission set to private'
       "
 
+  # Monitoring Stack
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.48.1
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    networks:
+      - notifer
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:10.2.3
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=redis-datasource
+    networks:
+      - notifer
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  alertmanager:
+    container_name: alertmanager
+    image: prom/alertmanager:v0.26.0
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager:/etc/alertmanager
+      - alertmanager_data:/alertmanager
+    networks:
+      - notifer
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:v1.7.0
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - notifer
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  redis-exporter:
+    container_name: redis-exporter
+    image: oliver006/redis_exporter:v1.55.0
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    ports:
+      - "9121:9121"
+    networks:
+      - notifer
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres-exporter:
+    container_name: postgres-exporter
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable
+    ports:
+      - "9187:9187"
+    networks:
+      - notifer
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
   minio_data:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+
+networks:
+  notifer:
+  proxy-network:
+    external: true

@@ -1,0 +1,14 @@
+{% extends "base_email.html" %}
+
+{% block content %}
+<p style="text-align: left;">{{ text }}</p>
+
+<div style="text-align: left; margin: 20px 0;">
+    <a href="{{ base_url }}/{{ endpoint }}?token={{ token }}" class="button">{{ button_text }}</a>
+</div>
+
+<p style="text-align: left;">{{ fallback_text }}</p>
+<p style="text-align: left;">
+    <a href="{{ base_url }}/{{ endpoint }}?token={{ token }}">{{ base_url }}/{{ endpoint }}?token={{ token }}</a>
+</p>
+{% endblock %}

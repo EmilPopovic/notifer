@@ -10,4 +10,4 @@ COPY . /app
 
 ENV PYTHONPATH="/app:${PYTHONPATH}"
 
-CMD ["python3", "/app/calendar_worker/app/main.py"]
+CMD ["python3", "/app/calendar_worker/run.py"]

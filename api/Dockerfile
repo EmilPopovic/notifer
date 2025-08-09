@@ -12,4 +12,4 @@ EXPOSE 8000
 
 ENV PYTHONPATH="/app:${PYTHONPATH}"
 
-CMD ["python3", "/app/api/app/main.py"]
+CMD ["python3", "/app/api/run.py"]

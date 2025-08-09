@@ -1,2 +1,9 @@
-/secrets/
+/.venv/
+/.vscode/
+
+/.env.*
 /.env
+
+!.env.example
+
+/db_backups/db_*

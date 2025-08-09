@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="confirmation-icon">{{ icon }}</div>
+    <h1>{{ heading }}</h1>
+
+    {% if description %}
+        <p>{{ description }}</p>
+    {% endif %}
+
+    {% if email %}
+        <div class="email-display">{{ email }}</div>
+    {% endif %}
+
+    {% if additional_message %}
+        <a href="{{ base_url }}" class="button">{{ button_text }}</a>
+    {% endif %}
+</div>
+{% endblock %}
