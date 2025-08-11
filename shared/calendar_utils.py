@@ -103,7 +103,7 @@ def extract_base_summary(summary: str, timestamp: datetime) -> str:
         return f'{timestamp.year}{summary.split('[')[0].strip()}'.lower()
     return f'{timestamp.year}{summary}'.lower()
 
-def build_singleton_event_dict(events: list[Event]) -> dict[str, Event]:
+def build_unique_event_dict(events: list[Event]) -> dict[str, Event]:
     summary_to_events = {}
     for event in events:
         if event.summary:
@@ -118,16 +118,7 @@ def build_singleton_event_dict(events: list[Event]) -> dict[str, Event]:
             logger.warning('Ignoring dublicate events with base summary: %s', key)
     return result
 
-def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> list[EventChange]:
-    changes = []
-
-    # build dicts of strictly different events
-    old_dict: dict[str, Event] = build_singleton_event_dict(old_events)
-    new_dict: dict[str, Event] = build_singleton_event_dict(new_events)
-
-    current_time = datetime.now(pytz.UTC)
-
-    def is_past_event(event: Event) -> bool:
+def is_past_event_tz(event: Event) -> bool:
         event_end = event.end
 
         # If the event time is naive (no timezone info), assume it's in UTC
@@ -137,16 +128,21 @@ def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> l
         else:
             event_end = event_end.astimezone(pytz.UTC)
 
-        return event_end < current_time
+        return event_end < datetime.now(pytz.UTC)
 
-    # ignore events that have already happened
-    for key, old_event in list(old_dict.items()):
-        if is_past_event(old_event):
-            del old_dict[key]
+def remove_past_events(events: list[Event]) -> list[Event]:
+    return [e for e in events if not is_past_event_tz(e)]
 
-    for key, new_event in list(new_dict.items()):
-        if is_past_event(new_event):
-            del new_dict[key]
+def compute_event_changes(old_events: list[Event], new_events: list[Event]) -> list[EventChange]:
+    # remove past events before building dicts of unique events
+    old_events = remove_past_events(old_events)
+    new_events = remove_past_events(new_events)
+
+    # build dicts of strictly different events
+    old_dict = build_unique_event_dict(old_events)
+    new_dict = build_unique_event_dict(new_events)
+
+    changes: list[EventChange] = []
 
     # check for removed events
     for key, old_event in old_dict.items():

@@ -65,7 +65,7 @@ ACTIVE_SUBSCRIPTIONS_GAUGE = Gauge(
 # Initialize worker info once
 try:
     WORKER_INFO.info({
-        'version': '2.0.0',
+        'version': '2.0.1',
         'worker_type': 'calendar_processor'
     })
     logger.info("Initialized worker info metrics")

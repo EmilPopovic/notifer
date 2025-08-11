@@ -87,7 +87,7 @@ async def detailed_health_check(settings: Settings = Depends(get_settings)):
         'timestamp': datetime.now(timezone.utc).isoformat(),
         'services': health_status,
         'response_time_seconds': round(response_time, 3),
-        'version': '2.0.0'
+        'version': '2.0.1'
     }
 
 @router.get('/metrics/custom')

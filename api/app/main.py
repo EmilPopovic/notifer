@@ -185,7 +185,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title='NotiFER',
         description='A web application allowing students of FER Zagreb to subscribe to email notifications about timetable chagnes.',
-        version='2.0.0',
+        version='2.0.1',
         lifespan=lifespan
     )
 
