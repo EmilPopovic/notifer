@@ -43,7 +43,7 @@ BACKUP_FILENAME=$(basename "$LATEST_BACKUP")
 
 # Upload to remote
 log "Uploading backup to remote storage..."
-rclone copy "$LATEST_BACKUP" "$RCLONE_REMOTE/" --progress
+rclone copy "$LATEST_BACKUP" "$RCLONE_REMOTE/" --fast-list --progress
 
 if [ $? -eq 0 ]; then
     log "Backup successfully uploaded to $RCLONE_REMOTE/$BACKUP_FILENAME"
@@ -54,10 +54,10 @@ fi
 
 # Clean up old remote backups (keep last 14 days)
 log "Cleaning up old remote backups (keeping last 14 days)..."
-rclone delete "$RCLONE_REMOTE/" --min-age 14d
+rclone delete "$RCLONE_REMOTE/" --fast-list --min-age 14d
 
 # Optional: Show what's currently stored remotely
 log "Current remote backups:"
-rclone ls "$RCLONE_REMOTE/" --human-readable
+rclone ls "$RCLONE_REMOTE/" --fast-list --human-readable
 
 log "$SERVICE_NAME backup completed successfully!"
