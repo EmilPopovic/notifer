@@ -66,20 +66,14 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
 1. **Install Docker:**
     [Official instructions](https://docs.docker.com/engine/install/)
 
-2. **Create the required Docker network:**
-
-    ```bash
-    docker network create proxy-network
-    ```
-
-3. **Clone the repository:**
+2. **Clone the repository:**
 
     ```bash
     git clone https://github.com/myolnyr/NotiFER.git
     cd NotiFER
     ```
 
-4. **Configure environment:**
+3. **Configure environment:**
 
     Edit `.env.example` and `config/app.conf` as needed, then rename:
 
@@ -87,13 +81,13 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
     mv .env.example .env
     ```
 
-5. **Run the service:**
+4. **Run the service:**
 
     ```bash
     docker compose up --build -d
     ```
 
-6. **Set up a reverse proxy (optional):**
+5. **Set up a reverse proxy (optional):**
     The app runs on port 8026. Metrics are available for Prometheus/Grafana integration.
 
 ---

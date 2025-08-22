@@ -4,15 +4,12 @@ name: notifer
 
 services:
   api:
-    container_name: api
+    container_name: notifer_api
     build:
       context: .
       dockerfile: api/Dockerfile
     ports:
       - "${API_PORT:-8026}:8026"
-    networks:
-      - notifer
-      - proxy-network
     volumes:
       - ./config:/app/config:ro
     env_file:
@@ -40,8 +37,6 @@ services:
       dockerfile: calendar_worker/Dockerfile
     ports:
       - "8001:8001"
-    networks:
-      - notifer
     volumes:
       - ./config:/app/config:ro
     env_file:
@@ -69,8 +64,6 @@ services:
       context: .
       dockerfile: email_worker/Dockerfile
     command: rq worker email --url redis://redis:6379/0
-    networks:
-      - notifer
     environment:
       - POSTGRES_HOST=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -95,8 +88,6 @@ services:
     image: redis:7.4.5-alpine
     tmpfs:
       - /data
-    networks:
-      - notifer
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -115,8 +106,6 @@ services:
     image: postgres:15.8-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - notifer
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -140,8 +129,6 @@ services:
   db_backup:
     container_name: db-backup
     image: postgres:15.8-alpine
-    networks:
-      - notifer
     environment:
       - PGPASSWORD=${POSTGRES_PASSWORD}
     volumes:
@@ -154,7 +141,7 @@ services:
         TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S);
         pg_dump -h postgres -U postgres -d postgres -F c -f /backups/db_$${TIMESTAMP}.dump;
         find /backups -type f -mtime +7 -delete;
-        sleep 14400;
+        sleep 86400;
       done"
     depends_on:
       postgres:
@@ -164,8 +151,6 @@ services:
   db_restore:
     container_name: db-restore
     image: postgres:15.8-alpine
-    networks:
-      - notifer
     environment:
       - PGPASSWORD=${POSTGRES_PASSWORD}
     volumes:
@@ -251,8 +236,6 @@ services:
     volumes:
       - ./monitoring/prometheus:/etc/prometheus
       - prometheus_data:/prometheus
-    networks:
-      - notifer
     env_file:
       - .env
     restart: unless-stopped
@@ -269,9 +252,6 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_INSTALL_PLUGINS=redis-datasource
-    networks:
-      - notifer
-      - proxy-network
     env_file:
       - .env
     restart: unless-stopped
@@ -288,8 +268,6 @@ services:
     volumes:
       - ./monitoring/alertmanager:/etc/alertmanager
       - alertmanager_data:/alertmanager
-    networks:
-      - notifer
     env_file:
       - .env
     restart: unless-stopped
@@ -308,8 +286,6 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-    networks:
-      - notifer
     env_file:
       - .env
     restart: unless-stopped
@@ -321,8 +297,6 @@ services:
       - REDIS_ADDR=redis://redis:6379
     ports:
       - "9121:9121"
-    networks:
-      - notifer
     env_file:
       - .env
     depends_on:
@@ -337,8 +311,6 @@ services:
       - DATA_SOURCE_NAME=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres?sslmode=disable
     ports:
       - "9187:9187"
-    networks:
-      - notifer
     env_file:
       - .env
     depends_on:
@@ -352,8 +324,3 @@ volumes:
   prometheus_data:
   grafana_data:
   alertmanager_data:
-
-networks:
-  notifer:
-  proxy-network:
-    external: true

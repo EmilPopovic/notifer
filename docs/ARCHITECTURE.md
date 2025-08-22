@@ -11,7 +11,7 @@ The system is composed of several cooperating components, each running in its ow
 - **Responsibilities:**
   - Exposes REST endpoints for student and university admin actions
   - Handles subscription management, confirmation, and API authentication
-  - Servves the static frontend
+  - Serves the static frontend
   - Provides health and metrics endpoints
 - **Deployment:** Runs as a Docker container
 
