@@ -163,9 +163,6 @@ services:
     image: quay.io/minio/minio
     volumes:
       - minio_data:/data
-    networks:
-      - notifer
-      - proxy-network
     ports:
       - "9002:9002"
       - "9001:9001"
@@ -193,8 +190,6 @@ services:
     depends_on:
       minio:
         condition: service_healthy
-    networks:
-      - notifer
     environment:
       - S3_PASSWORD=${S3_PASSWORD}
     entrypoint: |
