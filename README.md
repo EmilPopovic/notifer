@@ -102,13 +102,13 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
 2. **Download and run the deployment script:**
 
     ```bash
-    curl -sL https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/head/master/deploy.sh | bash
+    curl -sL https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/heads/master/deploy.sh | bash
     ```
 
     Or manually download and execute:
 
     ```bash
-    wget https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/head/master/deploy.sh
+    wget https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/heads/master/deploy.sh
     chmod +x deploy.sh
     ./deploy.sh
     ```
