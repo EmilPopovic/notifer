@@ -84,7 +84,7 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
 4. **Run the service:**
 
     ```bash
-    docker compose up --build -d
+    docker compose -f compose.dev.yaml up --build -d
     ```
 
 5. **Set up a reverse proxy (optional):**
