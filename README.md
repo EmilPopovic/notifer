@@ -61,7 +61,7 @@ It automatically monitors university calendars and sends timely email notificati
 
 NotiFER is production-ready and can be hosted by FER IT or any university department.
 
-### Quick Start (Docker compose)
+### Quick Start - From Source (Docker compose)
 
 1. **Install Docker:**
     [Official instructions](https://docs.docker.com/engine/install/)
@@ -91,6 +91,75 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
     The app runs on port 8026. Metrics are available for Prometheus/Grafana integration.
 
 ---
+
+### Quick Start - From Registry (Docker compose)
+
+**This is the recommended deployment method for production environments.**
+
+1. **Install Docker:**
+    [Official Docker installation instructions](https://docs.docker.com/engine/install/)
+
+2. **Download and run the deployment script:**
+
+    ```bash
+    curl -sL https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/head/master/deploy.sh | bash
+    ```
+
+    Or manually download and execute:
+
+    ```bash
+    wget https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/head/master/deploy.sh
+    chmod +x deploy.sh
+    ./deploy.sh
+    ```
+
+3. **Configure environment:**
+
+    The script creates a `notifer/` directory with all necessary files. Edit the `.env` file:
+
+    ```bash
+    cd notifer
+    nano .env  # or use your preferred editor
+    ```
+
+    **Required configuration:**
+    - Email settings (RESEND_API_KEY or SMTP credentials)
+    - Database password (POSTGRES_PASSWORD)
+    - Storage password (S3_PASSWORD)  
+    - JWT secret key (JWT_KEY)
+    - API base URL (API_URL)
+    - Admin API token hash (NOTIFER_API_TOKEN_HASH)
+
+4. **Deploy:**
+
+    ```bash
+    docker compose up -d
+    ```
+
+5. **Verify deployment:**
+
+    - API: http://localhost:8026
+    - Grafana monitoring: http://localhost:3000 (admin/your_grafana_password)
+    - MinIO storage: http://localhost:9001 (admin/your_s3_password)
+
+**What gets deployed:**
+
+- Pre-built Docker images from Docker Hub
+- Complete monitoring stack (Prometheus, Grafana, AlertManager)
+- Automated database backups
+- All configuration files and directory structure
+
+**Deployment structure:**
+
+```bash
+notifer/
+├── compose.yaml          # Main deployment file
+├── .env                  # Your configuration
+├── config/
+│   └── app.conf         # Application settings
+├── monitoring/          # Monitoring configuration
+└── db_backups/         # Database backup location
+```
 
 ## 🔒 Security & Privacy
 
