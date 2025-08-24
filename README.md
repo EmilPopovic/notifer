@@ -69,8 +69,8 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
 2. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/myolnyr/NotiFER.git
-    cd NotiFER
+    git clone https://github.com/myolnyr/notifer.git
+    cd notifer
     ```
 
 3. **Configure environment:**
@@ -196,3 +196,4 @@ For questions, support, or a demo, please contact:
 ---
 
 _NotiFER is currently developed and maintained by Emil Popović, a student at FER. Ready for official FER deployment and further collaboration!_ 🦄
+
