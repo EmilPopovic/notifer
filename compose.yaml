@@ -27,16 +27,24 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8026/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   calendar_worker:
     container_name: calendar-worker
     image: emilpopovic/notifer_calendar_worker:latest
     ports:
       - "8001:8001"
+      - "8002:8002"
     volumes:
       - ./config:/app/config:ro
     env_file:
       - .env
+    restart: always
     depends_on:
       redis:
         condition: service_healthy
@@ -53,6 +61,12 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   email_worker:
     container_name: email-worker

@@ -2,6 +2,8 @@ import logging
 import signal
 import sys
 from threading import Thread
+from flask import Flask
+import time
 
 from shared.database import init_db
 from calendar_worker.app.dependencies import get_worker_service
@@ -22,9 +24,18 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-def signal_handler(signum, frame):
+app = Flask(__name__)
+
+@app.route('/health')
+def health_check():
+    return {'status': 'healthy', 'timestamp': time.time()}, 200
+
+def signal_handler(signum, _):
     logger.info(f'Received signal {signum}, shutting down...')
     sys.exit(0)
+
+def start_health_server(port: int = 8002):
+    app.run(host='0.0.0.0', port=port)
 
 def start_worker():
     '''Main application entry point.'''
@@ -32,6 +43,9 @@ def start_worker():
 
     metrics_thread = Thread(target=start_metrics_server, args=(8001,), daemon=True)
     metrics_thread.start()
+
+    health_thread = Thread(target=start_health_server, args=(8002,), daemon=True)
+    health_thread.start()
 
     # Set up signal handlers
     signal.signal(signal.SIGINT, signal_handler)
