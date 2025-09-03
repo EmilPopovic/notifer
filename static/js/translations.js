@@ -105,7 +105,7 @@ const translations = {
             github: `
                 <h2>GitHub Repository</h2>
                 <p>NotiFER is open source! Available on GitHub:<br>
-                <a href="https://github.com/EmilPopovic/NotiFER" target="_blank">github.com/EmilPopovic/NotiFER</a>
+                <a href="https://github.com/EmilPopovic/notifer" target="_blank">github.com/EmilPopovic/notifer</a>
                 </p>
             `
         }
@@ -216,7 +216,7 @@ const translations = {
             github: `
                 <h2>GitHub repozitorij</h2>
                 <p>NotiFER je softver otvorenog koda! Dostupan je na GitHubu:<br>
-                <a href="https://github.com/EmilPopovic/NotiFER" target="_blank">github.com/EmilPopovic/NotiFER</a>
+                <a href="https://github.com/EmilPopovic/notifer" target="_blank">github.com/EmilPopovic/notifer</a>
                 </p>
             `
         }

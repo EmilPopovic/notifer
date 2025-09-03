@@ -34,8 +34,8 @@ NotiFER is designed for easy, secure deployment by university IT and includes a 
 ### 2. Quick Start
 
 ```bash
-git clone https://github.com/myolnyr/NotiFER.git
-cd NotiFER
+git clone https://github.com/EmilPopovic/notifer.git
+cd notifer
 cp .env.example .env
 # Edit .env and config/app.conf with your settings (see below)
 docker compose up -d

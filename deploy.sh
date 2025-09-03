@@ -2,7 +2,7 @@
 
 set -e
 
-REPO_BASE_URL="https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/heads/master"
+REPO_BASE_URL="https://raw.githubusercontent.com/EmilPopovic/notifer/refs/heads/master"
 
 echo "Creating deployment directory..."
 mkdir -p notifer

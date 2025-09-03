@@ -1,8 +1,8 @@
 # 📅 NotiFER
 
 [![Status](https://img.shields.io/endpoint?url=https%3A%2F%2Fstatus.notifer.emilpopovic.me%2Fshield-badges%2Fstatus.json&style=flat)](https://status.notifer.emilpopovic.me)
-[![License](https://img.shields.io/github/license/myolnyr/NotiFER)](https://github.com/myolnyr/NotiFER/blob/master/LICENSE)
-[![Release](https://img.shields.io/github/v/release/myolnyr/NotiFER)](https://github.com/myolnyr/NotiFER/releases)
+[![License](https://img.shields.io/github/license/EmilPopovic/notifer)](https://github.com/EmilPopovic/notifer/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/v/release/EmilPopovic/notifer)](https://github.com/EmilPopovic/notifer/releases)
 
 ---
 
@@ -98,13 +98,13 @@ It automatically monitors university calendars and sends timely email notificati
 2. **Download and run the deployment script:**
 
     ```bash
-    curl -sL https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/heads/master/deploy.sh | bash
+    curl -sL https://raw.githubusercontent.com/EmilPopovic/notifer/refs/heads/master/deploy.sh | bash
     ```
 
     Or manually download and execute:
 
     ```bash
-    wget https://raw.githubusercontent.com/EmilPopovic/NotiFER/refs/heads/master/deploy.sh
+    wget https://raw.githubusercontent.com/EmilPopovic/notifer/refs/heads/master/deploy.sh
     chmod +x deploy.sh
     ./deploy.sh
     ```
@@ -134,9 +134,8 @@ It automatically monitors university calendars and sends timely email notificati
 
 **What gets deployed:**
 
-- Pre-built Docker images from Docker Hub
-- Complete monitoring stack (Prometheus, Grafana, AlertManager)
-- Automated database backups
+- Pre-built Docker image from Docker Hub
+- SQLite database
 - All configuration files and directory structure
 
 **Deployment structure:**
@@ -147,8 +146,7 @@ notifer/
 ├── .env                  # Your configuration
 ├── config/
 │   └── app.conf         # Application settings
-├── monitoring/          # Monitoring configuration
-└── db_backups/         # Database backup location
+└── data/                # Database and calendars
 ```
 
 ---
