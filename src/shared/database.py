@@ -58,6 +58,8 @@ engine = create_engine(
         'check_same_thread': False,
         'timeout': 20
     },
+    pool_pre_ping=True,
+    pool_recycle=300,
     echo=False
 )
 

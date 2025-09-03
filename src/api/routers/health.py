@@ -64,6 +64,15 @@ async def detailed_health_check():
 @router.get('/stats', dependencies=[Depends(verify_notifer_token)])
 async def stats():
     worker_service = get_worker_service()
+    
+    # Convert worker_last_cycle to human-readable format
+    worker_last_cycle_readable = None
+    if worker_service.worker_last_cycle:
+        worker_last_cycle_readable = datetime.fromtimestamp(
+            worker_service.worker_last_cycle, 
+            timezone.utc
+        ).isoformat()
+    
     return {
         'timestamp': datetime.now(timezone.utc).isoformat(),
         'total_subscriptions': get_total_subscription_count_no_session(),
@@ -72,7 +81,7 @@ async def stats():
         'email_queue_size': get_email_queue_size(),
         'worker_cycles_total': worker_service.worker_cycles_total,
         'worker_cycle_duration': worker_service.worker_cycle_duration,
-        'worker_last_cycle': worker_service.worker_last_cycle,
+        'worker_last_cycle': worker_last_cycle_readable,
         'subscriptions_processed': worker_service.subscriptions_processed,
         'calendar_fetches': worker_service.calendar_fetches,
         'calendar_fetch_duration': worker_service.calendar_fetch_duration,

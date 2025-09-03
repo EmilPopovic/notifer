@@ -20,7 +20,7 @@ class UserCalendar(Base):
     last_checked: Mapped[datetime.datetime | None] = mapped_column(DateTime, nullable=True)
     last_change_detected: Mapped[datetime.datetime | None] = mapped_column(DateTime, nullable=True)
     change_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    previous_calendar_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    previous_calendar_path: Mapped[str | None] = mapped_column(String, nullable=True)
     previous_calendar_hash: Mapped[str | None] = mapped_column(String, nullable=True)
     language: Mapped[str] = mapped_column(String, default='hr', nullable=False)
 

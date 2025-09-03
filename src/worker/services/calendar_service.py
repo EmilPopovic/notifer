@@ -55,7 +55,7 @@ class CalendarService:
     
     def get_previous_calendar_content(self, subscription: UserCalendar) -> str | None:
         '''Get previous calendar content from S3.'''
-        if not subscription.previous_calendar_url:
+        if not subscription.previous_calendar_path:
             return None
         
         previous_content = self.storage_manager.get_calendar(subscription.email)
@@ -93,7 +93,7 @@ class CalendarService:
             logger.info(f'Calendar content changed but no event differences found for {subscription.email}')
             return False
         
-    def process_subscription(self, subscription: UserCalendar) -> dict:
+    def process_subscription(self, sub: UserCalendar) -> dict:
         '''
         Process a single subscription for calendar changes.
 
@@ -115,6 +115,16 @@ class CalendarService:
         }
 
         try:
+            # Get fresh subscription object in current session
+            subscription = session.query(UserCalendar).filter(
+                UserCalendar.username == sub.username,
+                UserCalendar.domain == sub.domain
+            ).with_for_update().first()
+
+            if not subscription:
+                logger.error(f'Subscription not found: {sub.email}')
+                return {'error': 'SUBSCRIPTION_NOT_FOUND'}
+
             # Skip if not activated or paused
             if not subscription.activated or subscription.paused:
                 logger.info(f'Skipping {subscription.email} (not activated or paused)')
@@ -142,7 +152,7 @@ class CalendarService:
             new_hash = self.compute_hash(current_content)
 
             # Determine if this is initial processing
-            is_initial = not subscription.previous_calendar_url
+            is_initial = not subscription.previous_calendar_path
             status['is_initial'] = is_initial
             previous_content = None
 
@@ -179,24 +189,23 @@ class CalendarService:
 
             # Save new calendar to S3
             logger.info(f'Saving new calendar for {subscription.email}')
-            calendar_s3_url = self.save_calendar_to_s3(subscription.email, current_content)
-            if not calendar_s3_url:
+            calendar_local_path = self.save_calendar_to_s3(subscription.email, current_content)
+            if not calendar_local_path:
                 status['error'] = 'S3_ERROR'
                 return status
             
             # Update subscription record
-            subscription.previous_calendar_url = calendar_s3_url
+            subscription.previous_calendar_path = calendar_local_path
             subscription.previous_calendar_hash = new_hash
             subscription.last_checked = datetime.now() if not email_sent else subscription.last_change_detected
 
-            session.merge(subscription)
             session.commit()
 
             logger.info(f'Processed subscription for {subscription.email} successfully')
             return status
         
         except Exception as e:
-            logger.exception(f'Error processing subscription for {subscription.email}: {e}')
+            logger.exception(f'Error processing subscription for {sub.email}: {e}')
             session.rollback()
             status['error'] = 'UNDOCUMENTED_ERROR'
             return status
