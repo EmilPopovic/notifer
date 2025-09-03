@@ -40,7 +40,7 @@ We will respond as quickly as possible and coordinate a fix and disclosure.
   Users can delete their data at any time. No tracking or analytics are performed.
 
 - **Rate Limiting:**
-  Redis-based rate limiting is available to prevent abuse on email-sending endpoints.
+  Rate limiting is available to prevent abuse on email-sending endpoints.
 
 - **Open Source:**
   The codebase is fully open for audit by any interested party.

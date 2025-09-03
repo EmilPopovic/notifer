@@ -1,11 +1,11 @@
 # 🏗️ NotiFER System Architecture
 
 NotiFER is designed as a modular, scalable, and secure notification platform for university calendar changes.
-The system is composed of several cooperating components, each running in its own container for reliability and maintainability.
+The system is composed of several cooperating components, each running as a thread in a single Python process for best stability and simplicity.
 
 ## Components
 
-### 1. **API Service (`api/`)**
+### 1. **API Service (`src/api/`)**
 
 - **Framework:** FastAPI (Python)
 - **Responsibilities:**
@@ -15,7 +15,7 @@ The system is composed of several cooperating components, each running in its ow
   - Provides health and metrics endpoints
 - **Deployment:** Runs as a Docker container
 
-### 2. **Calendar Worker (`calendar_worker/`)**
+### 2. **Calendar Worker (`src/worker/`)**
 
 - **Framework:** Python
 - **Responsibilities:**
@@ -43,30 +43,13 @@ The system is composed of several cooperating components, each running in its ow
 
 ### 5. **Database**
 
-- **System:** PostgreSQL
+- **System:** SQLite
 - **Purpose:** Stores user subscriptions, calendar metadata, and usage statistics
 
-### 6. **S3 Storage**
+### 6. **Local Storage**
 
-- **Default:** MinIO (S3-compatible, runs in Docker)
+- **Default:** `data/` directory next to `compose.yaml`
 - **Purpose** Stores calendar files and diffs for efficient processing and auditing
-
-### 7. **Email Service**
-
-- **Options:** SMTP or Resend API (configurable)
-- **Purpose:** Sends confirmation, activation, and notification emails to users
-
-### 8. **Redis**
-
-- **Purpose:** Used for rate limiting, cahcing, and email queues (improves performance and security)
-
----
-
-## Containerization & Deployment
-
-- All major components (API, worker, database, S3, Redis) are run as separate containers via Docker Compose.
-- Easy to scale, monitor, and maintain.
-- Metrics endpoints are exposed for Prometheus/Grafana.
 
 ---
 
@@ -75,13 +58,6 @@ The system is composed of several cooperating components, each running in its ow
 - All sensitive actions require email confirmation or secure API tokens.
 - No unnecessary data is collected.
 - Open source for full transparency and review.
-
----
-
-## Extensibility
-
-- The modular design allows FER or other universities to adapt, extend, or integreate NotiFER with existing systems.
-- Shared codebase ensures consistency and reduces duplication.
 
 ---
 

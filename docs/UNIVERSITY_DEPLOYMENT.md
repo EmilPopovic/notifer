@@ -19,10 +19,10 @@ NotiFER is designed for easy, secure deployment by university IT and includes a 
 
 ## 🏗️ System Architecture
 
-- **Backend:** Python (FastAPI), PostgreSQL, Redis, MinIO
+- **Backend:** Python (FastAPI), SQLite
 - **Frontend:** Responsive, accessible web UI (HTML/CSS/JS)
-- **Email:** Uses SMTP or transactional email provider (configurable)
-- **Deployment:** Docker Compose for easy setup; supports reverse proxy and Prometheus/Grafana monitoring
+- **Email:** Uses SMTP or transactional email provider (configurable), Jinja2 templates
+- **Deployment:** Docker Compose for easy setup
 
 ## 🚀 Deployment Instructions
 
@@ -38,7 +38,7 @@ git clone https://github.com/myolnyr/NotiFER.git
 cd NotiFER
 cp .env.example .env
 # Edit .env and config/app.conf with your settings (see below)
-docker compose up --build -d
+docker compose up -d
 ```
 
 ### 3. Configuration
@@ -52,16 +52,11 @@ docker compose up --build -d
 ### 4. Reverse Proxy (Recommended)
 
 Run behind Nginx/Apache for HTTPS and domain routing.
-Expose port 8026 internally (and optionally port 3000 for Grafana).
-
-### 5. Monitoring
-
-- Prometheus metrics available at `/metrics`
-- Grafana dashboards can be configured for uptime and usage
+Expose port 8026 internally.
 
 ---
 
-## 🔑 University API
+## 🔑 Admin API
 
 All endpoints require a secure Bearer token (hash stored in `.env`).
 
@@ -83,12 +78,12 @@ All endpoints require a secure Bearer token (hash stored in `.env`).
 - No unnecessary data collection
 - All sensitive actions require confirmation and/or secure API tokens
 - Open codebase for full transparency
-- Ready for university IT security review
+- Ready for security review
 
 ## 🛠️ Support & Customization
 
 - **Contact:** Emil Popović (<admin@emilpopovic.me>)
-- **GitHub:** [github.com/myolnyr/NotiFER](https://github.com/myolnyr/NotiFER)
+- **GitHub:** [github.com/EmilPopovic/notifer](https://github.com/EmilPopovic/notifer)
 - FER is welcome to audit, contribute, and adapt NotiFER for official use.
 
 ---

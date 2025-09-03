@@ -7,7 +7,7 @@ This document describes all public API endpoints provided by NotiFER.
 ## Table of contents
 
 - [Student Endpoints](#student-endpoints)
-- [University (Admin) Endpoints](#university-admin-endpoints)
+- [Admin Endpoints](#admin-endpoints)
 - [Health & Monitoring](#health--monitoring)
 - [Error Handling](#error-handling)
 - [Authentication](#authentication)
@@ -134,11 +134,11 @@ Resume notifications via email confirmation link.
 
 ---
 
-## University (Admin) Endpoints
+## Admin Endpoints
 
 > All endpoints below require a Bearer token in the `Authorization` header.
 
-### `POST /uni/subscribe/url`
+### `POST /admin/subscribe/url`
 
 Add a subscription by calendar URL (activated by default).
 
@@ -155,7 +155,7 @@ Add a subscription by calendar URL (activated by default).
 **Usage:**
 
 ```bash
-curl -X POST <base-url>/uni/subscribe/url \
+curl -X POST <base-url>/admin/subscribe/url \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"q": "<calendar-url>", "language": "<lang>"}'
@@ -163,7 +163,7 @@ curl -X POST <base-url>/uni/subscribe/url \
 
 ---
 
-### `POST /uni/subscribe/username`
+### `POST /admin/subscribe/username`
 
 Add a subscription by username and calendar auth (activated by default).
 
@@ -181,7 +181,7 @@ Add a subscription by username and calendar auth (activated by default).
 **Usage:**
 
 ```bash
-curl -X POST <base-url>/uni/subscribe/username \
+curl -X POST <base-url>/admin/subscribe/username \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"username": "<username>", "auth": "<calendar-auth>", "language": "<lang>"}'
@@ -189,7 +189,7 @@ curl -X POST <base-url>/uni/subscribe/username \
 
 ---
 
-### `POST /uni/pause`
+### `POST /admin/pause`
 
 Pause notifications for a user by username.
 
@@ -204,7 +204,7 @@ Pause notifications for a user by username.
 **Usage:**
 
 ```bash
-curl -X POST <base-url>/uni/pause \
+curl -X POST <base-url>/admin/pause \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"username": "<username>"}'
@@ -212,7 +212,7 @@ curl -X POST <base-url>/uni/pause \
 
 ---
 
-### `POST /uni/resume`
+### `POST /admin/resume`
 
 Resume notifications for a user by username.
 
@@ -227,7 +227,7 @@ Resume notifications for a user by username.
 **Usage:**
 
 ```bash
-curl -X POST <base-url>/uni/resume \
+curl -X POST <base-url>/admin/resume \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"username": "<username>"}'
@@ -235,7 +235,7 @@ curl -X POST <base-url>/uni/resume \
 
 ---
 
-### `POST /uni/delete`
+### `POST /admin/delete`
 
 Delete a subscription by username.
 
@@ -250,7 +250,7 @@ Delete a subscription by username.
 **Usage:**
 
 ```bash
-curl -X POST <base-url>/uni/delete \
+curl -X POST <base-url>/admin/delete \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"username": "<username>"}'
@@ -258,7 +258,7 @@ curl -X POST <base-url>/uni/delete \
 
 ---
 
-### `GET /uni/info`
+### `GET /admin/info`
 
 Get subscription info by username.
 
@@ -274,11 +274,11 @@ Get subscription info by username.
 **Usage:**
 
 ```bash
-curl -X GET "<base-url>/uni/info?username=<username>" \
+curl -X GET "<base-url>/admin/info?username=<username>" \
   -H "Authorization: Bearer <token>"
 ```
 
-### `GET /uni/info/all`
+### `GET /admin/info/all`
 
 Get info about all subscriptions.
 
@@ -289,7 +289,7 @@ Get info about all subscriptions.
 **Usage:**
 
 ```bash
-curl -X GET "<base-url>/uni/info/all" \
+curl -X GET "<base-url>/admin/info/all" \
   -H "Authorization: Bearer <token>"
 ```
 
@@ -305,15 +305,58 @@ Health check endpoint.
 
 - `200 OK` with status
 
----
+### `GET /health/ready`
 
-### `GET /metrics`
+Kubernetes-style readiness check.
 
-Prometheus metrics endpoint.
+**Respnse:**
+
+- `200 OK` with `{'status': 'ready'}`
+
+### `GET /health/detailed`
+
+Detailed healthcheck with dependency verification. This endpoint is protected.
 
 **Response:**
 
-- `200 OK` (Prometheus format)
+- `200 OK` with status of API, worker and database.
+
+**Usage:**
+
+```bash
+curl -X GET "<base-url>/health/detailed" \
+  -H "Authorization: Bearer <token>"
+```
+
+### `GET /stats`
+
+Stats of the app. This is a protected endpoint.
+
+**Response:**
+
+```bash
+{
+  'timestamp': <current timestamp>,
+  'total_subscriptions': <total number of subscriptions>,
+  'active_subscriptions': <total number of active and unpaused subscriptions>,
+  'total_changes_detected': <number of times a calendar change has been detected in all sessions>,
+  'email_queue_size': <number of emails currently queued for sending>,
+  'worker_cycles_total': <number of checking cycles since start of current session>,
+  'worker_cycle_duration': <time taken for the last cycle>,
+  'worker_last_cycle': <timestamp of the last cycle>,
+  'subscriptions_processed': worker_service.subscriptions_processed,
+  'calendar_fetches': <total number of times calendars have been fetched in the current session>,
+  'calendar_fetch_duration': <time spent fetching calendars in the last cycle>,
+  'emails_queued': <total number of enqueued emails since the start of current session>,
+}
+```
+
+**Usage:**
+
+```bash
+curl -X GET "<base-url>/stats" \
+  -H "Authorization: Bearer <token>"
+```
 
 ---
 
@@ -327,5 +370,5 @@ Prometheus metrics endpoint.
 ## Authentication
 
 - Student endpoints do **not** require authentication (actions are confirmed via email).
-- University endpoints require a Bearer token in the `Authorization` header.  
+- Admin endpoints require a Bearer token in the `Authorization` header.  
   The SHA-256 hash of the token is stored in the `.env` file.

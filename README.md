@@ -25,11 +25,11 @@ It automatically monitors university calendars and sends timely email notificati
 - **Internationalization:**
     Fully localized in Croatian and English.
 
-- **University API:**
-    FER administration can securely manage subscriptions (add, remove, pause, resume, query) via a protected API.
+- **Admin API:**
+    Administrators can securely manage subscriptions (add, remove, pause, resume, query) via a protected API.
 
 - **Self-Hosting Ready:**
-    Easily deployable via Docker Compose, with built-in monitoring and metrics.
+    Easily deployable via Docker Compose.
 
 ---
 
@@ -42,7 +42,7 @@ It automatically monitors university calendars and sends timely email notificati
     FER can freely review, audit, and contribute to the codebase.
 
 - **University Integration:**
-    NotiFER is ready for official FER deployment, with features for administrative control and secure management.
+    NotiFER is ready for official deployment, with features for administrative control and secure management.
 
 ---
 
@@ -58,8 +58,6 @@ It automatically monitors university calendars and sends timely email notificati
 ---
 
 ## ☁️ Hosting & Deployment
-
-NotiFER is production-ready and can be hosted by FER IT or any university department.
 
 ### Quick Start - From Source (Docker compose)
 
@@ -88,7 +86,7 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
     ```
 
 5. **Set up a reverse proxy (optional):**
-    The app runs on port 8026. Metrics are available for Prometheus/Grafana integration.
+    The app runs on port 8026.
 
 ### Quick Start - From Registry (Docker compose)
 
@@ -133,12 +131,6 @@ NotiFER is production-ready and can be hosted by FER IT or any university depart
     ```bash
     docker compose up -d
     ```
-
-5. **Verify deployment:**
-
-    - API: http://localhost:8026
-    - Grafana monitoring: http://localhost:3000 (admin/your_grafana_password)
-    - MinIO storage: http://localhost:9001 (admin/your_s3_password)
 
 **What gets deployed:**
 
@@ -196,5 +188,3 @@ For questions, support, or a demo, please contact:
 ---
 
 _NotiFER is currently developed and maintained by Emil Popović, a student at FER. Ready for official FER deployment and further collaboration!_ 🦄
-
-
