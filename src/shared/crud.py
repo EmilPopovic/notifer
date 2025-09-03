@@ -37,7 +37,7 @@ def create_subscription(
         paused=False,
         created=datetime.now(tz=pytz.timezone('Europe/Paris')),
         last_checked=None,
-        previous_calendar_url=None,
+        previous_calendar_path=None,
         previous_calendar_hash=None,
         language=language
     )
