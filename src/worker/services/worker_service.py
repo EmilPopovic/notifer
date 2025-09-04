@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class WorkerService:
     '''Service for managing the main worker loop.'''
 
-    def __init__(self, calendar_service: CalendarService, worker_interval: int, max_workers: int = 10):
+    def __init__(self, calendar_service: CalendarService, worker_interval: int, max_workers: int = 3):
         self._terminate = threading.Event()
         self.calendar_service = calendar_service
         self.worker_interval = worker_interval

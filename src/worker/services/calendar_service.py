@@ -119,7 +119,7 @@ class CalendarService:
             subscription = session.query(UserCalendar).filter(
                 UserCalendar.username == sub.username,
                 UserCalendar.domain == sub.domain
-            ).with_for_update().first()
+            ).first()
 
             if not subscription:
                 logger.error(f'Subscription not found: {sub.email}')

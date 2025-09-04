@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     
     @property
     def max_workers(self) -> int:
-        return int(self._get_config_value('worker', 'max_workers') or os.getenv('MAX_WORKERS', '10'))
+        return int(self._get_config_value('worker', 'max_workers') or os.getenv('MAX_WORKERS', '3'))
 
     # Calendar configuration
     @property

@@ -98,7 +98,6 @@ def verify_notifer_token(authorization: str = Header(...)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token format')
     token = authorization.removeprefix('Bearer ').strip()
     token_hash = hashlib.sha256(token.encode()).hexdigest()
-    print(token_hash)
     settings = get_settings()
     if token_hash != settings.notifer_api_token_hash:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid API token')
