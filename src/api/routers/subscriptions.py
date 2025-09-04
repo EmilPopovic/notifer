@@ -113,7 +113,7 @@ async def delete_account(
         token: str,
         subscription_service: SubscriptionService = Depends(get_subscription_service),
         template_service: TemplateService = Depends(get_template_service),
-        s3_client: StorageManager = Depends(get_storage_manager)
+        storage: StorageManager = Depends(get_storage_manager)
 ):
     logger.info('Delete account request')
     try:
@@ -121,7 +121,7 @@ async def delete_account(
         user_language = subscription_service.get_user_language(email)
 
         subscription_service.delete_subscription(email)
-        s3_client.delete_calendar(email)
+        storage.delete_calendar(email)
 
         return template_service.render_delete(request, email, language=user_language)
     except InvalidTokenError as e:
@@ -152,7 +152,7 @@ async def pause_notifications(
         token: str,
         subscription_service: SubscriptionService = Depends(get_subscription_service),
         template_service: TemplateService = Depends(get_template_service),
-        s3_client: StorageManager = Depends(get_storage_manager)
+        storage: StorageManager = Depends(get_storage_manager)
 ):
     logger.info('Pause notifications request')
     try:
@@ -160,7 +160,7 @@ async def pause_notifications(
         user_language = subscription_service.get_user_language(email)
 
         subscription_service.update_pause_status(email, True)
-        s3_client.delete_calendar(email)
+        storage.delete_calendar(email)
 
         return template_service.render_pause(request, email, language=user_language)
     except InvalidTokenError as e:

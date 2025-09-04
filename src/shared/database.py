@@ -4,7 +4,7 @@ import configparser
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import QueuePool
 
 from .models import Base
 
@@ -25,7 +25,11 @@ def load_database_config():
             db_section = config['database']
             # Convert section to dictionary
             db_config = {
-                'path': db_section.get('path', 'data/notifer.db')
+                'user': db_section.get('user', 'postgres'),
+                'host': db_section.get('host', 'postgres'),
+                'database': db_section.get('database', 'postgres'),
+                'port': db_section.get('port', '5432'),
+                'sslmode': db_section.get('sslmode', 'disable')
             }
         else:
             logger.warning("No [database] section found in config file")
@@ -34,33 +38,47 @@ def load_database_config():
         logger.warning(f"Config file not found at {config_path}, using environment variables only")
         db_config = {}
     
-    # Get database settings from config file with fallbacks to environment variables
-    db_path = db_config.get('path') or os.getenv('DATABASE_PATH', 'data/notifer.db')
-    
-    # Ensure the directory exists
-    db_file = Path(db_path)
-    db_file.parent.mkdir(parents=True, exist_ok=True)
+    postgres_user = db_config.get('user') or os.getenv('POSTGRES_USER', 'postgres')
+    postgres_host = db_config.get('host') or os.getenv('POSTGRES_HOST', 'postgres')
+    postgres_db = db_config.get('database') or os.getenv('POSTGRES_DB', 'postgres')
+    postgres_port_str = db_config.get('port') or os.getenv('POSTGRES_PORT', '5432')
+    postgres_sslmode = db_config.get('sslmode') or os.getenv('POSTGRES_SSLMODE', 'disable')
 
-    return {'path': str(db_file.resolve())}
+    try:
+        postgres_port = int(postgres_port_str)
+    except (ValueError, TypeError):
+        postgres_port = 5432
+        logger.warning(f'Invalid port \'{postgres_port_str}\', using default {postgres_port}')
+
+    postgres_password = os.getenv('POSTGRES_PASSWORD', '')
+
+    if not postgres_password:
+        logger.warning('POSTGRES_PASSWORD not set in environment variables')
+
+    return {
+        'user': postgres_user,
+        'password': postgres_password,
+        'host': postgres_host,
+        'database': postgres_db,
+        'port': postgres_port,
+        'sslmode': postgres_sslmode
+    }
 
 # Load database configuration
 db_config = load_database_config()
 
 # Build database URI
-DATABASE_URI = f'sqlite:///{db_config['path']}'
+DATABASE_URI = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}?sslmode={db_config['sslmode']}"
 
-logger.info(f'Database configured: {DATABASE_URI}')
+logger.info(f"Database URI configured: postgresql://{db_config['user']}:***@{db_config['host']}:{db_config['port']}/{db_config['database']}?sslmode={db_config['sslmode']}")
 
 engine = create_engine(
     DATABASE_URI,
-    poolclass=StaticPool,
-    connect_args={
-        'check_same_thread': False,
-        'timeout': 30,
-    },
-    pool_pre_ping=True,
+    poolclass=QueuePool,
+    pool_size=20,
+    max_overflow=10,
     pool_recycle=300,
-    echo=False
+    pool_pre_ping=True
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

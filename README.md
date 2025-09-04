@@ -121,7 +121,6 @@ It automatically monitors university calendars and sends timely email notificati
     **Required configuration:**
     - Email settings (RESEND_API_KEY or SMTP credentials)
     - Database password (POSTGRES_PASSWORD)
-    - Storage password (S3_PASSWORD)  
     - JWT secret key (JWT_KEY)
     - API base URL (API_URL)
     - Admin API token hash (NOTIFER_API_TOKEN_HASH)
@@ -135,7 +134,7 @@ It automatically monitors university calendars and sends timely email notificati
 **What gets deployed:**
 
 - Pre-built Docker image from Docker Hub
-- SQLite database
+- PostgreSQL database
 - All configuration files and directory structure
 
 **Deployment structure:**
@@ -144,9 +143,9 @@ It automatically monitors university calendars and sends timely email notificati
 notifer/
 ├── compose.yaml          # Main deployment file
 ├── .env                  # Your configuration
-├── config/
-│   └── app.conf         # Application settings
-└── data/                # Database and calendars
+└── config/
+    └── app.conf         # Application settings
+
 ```
 
 ---

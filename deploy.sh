@@ -38,6 +38,9 @@ RESEND_UPDATE_USERNAME=
 SMTP_UPDATE_USERNAME=
 SMTP_UPDATE_PASSWORD=
 
+# The password of the postgres database, username is postgres
+POSTGRES_PASSWORD=
+
 # Key used for generating tokens, make this long and random
 JWT_KEY=
 

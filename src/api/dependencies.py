@@ -60,7 +60,7 @@ def get_email_client() -> EmailClient:
 
 @lru_cache
 def get_storage_manager() -> StorageManager:
-    '''Get S3 utils singleton.'''
+    '''Get storage manager singleton.'''
     global _storage_manager
     if _storage_manager is None:
         _storage_manager = StorageManager()

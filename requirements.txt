@@ -11,3 +11,4 @@ Jinja2~=3.1.5
 resend~=2.6.0
 pydantic-settings~=2.10.1
 configparser==6.0.0
+psycopg2-binary~=2.9.10

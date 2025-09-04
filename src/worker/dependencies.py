@@ -14,7 +14,7 @@ _worker_service: WorkerService | None = None
 
 @lru_cache
 def get_storage_manager() -> StorageManager:
-    '''Get S3 client instance.'''
+    '''Get storage manager instance.'''
     global _storage_manager
     if _storage_manager is None:
         _storage_manager = StorageManager()

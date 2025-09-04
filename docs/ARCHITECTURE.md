@@ -43,12 +43,12 @@ The system is composed of several cooperating components, each running as a thre
 
 ### 5. **Database**
 
-- **System:** SQLite
+- **System:** PostgreSQL
 - **Purpose:** Stores user subscriptions, calendar metadata, and usage statistics
 
 ### 6. **Local Storage**
 
-- **Default:** `data/` directory next to `compose.yaml`
+- **Default:** `app_data` Docker volume
 - **Purpose** Stores calendar files and diffs for efficient processing and auditing
 
 ---

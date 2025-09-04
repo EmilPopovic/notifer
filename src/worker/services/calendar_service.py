@@ -54,22 +54,22 @@ class CalendarService:
         return None
     
     def get_previous_calendar_content(self, subscription: UserCalendar) -> str | None:
-        '''Get previous calendar content from S3.'''
+        '''Get previous calendar content from storage.'''
         if not subscription.previous_calendar_path:
             return None
         
         previous_content = self.storage_manager.get_calendar(subscription.email)
         if previous_content is None:
-            logger.warning(f'Previous calendar missing or failed from S3 for {subscription.email}')
+            logger.warning(f'Previous calendar missing or failed from storage for {subscription.email}')
 
         return previous_content
     
-    def save_calendar_to_s3(self, email: str, content: str) -> str | None:
-        '''Save calendar content to S3 and return the URL.'''
-        calendar_s3_url = self.storage_manager.save_calendar(email, content)
-        if not calendar_s3_url:
-            logger.error(f'Failed to upload updated calendar for {email} to S3')
-        return calendar_s3_url
+    def save_calendar(self, email: str, content: str) -> str | None:
+        '''Save calendar content to storage and return the path.'''
+        path = self.storage_manager.save_calendar(email, content)
+        if not path:
+            logger.error(f'Failed to save updated calendar for {email} to storage')
+        return path
     
     def detect_and_notify_changes(self, subscription: UserCalendar, previous_content: str | None, new_content: str | None) -> bool:
         '''
@@ -119,7 +119,7 @@ class CalendarService:
             subscription = session.query(UserCalendar).filter(
                 UserCalendar.username == sub.username,
                 UserCalendar.domain == sub.domain
-            ).first()
+            ).with_for_update().first()
 
             if not subscription:
                 logger.error(f'Subscription not found: {sub.email}')
@@ -158,7 +158,7 @@ class CalendarService:
 
             if not is_initial:
                 previous_content = self.get_previous_calendar_content(subscription)
-                # Treat as initial if previous calendar document missing in S3
+                # Treat as initial if previous calendar document missing in storage
                 if previous_content is None:
                     logger.warning(f'Treating {subscription.email} as initial due to missing previous calendar')
                     is_initial = True
@@ -187,11 +187,11 @@ class CalendarService:
 
             status['no_changes'] = False
 
-            # Save new calendar to S3
+            # Save new calendar to storage
             logger.info(f'Saving new calendar for {subscription.email}')
-            calendar_local_path = self.save_calendar_to_s3(subscription.email, current_content)
+            calendar_local_path = self.save_calendar(subscription.email, current_content)
             if not calendar_local_path:
-                status['error'] = 'S3_ERROR'
+                status['error'] = 'STORAGE_ERROR'
                 return status
             
             # Update subscription record

@@ -19,7 +19,7 @@ NotiFER is designed for easy, secure deployment by university IT and includes a 
 
 ## 🏗️ System Architecture
 
-- **Backend:** Python (FastAPI), SQLite
+- **Backend:** Python (FastAPI), PostgreSQL
 - **Frontend:** Responsive, accessible web UI (HTML/CSS/JS)
 - **Email:** Uses SMTP or transactional email provider (configurable), Jinja2 templates
 - **Deployment:** Docker Compose for easy setup

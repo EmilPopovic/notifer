@@ -36,7 +36,7 @@ class StorageManager:
 
     def get_calendar(self, email: str) -> str | None:
         """
-        Retrieves the calendar content of a user from S3 storage.
+        Retrieves the calendar content of a user from storage.
 
         :param email: The user's email address.
         :return: The calendar content as a string, or None if not found.
@@ -59,7 +59,7 @@ class StorageManager:
 
     def delete_calendar(self, email: str):
         """
-        Deletes the calendar file of a user from S3 storage.
+        Deletes the calendar file of a user from storage.
 
         :param email: The user's email address.
         """
