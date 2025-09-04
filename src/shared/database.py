@@ -57,11 +57,9 @@ engine = create_engine(
     connect_args={
         'check_same_thread': False,
         'timeout': 30,
-        'isolation_level': None
     },
     pool_pre_ping=True,
     pool_recycle=300,
-    pool_size=1,
     echo=False
 )
 
