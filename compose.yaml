@@ -3,7 +3,7 @@ name: notifer
 services:
 
   app:
-    container_name: notifer
+    container_name: notifer_app
     image: emilpopovic/notifer:latest
     ports:
       - 8026:8026
@@ -29,7 +29,7 @@ services:
         condition: service_healthy
 
   postgres:
-    container_name: postgres
+    container_name: notifer_postgres
     image: postgres:15.8-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
