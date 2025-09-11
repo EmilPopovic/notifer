@@ -38,7 +38,7 @@
     background: white;
     border: 1px solid var(--border);
     border-radius: var(--radius-large);
-    box-shadow: var(--shadow);
+    /* box-shadow: var(--shadow); */
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-md);
 }
@@ -96,13 +96,14 @@
     font-size: 0.875rem;
     font-weight: 600;
     transition: var(--transition);
-    border: 2px solid white;
-    box-shadow: var(--shadow-light);
+    border: 0px solid white;
+    /* box-shadow: var(--shadow-light); */
 }
 
 .help-icon:hover {
     background: var(--primary);
-    transform: translateY(-50%) scale(1.05);
+    opacity: 0.9;
+    /* transform: translateY(-50%) scale(1.05); */
 }
 
 .subscribe-group .button {
@@ -132,7 +133,7 @@
 .manage-sub-link:hover {
     text-decoration: underline;
     color: var(--secondary);
-    background: rgba(52, 152, 219, 0.05);
+    /* background: rgba(52, 152, 219, 0.05); */
 }
 
 .button-group {
@@ -244,7 +245,7 @@
     z-index: 50;
 }
 
-.footer-links a {
+.footer-links a:not(.version) {
     color: var(--text-muted);
     text-decoration: none;
     font-weight: 500;
@@ -257,11 +258,11 @@
     gap: 0.25rem;
 }
 
-.footer-links a:hover {
-    background: white;
+.footer-links a:hover:not(.version) {
+    /* background: white; */
     color: var(--secondary);
-    box-shadow: var(--shadow-light);
-    text-decoration: none;
+    /* box-shadow: var(--shadow-light); */
+    text-decoration: underline;
 }
 
 .footer-links .version {
@@ -270,6 +271,7 @@
     font-weight: normal;
     opacity: 0.6;
     margin-left: auto;
+    text-decoration: none;
 }
 
 /* ========================================

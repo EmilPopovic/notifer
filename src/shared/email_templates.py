@@ -63,7 +63,15 @@ TRANSLATIONS = {
             'details_text': 'Za više detalja, posjeti svoj službeni',
             'fer_calendar': 'FER kalendar',
             'unsubscribe_text': 'Ne želiš više primati obavijesti?',
-            'unsubscribe_link': 'Pauziraj ih!'
+            'unsubscribe_link': 'Pauziraj ih!',
+            'time_changed': 'Vrijeme promijenjeno',
+            'location_changed': 'Lokacija promijenjena',
+            'no_location': 'Bez lokacije',
+            'minor_changes_detected': 'Ažurirani manji detalji',
+            'new_time': 'Novo vrijeme',
+            'new_location': 'Nova lokacija',
+            'details_updated': 'Detalji događaja su ažurirani',
+            'when_label': 'Vrijeme:',
         }
     },
     'en': {
@@ -123,7 +131,15 @@ TRANSLATIONS = {
             'details_text': 'For more details, visit your official',
             'fer_calendar': 'FER calendar',
             'unsubscribe_text': 'Don\'t want to receive notifications anymore?',
-            'unsubscribe_link': 'Pause them!'
+            'unsubscribe_link': 'Pause them!',
+            'time_changed': 'Time changed',
+            'location_changed': 'Location changed',
+            'no_location': 'No location',
+            'minor_changes_detected': 'Minor details updated',
+            'new_time': 'New time',
+            'new_location': 'New location',
+            'details_updated': 'Event details updated',
+            'when_label': 'When:',
         }
     }
 }

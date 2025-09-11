@@ -101,12 +101,6 @@ const translations = {
                 <h2 id="-message-to-user">Message to User</h2>
                 <p>The points above sound scary, but I also depend on and trust this application myself. What I want to say is... 
                     <strong>Don't blame me if you're late to lab!!!</strong> :3</p>
-            `,
-            github: `
-                <h2>GitHub Repository</h2>
-                <p>NotiFER is open source! Available on GitHub:<br>
-                <a href="https://github.com/EmilPopovic/notifer" target="_blank">github.com/EmilPopovic/notifer</a>
-                </p>
             `
         }
     },
@@ -212,12 +206,6 @@ const translations = {
                 <h2 id="-message-to-user">Poruka korisniku</h2>
                 <p>Točke gore zvuče opasno, ali i sam ovisim o i vjerujem ovoj aplikaciji. Ono što hoću reći je... 
                     <strong>Nemoj kriviti mene ako zakasniš na labos!!!</strong> :3</p>
-            `,
-            github: `
-                <h2>GitHub repozitorij</h2>
-                <p>NotiFER je softver otvorenog koda! Dostupan je na GitHubu:<br>
-                <a href="https://github.com/EmilPopovic/notifer" target="_blank">github.com/EmilPopovic/notifer</a>
-                </p>
             `
         }
     }

@@ -7,44 +7,88 @@
 {% for change in event_changes[:max_to_show] %}
     {% if not change.old and change.new %}
         <!-- New event -->
-        <div style="border: 1px solid #b3e6cb; background: #e6ffed; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-            <div style="font-size: 16px; font-weight: bold;">{{ t.new_event }}</div>
-            <p style="margin: 5px 0;"><strong>{{ t.title_label }}</strong> {{ change.new.summary }}</p>
-            <p style="margin: 5px 0;"><strong>{{ t.start_label }}</strong> {{ change.new.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>{{ t.end_label }}</strong> {{ change.new.end | format_datetime }}</p>
+        <div style="border:1px solid #07a46a; background:#f1fff9; border-radius:8px; padding:15px; margin-bottom:15px;">
+            <div style="font-size:16px; font-weight:bold; margin-bottom:6px;">{{ t.new_event }}</div>
+
+            <p style="margin:5px 0; font-size:15px;"><strong>{{ change.new.summary }}</strong></p>
+
+            <p style="margin:5px 0;">
+                <strong>{{ t.when_label }}</strong>
+                {{ change.new.start | format_datetime }}
+                {% if change.new.end and change.new.end != change.new.start %}
+                    &ndash; {{ change.new.end | format_datetime }}
+                {% endif %}
+            </p>
+
             {% if change.new.location %}
-                <p style="margin: 5px 0;"><strong>{{ t.location_label }}</strong> {{ change.new.location }}</p>
+                <p style="margin:5px 0;"><strong>{{ t.location_label }}</strong> {{ change.new.location }}</p>
             {% endif %}
         </div>
+
     {% elif change.old and not change.new %}
         <!-- Removed event -->
-        <div style="border: 1px solid #f5c6cb; background: #ffeef0; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-            <div style="font-size: 16px; font-weight: bold;">{{ t.removed_event }}</div>
-            <p style="margin: 5px 0;"><strong>{{ t.title_label }}</strong> {{ change.old.summary }}</p>
-            <p style="margin: 5px 0;"><strong>{{ t.start_label }}</strong> {{ change.old.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>{{ t.end_label }}</strong> {{ change.old.end | format_datetime }}</p>
+        <div style="border:1px solid #d73a49; background:#fff2f2; border-radius:8px; padding:15px; margin-bottom:15px;">
+            <div style="font-size:16px; font-weight:bold; margin-bottom:6px;">{{ t.removed_event }}</div>
+
+            <p style="margin:5px 0; text-decoration:line-through;">{{ change.old.summary }}</p>
+
+            <p style="margin:5px 0; color:#6c757d;">
+                <strong>{{ t.when_label }}</strong>
+                {{ change.old.start | format_datetime }}
+                {% if change.old.end and change.old.end != change.old.start %}
+                    &ndash; {{ change.old.end | format_datetime }}
+                {% endif %}
+            </p>
+
             {% if change.old.location %}
-                <p style="margin: 5px 0;"><strong>{{ t.location_label }}</strong> {{ change.old.location }}</p>
+                <p style="margin:5px 0; color:#6c757d;"><strong>{{ t.location_label }}</strong> {{ change.old.location }}</p>
             {% endif %}
         </div>
+
     {% elif change.old and change.new %}
         <!-- Updated event -->
         <div style="border: 1px solid #f4e5c6; background: #fff9ed; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-            <div style="font-size: 16px; font-weight: bold;">{{ t.updated_event }}</div>
-            <p style="margin: 5px 0;"><em>{{ t.old }}</em></p>
-            <p style="margin: 5px 0;"><strong>{{ t.title_label }}</strong> {{ change.old.summary }}</p>
-            <p style="margin: 5px 0;"><strong>{{ t.start_label }}</strong> {{ change.old.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>{{ t.end_label }}</strong> {{ change.old.end | format_datetime }}</p>
-            {% if change.old.location %}
-                <p style="margin: 5px 0;"><strong>{{ t.location_label }}</strong> {{ change.old.location }}</p>
-            {% endif %}
-            <hr style="border: none; border-top: 1px dashed #ccc; margin: 10px 0;">
-            <p style="margin: 5px 0;"><em>{{ t.new }}</em></p>
+            <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">{{ t.updated_event }}</div>
+            
+            <!-- Event title (always show as it's the main identifier) -->
             <p style="margin: 5px 0;"><strong>{{ t.title_label }}</strong> {{ change.new.summary }}</p>
-            <p style="margin: 5px 0;"><strong>{{ t.start_label }}</strong> {{ change.new.start | format_datetime }}</p>
-            <p style="margin: 5px 0;"><strong>{{ t.end_label }}</strong> {{ change.new.end | format_datetime }}</p>
-            {% if change.new.location %}
-                <p style="margin: 5px 0;"><strong>{{ t.location_label }}</strong> {{ change.new.location }}</p>
+            
+            <!-- Only show changed fields -->
+            {% if change.old.start != change.new.start or change.old.end != change.new.end %}
+                <div style="background: #f8f9fa; border-radius: 5px; padding: 8px; margin: 8px 0;">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 4px;">{{ t.time_changed }}</div>
+                    <div style="display: flex; align-items: center; font-size: 14px;">
+                        <span style="color: #dc3545; text-decoration: line-through;">{{ change.old.start | format_datetime }}{% if change.old.end != change.old.start %} - {{ change.old.end | format_datetime }}{% endif %}</span>
+                        <span style="margin: 0 8px; color: #666;">→</span>
+                        <span style="color: #28a745; font-weight: 500;">{{ change.new.start | format_datetime }}{% if change.new.end != change.new.start %} - {{ change.new.end | format_datetime }}{% endif %}</span>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if change.old.location != change.new.location %}
+                <div style="background: #f8f9fa; border-radius: 5px; padding: 8px; margin: 8px 0;">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 4px;">{{ t.location_changed }}</div>
+                    <div style="display: flex; align-items: center; font-size: 14px;">
+                        {% if change.old.location %}
+                            <span style="color: #dc3545; text-decoration: line-through;">{{ change.old.location }}</span>
+                        {% else %}
+                            <span style="color: #dc3545; font-style: italic;">{{ t.no_location }}</span>
+                        {% endif %}
+                        <span style="margin: 0 8px; color: #666;">→</span>
+                        {% if change.new.location %}
+                            <span style="color: #28a745; font-weight: 500;">{{ change.new.location }}</span>
+                        {% else %}
+                            <span style="color: #28a745; font-style: italic;">{{ t.no_location }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- If no significant changes detected, show a generic message -->
+            {% if change.old.start == change.new.start and change.old.end == change.new.end and change.old.location == change.new.location %}
+                <div style="background: #f8f9fa; border-radius: 5px; padding: 8px; margin: 8px 0; font-size: 14px; color: #666;">
+                    {{ t.minor_changes_detected }}
+                </div>
             {% endif %}
         </div>
     {% endif %}

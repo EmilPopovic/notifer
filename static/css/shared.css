@@ -3,7 +3,7 @@
    ======================================== */
 :root {
     --primary: #00819c;
-    --secondary: #5bc0de;
+    --secondary: #00819c;
     --success: #34c759;
     --error: #ff3b30;
     --warning: #ff9500;
@@ -159,7 +159,7 @@ input[type="email"]:disabled {
 
 .button:hover:not(:disabled) {
     opacity: 0.9;
-    transform: translateY(-1px);
+    /* transform: translateY(-1px); */
 }
 
 .button:active {
