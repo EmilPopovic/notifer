@@ -4,7 +4,18 @@
 <p style="text-align: left;">{{ t.text.replace('{{ count }}', count|string) }}</p>
 
 {% set max_to_show = 5 %}
-{% for change in event_changes[:max_to_show] %}
+
+{# Create a list with sorting keys and sort by start time #}
+{% set changes_with_sort_key = [] %}
+{% for change in event_changes %}
+    {% set sort_time = change.new.start if change.new else change.old.start %}
+    {% set _ = changes_with_sort_key.append((sort_time, change)) %}
+{% endfor %}
+
+{# Sort by the first element (sort_time) and extract the changes #}
+{% set sorted_changes = changes_with_sort_key | sort(attribute='0') | map(attribute='1') | list %}
+
+{% for change in sorted_changes[:max_to_show] %}
     {% if not change.old and change.new %}
         <!-- New event -->
         <div style="border:1px solid #07a46a; background:#f1fff9; border-radius:8px; padding:15px; margin-bottom:15px;">
