@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'src/**'
+      - 'static/**'
+      - 'templates/**'
   workflow_dispatch:
 
 permissions:
