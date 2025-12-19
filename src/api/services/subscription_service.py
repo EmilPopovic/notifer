@@ -1,10 +1,16 @@
-from sqlalchemy.orm import Session
 import logging
-
+from sqlalchemy.orm import Session
 from shared.calendar_utils import parse_calendar_url, is_valid_ical_url
-from shared.crud import create_subscription, get_subscription, update_activation, delete_user, update_paused, get_all_subscriptions
 from shared.token_utils import decode_token, TokenExpiredError, TokenValidationError
-from ..exceptions import (
+from shared.crud import (
+    create_subscription,
+    get_subscription,
+    update_activation,
+    delete_user,
+    update_paused,
+    get_all_subscriptions,
+)
+from api.exceptions import (
     InvalidCalendarUrlError,
     SubscriptionAlreadyActiveError,
     SubscriptionNotFoundError,

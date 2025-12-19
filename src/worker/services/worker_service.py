@@ -7,7 +7,7 @@ import threading
 
 from shared.crud import get_active_subscriptions_no_session
 from shared.models import UserCalendar
-from .calendar_service import CalendarService
+from worker.services.calendar_service import CalendarService
 
 logger = logging.getLogger(__name__)
 

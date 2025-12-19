@@ -2,8 +2,7 @@ import time
 import logging
 from fastapi import APIRouter, Depends
 from datetime import datetime, timezone
-
-from ..dependencies import verify_notifer_token
+from api.dependencies import verify_notifer_token
 from worker.dependencies import get_worker_service
 from shared.email_client import get_email_queue_size
 from shared.crud import (
@@ -14,21 +13,21 @@ from shared.crud import (
 )
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=['health'])
+router = APIRouter(prefix='/health', tags=['health'])
 
-@router.get('/health')
+@router.get('/')
 async def health():
     return {
         'status': 'healthy',
         'timestamp': datetime.now(timezone.utc).isoformat(),
     }
 
-@router.get('/health/ready')
+@router.get('/ready')
 async def readiness_check():
     '''Kubernetes-style readiness check.'''
     return {'status': 'ready'}
 
-@router.get('/health/detailed', dependencies=[Depends(verify_notifer_token)])
+@router.get('/detailed', dependencies=[Depends(verify_notifer_token)])
 async def detailed_health_check():
     '''Detailed health check with dependency verification.'''
     start_time = time.time()
@@ -58,7 +57,7 @@ async def detailed_health_check():
         'timestamp': datetime.now(timezone.utc).isoformat(),
         'services': health_status,
         'response_time_seconds': round(response_time, 3),
-        'version': '3.0.0'
+        'version': '3.1.0'
     }
 
 @router.get('/stats', dependencies=[Depends(verify_notifer_token)])

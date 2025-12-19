@@ -1,6 +1,5 @@
 import logging
 from typing import Protocol, List
-
 from shared.calendar_utils import EventChange
 from shared.email_client import EmailType
 

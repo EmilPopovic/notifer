@@ -5,10 +5,8 @@ import logging
 import uvicorn
 import signal
 import time
-
 from api.main import create_app
 from worker.dependencies import get_worker_service
-from shared.database import init_db
 
 # Configure logging
 LOG_FORMAT = (
@@ -56,10 +54,6 @@ def main():
     # Set up signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-
-    # Initialize database for both services
-    logger.info('Initializing database')
-    init_db()
 
     # Start API thread
     api_thread = threading.Thread(target=start_api_thread, name='ApiThread')

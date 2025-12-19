@@ -5,10 +5,9 @@ from enum import Enum
 from typing import List
 from queue import Queue
 from dataclasses import dataclass
-
-from .calendar_utils import EventChange
-from .token_utils import create_token
-from .email_templates import (
+from shared.calendar_utils import EventChange
+from shared.token_utils import create_token
+from shared.email_templates import (
     EmailContent,
     activation_email_content,
     deletion_email_content,
@@ -16,7 +15,7 @@ from .email_templates import (
     resume_email_content,
     notification_email_content
 )
-from .email_senders import EmailSender
+from shared.email_sender import EmailSender
 
 logger = logging.getLogger(__name__)
 
@@ -134,10 +133,8 @@ class EmailClient:
             self, 
             email_sender: EmailSender, 
             api_base_url: str,
-            redis_url: str | None = None, 
-            sender_config: dict | None = None,
             rate_limit_per_second: float = 2.0
-    ):
+    ) -> None:
         self.email_sender = email_sender
         self.api_base_url = api_base_url
 
@@ -148,7 +145,7 @@ class EmailClient:
 
         logger.info(f'EmailClient initialized with {type(email_sender).__name__}')
 
-    def _enqueue_email(self, recipient_email: str, content: EmailContent):
+    def _enqueue_email(self, recipient_email: str, content: EmailContent) -> None:
         '''Queue an email for async sending.'''
         if self._queue_manager is not None:
             self._queue_manager.enqueue_email(recipient_email, content, self.email_sender)
@@ -176,14 +173,14 @@ class EmailClient:
         
         return generator(self.api_base_url, token, language)
     
-    def send_confirmation_email(self, email_type: EmailType, recipient_email: str, language: str = 'hr'):
+    def send_confirmation_email(self, email_type: EmailType, recipient_email: str, language: str = 'hr') -> None:
         '''Send a confirmation email (activation, deletion, pause, resume).'''
         logger.info(f'Sending {email_type.value} email to {recipient_email} in {language}')
 
         content = self._generate_confirmation_email(email_type, recipient_email, language)
         self._enqueue_email(recipient_email, content)
 
-    def send_notification_email(self, recipient_email: str, event_changes: List[EventChange], language: str = 'hr'):
+    def send_notification_email(self, recipient_email: str, event_changes: List[EventChange], language: str = 'hr') -> None:
         '''Send a notification email about schedule changes.'''
         logger.info(f'Sending notification email to {recipient_email} in {language}')
 

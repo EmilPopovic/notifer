@@ -1,8 +1,7 @@
 from fastapi import Request, HTTPException
 from fastapi_throttle import RateLimiter
 import logging
-
-from .config import get_settings
+from config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ async def rate_limit_exceeded_callback(request: Request, response, pexpire: int)
 
 async def log_request_middleware(request: Request, call_next):
     '''Log incoming requests and responses.'''
-    forwarded_for = request.headers.get('X-Forwarded-For')  # Fixed typo
+    forwarded_for = request.headers.get('X-Forwarded-For')
     host = '<unknown_client>' if request.client is None else request.client.host
     client_ip = forwarded_for.split(',')[0] if forwarded_for else host
     logger.info(f'Incoming request from {client_ip}: {request.method} {request.url}')
@@ -32,8 +31,7 @@ async def log_request_middleware(request: Request, call_next):
 def get_rate_limiter():
     '''Get configured rate limiter.'''
     settings = get_settings()
-    # fastapi-throttle uses different parameter names
     return RateLimiter(
         times=settings.global_rate_limit,
-        seconds=settings.global_rate_limit_minutes * 60  # Convert minutes to seconds
+        seconds=settings.global_rate_limit_minutes * 60
     )

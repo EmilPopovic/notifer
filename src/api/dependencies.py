@@ -1,64 +1,47 @@
+import hashlib
 from fastapi import Depends, Header, HTTPException, status
 from fastapi.templating import Jinja2Templates
 from fastapi_throttle import RateLimiter
 from sqlalchemy.orm import Session
-from functools import lru_cache
-import hashlib
-
 from shared.database import get_db
 from shared.email_client import EmailClient
-from shared.email_client_factory import EmailClientFactory, EmailStrategy
+from shared.email_client_factory import EmailClientFactory
 from shared.storage_manager import StorageManager
-from .config import get_settings
-from .services.subscription_service import SubscriptionService
-from .services.template_service import TemplateService
-from .services.email_service import EmailService
-from .middleware import get_rate_limiter
+from config import get_settings
+from api.services.subscription_service import SubscriptionService
+from api.services.template_service import TemplateService
+from api.services.email_service import EmailService
+from api.middleware import get_rate_limiter
+
+def require_component_enabled(component: str):
+    def dependency():
+        if not getattr(get_settings(), component):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f'{component.replace('_enabled', '').replace('_', ' ').capitalize()}'
+            )
+    return Depends(dependency)
 
 # Global instances
 _email_client: EmailClient | None = None
 _storage_manager: StorageManager | None = None
 _templates: Jinja2Templates | None = None
 
-@lru_cache()
 def get_email_client() -> EmailClient:
     '''Get email client singleton based on configuration.'''
     global _email_client
-    if _email_client is not None:
-        return _email_client
-
-    settings = get_settings()
-
-    if settings.email_strategy == EmailStrategy.RESEND_ONLY:
-        _email_client = EmailClientFactory.create_resend_only_client(
-            api_key=settings.resend_api_key,
-            from_email=settings.resend_username,
-            api_base_url=settings.api_url
-        )
-    elif settings.email_strategy == EmailStrategy.SMTP_ONLY:
-        _email_client = EmailClientFactory.create_smtp_only_client(
+    if _email_client is None:
+        settings = get_settings()
+        _email_client = EmailClientFactory.create_smtp_client(
             smtp_server=settings.smtp_server,
             smtp_port=settings.smtp_port,
             username=settings.smtp_username,
             password=settings.smtp_password,
-            from_email=settings.smtp_username,
+            from_email=settings.smtp_sender_email,
             api_base_url=settings.api_url
         )
-    else:  # RESEND_WITH_FALLBACK (default)
-        _email_client = EmailClientFactory.create_resend_with_smtp_fallback(
-            resend_api_key=settings.resend_api_key,
-            resend_from_email=settings.resend_username,
-            smtp_server=settings.smtp_server,
-            smtp_port=settings.smtp_port,
-            smtp_username=settings.smtp_username,
-            smtp_password=settings.smtp_password,
-            smtp_from_email=settings.smtp_username,
-            api_base_url=settings.api_url
-        )
-
     return _email_client
 
-@lru_cache
 def get_storage_manager() -> StorageManager:
     '''Get storage manager singleton.'''
     global _storage_manager

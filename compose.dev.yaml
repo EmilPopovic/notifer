@@ -1,8 +1,5 @@
-name: notifer
-
 services:
-
-  app:
+  notifer:
     container_name: notifer
     build:
       context: .
@@ -10,47 +7,27 @@ services:
     ports:
       - 8026:8026
     volumes:
-      - ./config:/app/config:ro
       - app_data:/app/data
     env_file:
       - .env
     restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8026/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+    networks:
+      - default
 
   postgres:
     container_name: postgres
-    image: postgres:15.8-alpine
+    image: postgres:17.2-bullseye
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
     restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 2s
+    networks:
+      - default
 
 volumes:
   app_data:

@@ -1,14 +1,12 @@
 uvicorn~=0.34.0
-fastapi~=0.116.1
+fastapi~=0.125.0
 fastapi_throttle~=0.1.8
 SQLAlchemy[mypy]~=2.0.38
-starlette~=0.47.2
+starlette>=0.49.1
 pytz~=2025.1
 PyJWT~=2.9.0
 requests~=2.32.3
 icalendar~=6.1.1
 Jinja2~=3.1.5
-resend~=2.6.0
 pydantic-settings~=2.10.1
-configparser==6.0.0
 psycopg2-binary~=2.9.10

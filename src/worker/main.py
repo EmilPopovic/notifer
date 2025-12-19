@@ -3,7 +3,7 @@ import signal
 import sys
 
 from shared.database import init_db
-from .dependencies import get_worker_service
+from worker.dependencies import get_worker_service
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def start_worker():
 
 # This is used when running the worker standalone
 if __name__ == '__main__':
-    from .config import get_settings
+    from config import get_settings
     settings = get_settings()
     if not settings.worker_enabled:
         exit(0)

@@ -1,9 +1,9 @@
 import pytz
-from datetime import datetime, date
+from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
-from shared.models import UserCalendar, ResendUsage
-from .database import get_db, SessionLocal
+from shared.models import UserCalendar
+from shared.database import SessionLocal
 
 def db_healthcheck() -> bool:
     """
@@ -17,8 +17,6 @@ def db_healthcheck() -> bool:
         return True
     except Exception as _:
         return False
-
-# region calendars
 
 def create_subscription(
         db: Session,
@@ -194,58 +192,3 @@ def delete_user(db: Session, email: str) -> bool:
     db.delete(sub)
     db.commit()
     return True
-
-# endregion
-# region resend usage
-
-def get_resend_usage_for_date(db: Session, usage_date: date) -> int:
-    record = db.query(ResendUsage).filter(ResendUsage.date == usage_date).first()
-    return record.count if record else 0
-
-def get_monthly_resend_usage(db: Session, start_date: date) -> int:
-    total = db.query(func.sum(ResendUsage.count)).filter(ResendUsage.date >= start_date).scalar()
-    return total or 0
-
-def increment_resend_usage(db: Session, usage_date: date):
-    record = db.query(ResendUsage).filter(ResendUsage.date == usage_date).first()
-    if record:
-        record.count += 1
-    else:
-        record = ResendUsage(date=usage_date, count=1)
-        db.add(record)
-    db.commit()
-
-def can_send_with_resend(daily_limit: int = 95, monthly_limit: int = 2950) -> bool:
-    """
-    Check if we can send email with Resend based on usage limits.
-    Returns True if within limits, False otherwise
-    """
-    db = next(get_db())
-    try:
-        today = date.today()
-        start_of_month = today.replace(day=1)
-
-        daily_count = get_resend_usage_for_date(db, today)
-        monthly_count = get_monthly_resend_usage(db, start_of_month)
-
-        return daily_count < daily_limit and monthly_count < monthly_limit
-    except Exception as _:
-        return False
-    finally:
-        db.close()
-
-def update_resend_usage():
-    """
-    Update Resend usage count for today.
-    This should be called after successfully sending an email via Resend
-    """
-    db = next(get_db())
-    try:
-        today = date.today()
-        increment_resend_usage(db, today)
-    except Exception as _:
-        db.rollback()
-    finally:
-        db.close()
-
-# endregion

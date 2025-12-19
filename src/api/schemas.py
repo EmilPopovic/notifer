@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Any
-from .exceptions import ErrorCode
+from api.exceptions import ErrorCode
 
 class ErrorResponse(BaseModel):
     error_code: ErrorCode

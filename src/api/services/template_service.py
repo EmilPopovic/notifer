@@ -1,8 +1,7 @@
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
-
-from ..exceptions import ErrorCode
+from api.exceptions import ErrorCode
 
 class TemplateService:
     def __init__(self, templates: Jinja2Templates, api_url: str):

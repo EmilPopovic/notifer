@@ -1,9 +1,7 @@
 import os
 import datetime
 from jinja2 import Environment, FileSystemLoader
-
 from shared.calendar_utils import EventChange
-
 
 TRANSLATIONS = {
     'hr': {
@@ -144,7 +142,6 @@ TRANSLATIONS = {
     }
 }
 
-
 def format_datetime(value: datetime.datetime, language: str = 'hr') -> str:
     weekday_en = value.strftime("%A")
     weekday_localized = TRANSLATIONS[language]['weekdays'].get(weekday_en, weekday_en)
@@ -153,7 +150,6 @@ def format_datetime(value: datetime.datetime, language: str = 'hr') -> str:
     year = value.year
     time_str = value.strftime("%H:%M")
     return f"{weekday_localized}, {day}.{month}.{year} {time_str}"
-
 
 TEMPLATES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'templates', 'email'))
 env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
@@ -174,7 +170,6 @@ def render_confirmation_email(email_type: str, base_url: str, token: str, langua
     )
     return body
 
-
 def render_notification_email(template_name: str, base_url: str, event_changes: list[EventChange], token: str, language: str = 'hr'):
     template = env.get_template(f'{template_name}.html')
     t = TRANSLATIONS[language][template_name]
@@ -193,37 +188,31 @@ def render_notification_email(template_name: str, base_url: str, event_changes: 
     )
     return body
 
-
 class EmailContent:
     def __init__(self, subject: str, plain_text: str | None = None, html: str | None = None):
         self.subject: str = subject
         self.plain_text: str = plain_text if plain_text is not None else ''
         self.html: str = html if html is not None else ''
 
-
 def activation_email_content(base_url: str, token: str, language: str = 'hr') -> EmailContent:
     subject = TRANSLATIONS[language]['subjects']['activate']
     html = render_confirmation_email('activate', base_url, token, language)
     return EmailContent(subject, html=html)
-
 
 def deletion_email_content(base_url: str, token: str, language: str = 'hr') -> EmailContent:
     subject = TRANSLATIONS[language]['subjects']['delete']
     html = render_confirmation_email('delete', base_url, token, language)
     return EmailContent(subject, html=html)
 
-
 def pause_email_content(base_url: str, token: str, language: str = 'hr') -> EmailContent:
     subject = TRANSLATIONS[language]['subjects']['pause']
     html = render_confirmation_email('pause', base_url, token, language)
     return EmailContent(subject, html=html)
 
-
 def resume_email_content(base_url: str, token: str, language: str = 'hr') -> EmailContent:
     subject = TRANSLATIONS[language]['subjects']['resume']
     html = render_confirmation_email('resume', base_url, token, language)
     return EmailContent(subject, html=html)
-
 
 def notification_email_content(base_url: str, event_changes: list[EventChange], token: str, language: str = 'hr') -> EmailContent:
     subject = TRANSLATIONS[language]['subjects']['notification']
