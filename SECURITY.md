@@ -1,4 +1,4 @@
-# 🔒 Security Policy
+# Security Policy
 
 ## Overview
 
@@ -9,10 +9,8 @@ This document outlines the security practices, responsible disclosure process, a
 
 | Version | Supported          |
 |---------|--------------------|
-| latest  | ✅                 |
-| older   | ❌ (please update) |
-
----
+| latest  | Yes                |
+| older   | No (please update) |
 
 ## Reporting a Vulnerability
 
@@ -23,8 +21,6 @@ If you discover a security vulnerability, **please report it privately** to the 
 Do **not** create public GitHub issues for security problems.
 We will respond as quickly as possible and coordinate a fix and disclosure.
 
----
-
 ## Security Features
 
 - **API Authentication:**
@@ -34,7 +30,7 @@ We will respond as quickly as possible and coordinate a fix and disclosure.
   All sensitive student actions (activation, deletion, pause/resume) require confirmation via a unique, expiring email token.
 
 - **Data Minimization:**
-  Only essential data is stored (email, calendar auth, language, status). No unnecessary personal information is collected.
+  Only essential data is stored (email, calendar auth, language). No unnecessary personal information is collected.
 
 - **GDPR-Friendly:**
   Users can delete their data at any time. No tracking or analytics are performed.
@@ -45,15 +41,13 @@ We will respond as quickly as possible and coordinate a fix and disclosure.
 - **Open Source:**
   The codebase is fully open for audit by any interested party.
 
----
-
 ## Deployment Recommendations
 
 - **Use HTTPS:**
-  Always deply behind a secure reverse proxy with HTTPS enabled.
+  Always deploy behind a secure reverse proxy with HTTPS enabled.
 
 - **Protect API Tokens:**
-  Stor API tokens and secrets in environment variables or secure secrets managers.
+  Store API tokens and secrets in environment variables or secure secrets managers.
   Never commit secrets to version control.
 
 - **Update Regularly:**
@@ -65,13 +59,9 @@ We will respond as quickly as possible and coordinate a fix and disclosure.
 - **Monitor Logs and Metrics:**
   Regularly review logs and metrics for unusual activity.
 
----
-
 ## Responsible Disclosure
 
 We encourage responsible disclosure of security issues.
 If you have questions or concerns about NotiFER's security, please contact the maintainer directly.
-
----
 
 Thank you for helping keep NotiFER and its users safe!
