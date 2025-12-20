@@ -4,7 +4,10 @@
 [![License](https://img.shields.io/github/license/EmilPopovic/notifer)](https://github.com/EmilPopovic/notifer/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/v/release/EmilPopovic/notifer)](https://github.com/EmilPopovic/notifer/releases)
 
-**NotiFER** is a modern, open-source web application designed for students at FER, University of Zagreb. It automatically monitors university calendars and sends timely email notifications about timetable changes, ensuring students never miss an update.
+**[NotiFER](https://notifer.emilpopovic.me/)** is a modern, open-source web application designed for students at [FER](https://www.fer.unizg.hr/en), University of Zagreb. It automatically monitors university calendars and sends timely email notifications about timetable changes, ensuring students never miss an update.
+
+> [!NOTE]
+> **NotiFER is not affiliated with FER.** It's creator is a student who wanted himself and his colleagues to have a useful tool.
 
 ## Key Features
 
@@ -66,7 +69,7 @@
 
 4. **Initialize the database:**
 
-    If you have Make on your system, run:
+    If you have [Make](https://www.gnu.org/software/make/) on your system, run:
 
     ```bash
     make initdb COMPOSE_FILE=compose.dev.yaml
@@ -98,7 +101,7 @@
 **This is the recommended deployment method for production environments.**
 
 1. **Install Docker:**
-    [Official Docker installation instructions](https://docs.docker.com/engine/install/)
+    [Official instructions](https://docs.docker.com/engine/install/)
 
 2. **Download and run the deployment script:**
 
@@ -132,7 +135,7 @@
     - `POSTGRES_PASSWORD`
     - `JWT_KEY` - secret key used for generating tokens
     - `NOTIFER_API_TOKEN_HASH` - hash of the API token for the admin API, generate using `echo -n "your-secret-token" | sha256sum`
-    - `API_URL` - the URL at which users will access the app (for example [https://notifer.emilpopovic.com](https://notifer.emilpopovic.com))
+    - `API_URL` - the URL at which users will access the app (for example `https://notifer.emilpopovic.com`)
 
 4. **Deploy:**
 
@@ -150,7 +153,7 @@
 
 **What gets deployed:**
 
-- Pre-built Docker image from GHCR
+- Pre-built Docker image from [GHCR](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
 - PostgreSQL database
 
 **Deployment structure:**
@@ -164,7 +167,7 @@ notifer/
 
 ## Admin API
 
-Administration can:
+Administrators can:
 
 - Add or remove subscriptions via secure API endpoints.
 - Pause or resume notifications for any user.
@@ -188,3 +191,4 @@ For questions, support, or a demo, please contact:
 <admin@emilpopovic.me>
 
 _NotiFER is currently developed and maintained by Emil Popović, a student at FER._
+
