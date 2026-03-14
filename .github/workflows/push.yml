@@ -8,6 +8,7 @@ on:
       - 'src/**'
       - 'static/**'
       - 'templates/**'
+      - 'requirements.txt'
   workflow_dispatch:
 
 permissions:
