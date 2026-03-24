@@ -18,13 +18,16 @@
     Students simply paste their calendar URL to subscribe.
 
 - **Secure & Privacy-Respecting:**
-    No unecessary data is collected. All sensitive operations are protected and GDPR-friendly.
+    No unnecessary data is collected. All sensitive operations are protected and GDPR-friendly. Calendar credentials are encrypted at rest in the database.
 
 - **Internationalization:**
     Fully localized in Croatian and English.
 
-- **Admin API:**
-    Administrators can securely manage subscriptions (add, remove, pause, resume, query) via a protected API.
+- **Admin Dashboard:**
+    A built-in web dashboard at `/dashboard/` lets administrators view subscription stats, manage users (pause/unpause/delete), and browse a full audit log of all actions.
+
+- **Audit Logging:**
+    Every significant action (subscription, activation, notification, deletion, etc.) is recorded to the database with a timestamp.
 
 - **Self-Hosting Ready:**
     Easily deployable via Docker Compose.
@@ -133,8 +136,17 @@
     - `SMTP_SENDER_EMAIL` - the address in the "From" field
     - `SMTP_PASSWORD`
     - `POSTGRES_PASSWORD`
-    - `JWT_KEY` - secret key used for generating tokens
-    - `NOTIFER_API_TOKEN_HASH` - hash of the API token for the admin API, generate using `echo -n "your-secret-token" | sha256sum`
+    - `JWT_KEY` - secret key used for generating tokens (long random string)
+    - `ENCRYPTION_KEY` - Fernet key for encrypting calendar credentials at rest; generate with:
+        ```bash
+        python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+        ```
+    - `NOTIFER_API_TOKEN_HASH` - SHA-256 hash of the admin API token; generate with `echo -n "your-secret-token" | sha256sum`
+    - `DASHBOARD_USERNAME` - username for the admin web dashboard (default: `admin`)
+    - `DASHBOARD_PASSWORD_HASH` - hashed dashboard password; generate with:
+        ```bash
+        docker compose exec notifer python -c "from shared.auth_utils import hash_password; print(hash_password('yourpassword'))"
+        ```
     - `API_URL` - the URL at which users will access the app (for example `https://notifer.emilpopovic.com`)
 
 4. **Deploy:**
@@ -165,19 +177,33 @@ notifer/
 └── Makefile              # Management actions
 ```
 
+## Admin Dashboard
+
+A password-protected web UI is available at `/dashboard/`. It provides:
+
+- **Overview:** total and active subscription counts, total changes detected.
+- **User management:** list all subscribers, pause/unpause/delete with confirmation.
+- **Audit log:** paginated, filterable history of every action taken in the system.
+- **Per-user view:** subscription details and the full action history for a specific user.
+
+Credentials are configured via `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD_HASH` in `.env`.
+
 ## Admin API
 
-Administrators can:
+The REST API at `/admin` allows programmatic management of subscriptions:
 
-- Add or remove subscriptions via secure API endpoints.
+- Add or remove subscriptions.
 - Pause or resume notifications for any user.
 - Query subscription status and details.
-- All actions require a secure API token (see documentation)
+
+All endpoints require a `Bearer` token matching `NOTIFER_API_TOKEN_HASH`.
 
 ## Security & Privacy
 
-- **No unecessary data collection.**
-- **All sensitive actions require confirmation and/or secure API tokens.**
+- **No unnecessary data collection.**
+- **Calendar credentials are encrypted at rest** using Fernet (AES-128-CBC + HMAC-SHA256).
+- **All sensitive actions require confirmation** via token-protected links and/or POST form submission (preventing email scanner prefetch attacks).
+- **Full audit trail** — every action is logged with a timestamp to the database.
 - **Open codebase for full transparency.**
 
 ## License
