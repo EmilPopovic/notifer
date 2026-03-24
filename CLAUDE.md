@@ -22,10 +22,11 @@ make initdb COMPOSE_FILE=compose.dev.yaml
 ## Database Management
 
 ```bash
-make initdb COMPOSE_FILE=compose.dev.yaml   # Create tables
-make resetdb COMPOSE_FILE=compose.dev.yaml  # Drop and recreate all tables
-make dropdb COMPOSE_FILE=compose.dev.yaml   # Drop all tables
-make checkdb COMPOSE_FILE=compose.dev.yaml  # Check table status
+make initdb COMPOSE_FILE=compose.dev.yaml    # Create tables
+make resetdb COMPOSE_FILE=compose.dev.yaml   # Drop and recreate all tables
+make dropdb COMPOSE_FILE=compose.dev.yaml    # Drop all tables
+make checkdb COMPOSE_FILE=compose.dev.yaml   # Check table status
+make encryptdb COMPOSE_FILE=compose.dev.yaml # Encrypt plaintext calendar_auth values (idempotent)
 ```
 
 These commands run `db_manager.py` inside the running container.
@@ -43,7 +44,7 @@ The app runs two concurrent threads from `src/run.py`:
 src/
 ├── run.py                    # Entry point — starts API + Worker threads
 ├── config.py                 # Pydantic settings loaded from env vars
-├── db_manager.py             # CLI for DB init/reset/drop/check
+├── db_manager.py             # CLI for DB init/reset/drop/check/encrypt
 ├── api/
 │   ├── main.py               # FastAPI app + route registration
 │   ├── routers/
@@ -64,6 +65,7 @@ src/
     ├── models.py             # SQLAlchemy ORM — single `user_calendars` table
     ├── crud.py               # All DB queries
     ├── database.py           # Engine + session factory
+    ├── encryption.py         # Fernet TypeDecorator for calendar_auth at-rest encryption
     ├── email_client.py       # Thread-safe email queue
     ├── email_sender.py       # SMTP sending
     ├── email_templates.py    # HTML email templates (Croatian/English)
@@ -100,6 +102,7 @@ Copy `.env.example` and fill in values. Key vars:
 | `POSTGRES_*` | Database connection |
 | `SMTP_*` | Email sending |
 | `JWT_KEY` | Token signing |
+| `ENCRYPTION_KEY` | Fernet key for `calendar_auth` at-rest encryption — generate with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`, then run `make encryptdb` on existing deployments |
 | `NOTIFER_API_TOKEN_HASH` | SHA256 hash of admin API token |
 | `API_URL` | Base URL used in email links |
 | `BASE_CALENDAR_URL` | FER ICS calendar URL template |
