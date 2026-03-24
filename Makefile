@@ -29,6 +29,10 @@ dropdb:
 checkdb:
 	docker compose -f $(COMPOSE_FILE) run --build --rm notifer python -m src.db_manager check
 
+.PHONY: encryptdb
+encryptdb:
+	docker compose -f $(COMPOSE_FILE) run --build --rm notifer python -m src.db_manager encrypt
+
 .PHONY: snapshot
 snapshot:
 	@echo "Ensuring postgres container is running..."

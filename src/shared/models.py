@@ -2,6 +2,7 @@ import datetime
 from sqlalchemy import String, Boolean, DateTime, Integer, Index
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.ext.declarative import declarative_base
+from .encryption import EncryptedString
 
 Base = declarative_base()
 
@@ -25,10 +26,8 @@ class UserCalendar(Base):
         primary_key=True
     )
 
-    # TODO: calendar_auth is stored in plaintext — if the DB is dumped all users'
-    # FER calendar credentials are exposed. Should be encrypted at rest.
     calendar_auth: Mapped[str] = mapped_column(
-        String,
+        EncryptedString,
         nullable=False
     )
 

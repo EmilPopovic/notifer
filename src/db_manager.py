@@ -1,7 +1,8 @@
 import sys
 import logging
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, text
 from .shared.database import engine, Base
+from .shared.encryption import get_fernet
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,35 @@ def check_database():
         logger.error(f'Failed to check database: {e}')
         raise
 
+def encrypt_calendar_auth():
+    """
+    Migrate existing plaintext calendar_auth values to Fernet-encrypted ciphertext.
+    Rows that are already encrypted are left unchanged (idempotent).
+    """
+    fernet = get_fernet()
+    migrated = 0
+    skipped = 0
+
+    with engine.connect() as conn:
+        rows = conn.execute(text('SELECT username, domain, calendar_auth FROM user_calendars')).fetchall()
+        for username, domain, raw in rows:
+            try:
+                # If this succeeds the value is already a valid Fernet token — skip it.
+                fernet.decrypt(raw.encode('ascii'))
+                skipped += 1
+            except Exception:
+                # Plaintext — encrypt and update.
+                encrypted = fernet.encrypt(raw.encode('utf-8')).decode('ascii')
+                conn.execute(
+                    text('UPDATE user_calendars SET calendar_auth = :enc WHERE username = :u AND domain = :d'),
+                    {'enc': encrypted, 'u': username, 'd': domain}
+                )
+                migrated += 1
+        conn.commit()
+
+    logger.info(f'Encryption migration complete: {migrated} row(s) encrypted, {skipped} already encrypted.')
+
+
 def main():
     logging.basicConfig(
         level=logging.INFO,
@@ -106,6 +136,8 @@ def main():
             reset_database(force=force)
         elif command == 'check':
             check_database()
+        elif command == 'encrypt':
+            encrypt_calendar_auth()
         else:
             print('Usage:')
             print('  python -m src.db_manager create          # Create all tables')
@@ -114,6 +146,7 @@ def main():
             print('  python -m src.db_manager reset           # Drop and recreate (with confirmation)')
             print('  python -m src.db_manager reset --force   # Drop and recreate (no confirmation)')
             print('  python -m src.db_manager check           # Check if database is initialized')
+            print('  python -m src.db_manager encrypt         # Encrypt plaintext calendar_auth values')
             sys.exit(1)
     else:
         create_all_tables()
