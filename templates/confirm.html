@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="confirmation-icon">{{ icon }}</div>
+    <h1>{{ heading }}</h1>
+
+    {% if description %}
+        <p>{{ description }}</p>
+    {% endif %}
+
+    {% if email %}
+        <div class="email-display">{{ email }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ action_url }}" style="margin-top: var(--spacing-md);">
+        <div style="display: flex; gap: var(--spacing-xs);">
+            <a href="{{ cancel_url }}" class="button button-secondary" style="flex: 1;">{{ cancel_text }}</a>
+            <button type="submit" class="button {{ button_class }}" style="flex: 1;">{{ confirm_text }}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

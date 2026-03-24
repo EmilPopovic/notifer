@@ -2,8 +2,10 @@ import os
 import jwt
 from datetime import datetime, timedelta, timezone
 
-JWT_KEY = os.getenv('JWT_KEY', 'super_secret_key')
-ALGORITHM = os.getenv('ALGORITHM', 'HS256')
+JWT_KEY = os.getenv('JWT_KEY')
+if not JWT_KEY:
+    raise RuntimeError('JWT_KEY environment variable must be set')
+ALGORITHM = 'HS256'
 TOKEN_EXPIRATION_MINUTES = int(os.getenv('TOKEN_EXPIRATION_MINUTES', 60))
 
 class TokenValidationError(Exception):

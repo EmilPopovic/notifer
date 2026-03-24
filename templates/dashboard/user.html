@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>{{ sub.email }} – NotiFER Dashboard</title>
+  <link rel="stylesheet" href="/static/css/shared.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+
+<nav class="dash-nav">
+  <a href="/dashboard/" class="dash-nav-title">NotiFER Dashboard</a>
+  <div class="dash-nav-actions">
+    <form method="post" action="/dashboard/logout" style="margin:0">
+      <button type="submit" class="nav-btn">Log out</button>
+    </form>
+  </div>
+</nav>
+
+<div class="dash-main">
+  <a href="/dashboard/" class="back-link">&#8592; Back to dashboard</a>
+
+  <!-- User card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="user-header">
+        <span class="user-email">{{ sub.email }}</span>
+        {% if sub.activated and not sub.paused %}
+          <span class="badge badge-active">Active</span>
+        {% elif sub.activated and sub.paused %}
+          <span class="badge badge-paused">Paused</span>
+        {% else %}
+          <span class="badge badge-pending">Pending</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="user-info-grid">
+      <div class="info-item">
+        <div class="info-label">Created</div>
+        <div class="info-value">{{ sub.created.strftime('%Y-%m-%d') }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Last checked</div>
+        <div class="info-value">
+          {% if sub.last_checked %}{{ sub.last_checked.strftime('%Y-%m-%d %H:%M') }}{% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Last change</div>
+        <div class="info-value">
+          {% if sub.last_change_detected %}{{ sub.last_change_detected.strftime('%Y-%m-%d %H:%M') }}{% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Changes detected</div>
+        <div class="info-value">{{ sub.change_count }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Language</div>
+        <div class="info-value">{{ sub.language | upper }}</div>
+      </div>
+    </div>
+
+    {% if sub.activated %}
+    <div class="user-actions">
+      {% if sub.paused %}
+        <button class="btn-sm btn-resume"
+          onclick="openModal('Resume notifications for {{ sub.email | e }}?', 'unpause', '{{ sub.email | e }}', '/dashboard/user?email={{ sub.email | urlencode }}')">
+          Resume notifications
+        </button>
+      {% else %}
+        <button class="btn-sm btn-warn"
+          onclick="openModal('Pause notifications for {{ sub.email | e }}?', 'pause', '{{ sub.email | e }}', '/dashboard/user?email={{ sub.email | urlencode }}')">
+          Pause notifications
+        </button>
+      {% endif %}
+      <button class="btn-sm btn-danger"
+        onclick="openModal('Delete {{ sub.email | e }}? This cannot be undone.', 'delete', '{{ sub.email | e }}', '/dashboard/')">
+        Delete user
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Audit log for this user -->
+  <div class="card">
+    <div class="card-header">
+      Audit Log
+      <span class="card-count">{{ logs | length }} entries</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Action</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td class="ts">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+              {% if log.action in ['subscription_created', 'subscription_activated', 'subscription_resumed', 'subscription_resubmit'] %}
+                <span class="action-tag tag-green">{{ log.action }}</span>
+              {% elif log.action == 'subscription_paused' %}
+                <span class="action-tag tag-yellow">{{ log.action }}</span>
+              {% elif log.action == 'subscription_deleted' %}
+                <span class="action-tag tag-red">{{ log.action }}</span>
+              {% elif log.action in ['email_queued', 'notification_queued'] %}
+                <span class="action-tag tag-blue">{{ log.action }}</span>
+              {% else %}
+                <span class="action-tag tag-gray">{{ log.action }}</span>
+              {% endif %}
+            </td>
+            <td style="color:#666;font-size:.85rem">{{ log.details or '' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" style="color:#888;text-align:center;padding:2rem">No log entries for this user.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /dash-main -->
+
+<!-- Confirmation Modal -->
+<div id="modal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h3>Confirm action</h3>
+    <p id="modal-msg"></p>
+    <form method="post" action="/dashboard/action" id="modal-form">
+      <input type="hidden" name="email" id="modal-email">
+      <input type="hidden" name="action" id="modal-action">
+      <input type="hidden" name="next_url" id="modal-next">
+      <div class="modal-actions">
+        <button type="submit" id="modal-confirm" class="button">Confirm</button>
+        <button type="button" onclick="closeModal()" class="button button-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal(msg, action, email, nextUrl) {
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-action').value = action;
+  document.getElementById('modal-email').value = email;
+  document.getElementById('modal-next').value = nextUrl;
+  var btn = document.getElementById('modal-confirm');
+  btn.className = action === 'delete' ? 'button button-error' : 'button';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>

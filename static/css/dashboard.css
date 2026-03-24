@@ -1,0 +1,489 @@
+/* ========================================
+   Dashboard Layout
+   ======================================== */
+body {
+    background: #f0f2f5;
+    margin: 0;
+}
+
+.dash-nav {
+    background: var(--primary);
+    color: white;
+    padding: .875rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.dash-nav-title {
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -.01em;
+}
+
+.dash-nav-actions {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+}
+
+.nav-btn {
+    padding: .35rem .9rem;
+    border-radius: 6px;
+    font-size: .875rem;
+    border: 1px solid rgba(255, 255, 255, .4);
+    color: white;
+    background: rgba(255, 255, 255, .12);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, .25);
+}
+
+.dash-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* ========================================
+   Stats Grid
+   ======================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: .78rem;
+    color: #888;
+    margin-top: .4rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+/* ========================================
+   Cards / Sections
+   ======================================== */
+.card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: .875rem 1.25rem;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.card-count {
+    font-size: .8rem;
+    color: #888;
+    font-weight: 400;
+}
+
+/* ========================================
+   Tables
+   ======================================== */
+.table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .9rem;
+}
+
+th {
+    padding: .6rem 1rem;
+    text-align: left;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #888;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+td {
+    padding: .7rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background: #fafafa;
+}
+
+.ts {
+    white-space: nowrap;
+    color: #666;
+    font-size: .85rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.email-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.email-link:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   Badges
+   ======================================== */
+.badge {
+    display: inline-block;
+    padding: .2em .65em;
+    border-radius: 9999px;
+    font-size: .78rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.badge-active  { background: #e6ffed; color: #1a7340; }
+.badge-paused  { background: #fff3cd; color: #856404; }
+.badge-pending { background: #f0f0f0; color: #555; }
+
+.action-tag {
+    display: inline-block;
+    font-size: .78rem;
+    padding: .2em .55em;
+    border-radius: 4px;
+    font-family: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
+    white-space: nowrap;
+}
+
+.tag-green  { background: #e6ffed; color: #1a7340; }
+.tag-yellow { background: #fff3cd; color: #856404; }
+.tag-red    { background: #ffeef0; color: #9b1c1c; }
+.tag-blue   { background: #e0f0ff; color: #1a5a9b; }
+.tag-gray   { background: #f0f0f0; color: #555; }
+
+/* ========================================
+   Small Action Buttons
+   ======================================== */
+.actions-cell {
+    display: flex;
+    gap: .4rem;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: .3rem .65rem;
+    font-size: .82rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 1.5;
+    font-weight: 500;
+    font-family: inherit;
+    transition: opacity .15s, transform .1s;
+    white-space: nowrap;
+}
+
+.btn-sm:hover  { opacity: .85; }
+.btn-sm:active { transform: scale(.97); }
+
+.btn-view    { background: #f0f0f0; color: #333; }
+.btn-warn    { background: #fff3cd; color: #856404; }
+.btn-resume  { background: #e0f0ff; color: #1a5a9b; }
+.btn-danger  { background: #ffeef0; color: #9b1c1c; }
+
+/* ========================================
+   Filter Bar
+   ======================================== */
+.filter-bar {
+    padding: .875rem 1.25rem;
+    display: flex;
+    gap: .65rem;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+}
+
+.filter-bar input,
+.filter-bar select {
+    padding: .4rem .75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: .875rem;
+    font-family: inherit;
+    background: white;
+    color: inherit;
+}
+
+.filter-bar input {
+    min-width: 160px;
+}
+
+.filter-bar .button {
+    padding: .4rem .9rem;
+    font-size: .875rem;
+    min-height: unset;
+}
+
+/* ========================================
+   Pagination
+   ======================================== */
+.pagination {
+    padding: .875rem 1.25rem;
+    display: flex;
+    gap: .4rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: .875rem;
+    border-top: 1px solid #eee;
+}
+
+.pagination a,
+.pagination .pg-current {
+    padding: .35rem .75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.pagination .pg-current {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    font-weight: 600;
+}
+
+.pagination a:hover {
+    background: #f0f0f0;
+}
+
+.pagination .pg-info {
+    color: #888;
+    font-size: .82rem;
+    padding: .35rem .5rem;
+}
+
+/* ========================================
+   Confirmation Modal
+   ======================================== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal-box {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
+}
+
+.modal-box h3 {
+    margin: 0 0 .6rem;
+    font-size: 1.1rem;
+}
+
+.modal-box p {
+    color: #555;
+    margin: 0 0 1.25rem;
+    line-height: 1.5;
+    font-size: .95rem;
+    word-break: break-all;
+}
+
+.modal-actions {
+    display: flex;
+    gap: .75rem;
+}
+
+.modal-actions .button {
+    flex: 1;
+    min-height: 40px;
+}
+
+/* ========================================
+   Login Page
+   ======================================== */
+.login-body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f2f5;
+    padding: 1rem;
+}
+
+.login-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 380px;
+}
+
+.login-card h1 {
+    font-size: 1.4rem;
+    color: var(--primary);
+    margin: 0 0 1.5rem;
+    text-align: center;
+}
+
+.login-card label {
+    font-size: .875rem;
+    font-weight: 500;
+    color: #444;
+    display: block;
+    margin-bottom: .3rem;
+}
+
+/* ========================================
+   User Detail Page
+   ======================================== */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: .9rem;
+    margin-bottom: 1rem;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.user-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: .5rem;
+}
+
+.user-email {
+    font-size: 1.2rem;
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.user-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.info-item .info-label {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #888;
+    margin-bottom: .3rem;
+    font-weight: 600;
+}
+
+.info-item .info-value {
+    font-size: .95rem;
+    font-weight: 500;
+}
+
+.user-actions {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dash-main {
+        padding: 1rem;
+    }
+
+    .user-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 400px) {
+    .user-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: .75rem;
+    }
+}

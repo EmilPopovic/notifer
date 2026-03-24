@@ -10,6 +10,44 @@ class TemplateService:
 
         self.translations = {
             'hr': {
+                'confirm': {
+                    'activate': {
+                        'title': 'Potvrdi aktivaciju',
+                        'icon': '🔔',
+                        'heading': 'Aktivirati obavijesti?',
+                        'description': 'Klikom na gumb aktivirat ćeš obavijesti o promjenama rasporeda.',
+                        'confirm_text': 'Aktiviraj',
+                        'cancel_text': 'Odustani',
+                        'button_class': '',
+                    },
+                    'delete': {
+                        'title': 'Potvrdi brisanje',
+                        'icon': '🗑️',
+                        'heading': 'Obrisati račun?',
+                        'description': 'Klikom na gumb trajno ćeš obrisati svoju pretplatu:',
+                        'confirm_text': 'Obriši',
+                        'cancel_text': 'Odustani',
+                        'button_class': 'button-error',
+                    },
+                    'pause': {
+                        'title': 'Potvrdi pauziranje',
+                        'icon': '⏸️',
+                        'heading': 'Pauzirati obavijesti?',
+                        'description': 'Klikom na gumb pauzirati ćeš obavijesti za:',
+                        'confirm_text': 'Pauziraj',
+                        'cancel_text': 'Odustani',
+                        'button_class': '',
+                    },
+                    'resume': {
+                        'title': 'Potvrdi uključivanje',
+                        'icon': '▶️',
+                        'heading': 'Uključiti obavijesti?',
+                        'description': 'Klikom na gumb ponovo ćeš uključiti obavijesti za:',
+                        'confirm_text': 'Uključi',
+                        'cancel_text': 'Odustani',
+                        'button_class': '',
+                    },
+                },
                 'activate': {
                     'title': 'Obavijesti aktivirane!',
                     'icon': '',
@@ -49,6 +87,44 @@ class TemplateService:
                 }
             },
             'en': {
+                'confirm': {
+                    'activate': {
+                        'title': 'Confirm activation',
+                        'icon': '🔔',
+                        'heading': 'Activate notifications?',
+                        'description': 'Click the button below to activate schedule change notifications.',
+                        'confirm_text': 'Activate',
+                        'cancel_text': 'Cancel',
+                        'button_class': '',
+                    },
+                    'delete': {
+                        'title': 'Confirm deletion',
+                        'icon': '🗑️',
+                        'heading': 'Delete account?',
+                        'description': 'Click the button below to permanently delete your subscription:',
+                        'confirm_text': 'Delete',
+                        'cancel_text': 'Cancel',
+                        'button_class': 'button-error',
+                    },
+                    'pause': {
+                        'title': 'Confirm pause',
+                        'icon': '⏸️',
+                        'heading': 'Pause notifications?',
+                        'description': 'Click the button below to pause notifications for:',
+                        'confirm_text': 'Pause',
+                        'cancel_text': 'Cancel',
+                        'button_class': '',
+                    },
+                    'resume': {
+                        'title': 'Confirm resume',
+                        'icon': '▶️',
+                        'heading': 'Resume notifications?',
+                        'description': 'Click the button below to resume notifications for:',
+                        'confirm_text': 'Resume',
+                        'cancel_text': 'Cancel',
+                        'button_class': '',
+                    },
+                },
                 'activate': {
                     'title': 'Notifications activated!',
                     'icon': '',
@@ -154,6 +230,37 @@ class TemplateService:
 
         return self.render_response(request, 'error', custom_title=title, custom_message=message, language=language)
     
+    def render_confirm(
+            self,
+            request: Request,
+            action: str,
+            token: str,
+            action_url: str,
+            email: str | None = None,
+            language: str | None = None
+    ) -> HTMLResponse:
+        if language is None:
+            language = self._get_locale(request)
+
+        t = self.translations[language]['confirm'][action]
+
+        context = {
+            'request': request,
+            'title': t['title'],
+            'icon': t['icon'],
+            'heading': t['heading'],
+            'description': t.get('description'),
+            'email': email,
+            'action_url': action_url,
+            'confirm_text': t['confirm_text'],
+            'cancel_text': t['cancel_text'],
+            'button_class': t['button_class'],
+            'cancel_url': self.api_url,
+            'lang': language,
+        }
+
+        return self.templates.TemplateResponse('confirm.html', context)
+
     def render_activate(self, request: Request, language: str | None = None) -> HTMLResponse:
         return self.render_response(request, 'activate', language=language)
     

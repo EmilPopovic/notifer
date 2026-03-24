@@ -16,7 +16,7 @@ SSLMODE = os.getenv('POSTGRES_SSLMODE', 'disable')
 
 DATABASE_URI = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}?sslmode={SSLMODE}"
 
-logger.info(f"Database URI configured: postgresql://{USER}:***@{HOST}:{PORT}/{DATABASE}?sslmode={SSLMODE}")
+logger.info(f"Database configured: host={HOST}, db={DATABASE}")
 
 engine = create_engine(
     DATABASE_URI,

@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import String, Boolean, DateTime, Integer
+from sqlalchemy import String, Boolean, DateTime, Integer, Index
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -7,6 +7,10 @@ Base = declarative_base()
 
 class UserCalendar(Base):
     __tablename__ = 'user_calendars'
+    __table_args__ = (
+        # Worker's main query filters on both columns every polling cycle
+        Index('ix_user_calendars_activated_paused', 'activated', 'paused'),
+    )
 
     username: Mapped[str] = mapped_column(
         String,
@@ -21,6 +25,8 @@ class UserCalendar(Base):
         primary_key=True
     )
 
+    # TODO: calendar_auth is stored in plaintext — if the DB is dumped all users'
+    # FER calendar credentials are exposed. Should be encrypted at rest.
     calendar_auth: Mapped[str] = mapped_column(
         String,
         nullable=False
@@ -80,3 +86,35 @@ class UserCalendar(Base):
     @property
     def email(self) -> str:
         return f'{self.username}@{self.domain}'
+
+
+class AuditLog(Base):
+    __tablename__ = 'audit_log'
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    timestamp: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+        index=True
+    )
+
+    email: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+        index=True
+    )
+
+    action: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
+
+    details: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )

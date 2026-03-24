@@ -9,6 +9,7 @@ from shared.crud import (
     delete_user,
     update_paused,
     get_all_subscriptions,
+    create_audit_log,
 )
 from api.exceptions import (
     InvalidCalendarUrlError,
@@ -59,11 +60,14 @@ class SubscriptionService:
                 logger.info(f'Updating existing subscription: {email}')
                 existing.calendar_auth = auth
                 existing.language = language
+                create_audit_log(self.db, 'subscription_resubmit', email)
                 self.db.commit()
 
         else:
             logger.info(f'Creating new subscription: {email}')
             create_subscription(self.db, username, self.recipient_domain, auth, language, activated)
+            create_audit_log(self.db, 'subscription_created', email)
+            self.db.commit()
 
         return email
     
@@ -71,38 +75,53 @@ class SubscriptionService:
         try:
             return decode_token(token, action)
         except (TokenExpiredError, TokenValidationError):
-            logger.warning(f'Invalid {action} token: {token}')
+            logger.warning(f'Invalid {action} token')
             raise InvalidTokenError()
         
     def activate_subscription(self, email: str) -> bool:
         '''Activate subscription.'''
-        subscription = update_activation(self.db, email, True)
-        if not subscription:
+        existing = get_subscription(self.db, email)
+        if not existing:
             logger.error(f'Activation failed - not found: {email}')
             raise SubscriptionNotFoundError()
-        
+        if existing.activated:
+            return True  # already active, nothing to do
+
+        subscription = update_activation(self.db, email, True)
+        create_audit_log(self.db, 'subscription_activated', email)
+        self.db.commit()
         logger.info(f'Subscription activated {email}')
         return True
-    
+
     def delete_subscription(self, email: str) -> bool:
         '''Delete subscirption.'''
         success = delete_user(self.db, email)
         if not success:
             logger.error(f'Delete failed - not found: {email}')
             raise SubscriptionNotFoundError()
-        
+
+        create_audit_log(self.db, 'subscription_deleted', email)
+        self.db.commit()
         logger.info(f'Subscription delted: {email}')
         return True
-    
+
     def update_pause_status(self, email: str, paused: bool) -> bool:
         '''Update subscription pause status.'''
-        subscription = update_paused(self.db, email, paused)
-        if not subscription:
+        existing = get_subscription(self.db, email)
+        if not existing:
             logger.error(f'Pause update failed - not found: {email}')
             raise SubscriptionNotFoundError()
-        
-        action = 'paused' if paused else 'resumed'
-        logger.info(f'Subscription {action}: {email}')
+        if existing.paused == paused:
+            return True  # already in target state, nothing to do
+
+        subscription = update_paused(self.db, email, paused)
+        if not subscription:
+            raise SubscriptionNotFoundError()
+
+        action = 'subscription_paused' if paused else 'subscription_resumed'
+        create_audit_log(self.db, action, email)
+        self.db.commit()
+        logger.info(f'Subscription {"paused" if paused else "resumed"}: {email}')
         return True
     
     def pause_subscription_by_username(self, username: str) -> bool:

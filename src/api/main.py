@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from config import get_settings
-from api.routers import health, subscriptions, frontend, admin
+from api.routers import health, subscriptions, frontend, admin, dashboard
 from api.middleware import log_request_middleware
 
 logger = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ def create_app() -> FastAPI:
     app.include_router(subscriptions.router)
     app.include_router(frontend.router)
     app.include_router(admin.router)
+    app.include_router(dashboard.router)
 
     app.mount('/static', StaticFiles(directory='static'), name='static')
 

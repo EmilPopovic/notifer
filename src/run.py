@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
+import os
 import sys
+import time
 import threading
 import logging
 import uvicorn
 import signal
-import time
+
+# Apply configured timezone before any logging or datetime calls so that
+# time.localtime() (used by the logging formatter) reflects the right zone.
+os.environ.setdefault('TZ', os.getenv('TIMEZONE', 'Europe/Zagreb'))
+time.tzset()
 from api.main import create_app
 from worker.dependencies import get_worker_service
 

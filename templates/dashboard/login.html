@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Login – NotiFER Dashboard</title>
+  <link rel="stylesheet" href="/static/css/shared.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body class="login-body">
+  <div class="login-card">
+    <h1>NotiFER Dashboard</h1>
+    {% if error %}
+    <div class="status error visible" style="margin-bottom:1.25rem">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/dashboard/login">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="button" style="width:100%;margin-top:1.25rem">Log in</button>
+    </form>
+  </div>
+</body>
+</html>

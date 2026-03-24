@@ -9,6 +9,7 @@ from shared.models import UserCalendar
 from shared.database import SessionLocal
 from shared.storage_manager import StorageManager
 from shared.email_client import EmailClient
+from shared.crud import create_audit_log, _now
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +134,7 @@ class CalendarService:
             
             # Build calendar URL
             calendar_url = f'{self.base_calendar_url}?user={subscription.username}&auth={subscription.calendar_auth}'
-            logger.info(f'Fetching calendar for {subscription.email} from {calendar_url}')
+            logger.info(f'Fetching calendar for {subscription.email}')
 
             # Fetch current calendar content
             current_content = self.fetch_calendar_with_retry(calendar_url)
@@ -171,7 +172,7 @@ class CalendarService:
                 # Check if content actually changed
                 if subscription.previous_calendar_hash == new_hash:
                     logger.info(f'No changes for {subscription.email}')
-                    subscription.last_checked = datetime.now()
+                    subscription.last_checked = _now()
                     session.merge(subscription)
                     session.commit()
                     return status
@@ -181,7 +182,8 @@ class CalendarService:
                 if email_sent:
                     status['email_queued'] = True
                     subscription.change_count += 1
-                    subscription.last_change_detected = datetime.now()
+                    subscription.last_change_detected = _now()
+                    create_audit_log(session, 'notification_queued', subscription.email)
             else:
                 logger.info(f'Initial calendar for {subscription.email}')
 
@@ -197,7 +199,7 @@ class CalendarService:
             # Update subscription record
             subscription.previous_calendar_path = calendar_local_path
             subscription.previous_calendar_hash = new_hash
-            subscription.last_checked = datetime.now() if not email_sent else subscription.last_change_detected
+            subscription.last_checked = _now() if not email_sent else subscription.last_change_detected
 
             session.commit()
 

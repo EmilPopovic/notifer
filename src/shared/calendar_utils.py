@@ -40,7 +40,7 @@ def parse_calendar_url(url: str) -> dict[str, str]:
     
     if parsed_url.scheme not in ['http', 'https']:
         raise InvalidURL('Not a URL.')
-    if not (parsed_url.netloc.endswith('fer.hr') or parsed_url.netloc.endswith('fer.unizg.hr')):
+    if parsed_url.netloc not in ('fer.hr', 'fer.unizg.hr', 'www.fer.hr', 'www.fer.unizg.hr'):
         raise InvalidURL('Invalid domain.')
     if parsed_url.path != CALENDAR_PATH:
         raise InvalidURL('Invalid path.')

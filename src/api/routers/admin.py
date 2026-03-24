@@ -37,7 +37,7 @@ async def admin_subscribe_by_username(
     subscription_service: SubscriptionService = Depends(get_subscription_service)
 ):
     '''Admin API: Add subscription by username and calendar auth (activated by default).'''
-    logger.info(f'API subscribe request with user {username} and auth {auth[:5]}... in language {language}')
+    logger.info(f'API subscribe request with user {username} in language {language}')
     try:
         email = subscription_service.create_subscription_from_uname_and_auth(username, auth, language, activated=True)
         return SubscriptionResponse(status='ok', email=email)

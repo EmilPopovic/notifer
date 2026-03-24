@@ -1,9 +1,25 @@
+import os
 import pytz
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
-from shared.models import UserCalendar
+from shared.models import UserCalendar, AuditLog
 from shared.database import SessionLocal
+
+_TZ = pytz.timezone(os.getenv('TIMEZONE', 'Europe/Zagreb'))
+
+def _now() -> datetime:
+    return datetime.now(tz=_TZ).replace(tzinfo=None)
+
+def create_audit_log(db: Session, action: str, email: str | None = None, details: str | None = None) -> None:
+    """Add an audit log entry to the session. Caller is responsible for committing."""
+    entry = AuditLog(
+        timestamp=_now(),
+        email=email,
+        action=action,
+        details=details
+    )
+    db.add(entry)
 
 def db_healthcheck() -> bool:
     """
@@ -33,7 +49,7 @@ def create_subscription(
         calendar_auth=calendar_auth,
         activated=activated,
         paused=False,
-        created=datetime.now(tz=pytz.timezone('Europe/Paris')),
+        created=_now(),
         last_checked=None,
         previous_calendar_path=None,
         previous_calendar_hash=None,
@@ -101,8 +117,7 @@ def get_active_subscriptions_no_session(expunge_all: bool = True) -> list[UserCa
         session.close()
 
 def get_total_subscription_count(db: Session) -> int:
-    subs = get_all_subscriptions(db)
-    return len(subs)
+    return db.query(func.count(UserCalendar.username)).scalar() or 0
 
 def get_total_subscription_count_no_session() -> int:
     session = SessionLocal()
@@ -115,14 +130,14 @@ def get_total_subscription_count_no_session() -> int:
         session.close()
 
 def get_active_subscription_count(db: Session) -> int:
-    active_subs = get_active_subscriptions(db)
-    return len(active_subs)
+    return db.query(func.count(UserCalendar.username)).filter(
+        UserCalendar.activated.is_(True), UserCalendar.paused.is_(False)
+    ).scalar() or 0
 
 def get_active_subscription_count_no_session() -> int:
     session = SessionLocal()
     try:
-        count = get_total_subscription_count(session)
-        return count
+        return get_active_subscription_count(session)
     except Exception as _:
         return 0
     finally:
@@ -174,7 +189,7 @@ def update_calendar_url(db: Session, email: str, new_calendar_url: str, new_cale
 
     sub.previous_calendar = new_calendar_url
     sub.previous_calendar_hash = new_calendar_hash
-    sub.last_checked = datetime.utcnow()
+    sub.last_checked = _now()
 
     db.commit()
     db.refresh(sub)
@@ -192,3 +207,41 @@ def delete_user(db: Session, email: str) -> bool:
     db.delete(sub)
     db.commit()
     return True
+
+
+def get_audit_logs(
+        db: Session,
+        page: int = 1,
+        per_page: int = 50,
+        email: str | None = None,
+        action: str | None = None,
+) -> list[AuditLog]:
+    q = db.query(AuditLog)
+    if email:
+        q = q.filter(AuditLog.email.ilike(f'%{email}%'))
+    if action:
+        q = q.filter(AuditLog.action == action)
+    return q.order_by(AuditLog.timestamp.desc()).offset((page - 1) * per_page).limit(per_page).all()
+
+
+def get_audit_log_count(
+        db: Session,
+        email: str | None = None,
+        action: str | None = None,
+) -> int:
+    q = db.query(func.count(AuditLog.id))
+    if email:
+        q = q.filter(AuditLog.email.ilike(f'%{email}%'))
+    if action:
+        q = q.filter(AuditLog.action == action)
+    return q.scalar() or 0
+
+
+def get_audit_logs_for_email(db: Session, email: str, limit: int = 200) -> list[AuditLog]:
+    return (
+        db.query(AuditLog)
+        .filter(AuditLog.email == email)
+        .order_by(AuditLog.timestamp.desc())
+        .limit(limit)
+        .all()
+    )

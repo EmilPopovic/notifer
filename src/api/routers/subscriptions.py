@@ -51,14 +51,32 @@ async def subscribe(
 ):
     logger.info(f'Subscription request: {q[:30]}..., language: {language}')
     email = subscription_service.create_subscription_from_url(q, language)
-    email_service.send_activation_email(email, language)
+    email_service.send_activation_email(email, language, db=subscription_service.db)
 
     logger.info(f'Subscritpion created: {email} with language: {language}')
     return SubscriptionResponse(status='ok', email=email)
 
 @router.get('/activate', response_class=HTMLResponse,
             dependencies=[require_component_enabled('student_signup_enabled')])
-async def activate (
+async def activate_confirm(
+        request: Request,
+        token: str,
+        subscription_service: SubscriptionService = Depends(get_subscription_service),
+        template_service: TemplateService = Depends(get_template_service)
+):
+    try:
+        email = subscription_service.validate_token(token, 'activate')
+        user_language = subscription_service.get_user_language(email)
+        action_url = str(request.url)
+        return template_service.render_confirm(request, 'activate', token, action_url, language=user_language)
+    except InvalidTokenError as e:
+        return handle_token_error(e, request, token, 'activate', subscription_service, template_service)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.post('/activate', response_class=HTMLResponse,
+             dependencies=[require_component_enabled('student_signup_enabled')])
+async def activate(
         request: Request,
         token: str,
         subscription_service: SubscriptionService = Depends(get_subscription_service),
@@ -67,9 +85,7 @@ async def activate (
     logger.info('Activation request')
     try:
         email = subscription_service.validate_token(token, 'activate')
-
         user_language = subscription_service.get_user_language(email)
-
         subscription_service.activate_subscription(email)
         return template_service.render_activate(request, language=user_language)
     except InvalidTokenError as e:
@@ -89,12 +105,30 @@ async def request_delete(
     subscription_service.validate_subscription_for_action(email, 'delete')
 
     user_language = subscription_service.get_user_language(email)
-    email_service.send_deletion_email(email, user_language)
+    email_service.send_deletion_email(email, user_language, db=subscription_service.db)
 
     return EmailSentResponse(message='Deletion confirmation email sent.')
 
 @router.get('/delete', response_class=HTMLResponse,
             dependencies=[require_component_enabled('student_delete_enabled')])
+async def delete_account_confirm(
+        request: Request,
+        token: str,
+        subscription_service: SubscriptionService = Depends(get_subscription_service),
+        template_service: TemplateService = Depends(get_template_service)
+):
+    try:
+        email = subscription_service.validate_token(token, 'delete')
+        user_language = subscription_service.get_user_language(email)
+        action_url = str(request.url)
+        return template_service.render_confirm(request, 'delete', token, action_url, email=email, language=user_language)
+    except InvalidTokenError as e:
+        return handle_token_error(e, request, token, 'delete', subscription_service, template_service)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.post('/delete', response_class=HTMLResponse,
+             dependencies=[require_component_enabled('student_delete_enabled')])
 async def delete_account(
         request: Request,
         token: str,
@@ -106,10 +140,8 @@ async def delete_account(
     try:
         email = subscription_service.validate_token(token, 'delete')
         user_language = subscription_service.get_user_language(email)
-
         subscription_service.delete_subscription(email)
         storage.delete_calendar(email)
-
         return template_service.render_delete(request, email, language=user_language)
     except InvalidTokenError as e:
         return handle_token_error(e, request, token, 'delete', subscription_service, template_service)
@@ -128,12 +160,30 @@ async def request_pause(
     subscription_service.validate_subscription_for_action(email, 'pause')
 
     user_language = subscription_service.get_user_language(email)
-    email_service.send_pause_email(email, user_language)
+    email_service.send_pause_email(email, user_language, db=subscription_service.db)
 
     return EmailSentResponse(message='Pause confirmation email sent.')
 
 @router.get('/pause', response_class=HTMLResponse,
             dependencies=[require_component_enabled('student_pause_enabled')])
+async def pause_notifications_confirm(
+        request: Request,
+        token: str,
+        subscription_service: SubscriptionService = Depends(get_subscription_service),
+        template_service: TemplateService = Depends(get_template_service)
+):
+    try:
+        email = subscription_service.validate_token(token, 'pause')
+        user_language = subscription_service.get_user_language(email)
+        action_url = str(request.url)
+        return template_service.render_confirm(request, 'pause', token, action_url, email=email, language=user_language)
+    except InvalidTokenError as e:
+        return handle_token_error(e, request, token, 'pause', subscription_service, template_service)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.post('/pause', response_class=HTMLResponse,
+             dependencies=[require_component_enabled('student_pause_enabled')])
 async def pause_notifications(
         request: Request,
         token: str,
@@ -145,10 +195,8 @@ async def pause_notifications(
     try:
         email = subscription_service.validate_token(token, 'pause')
         user_language = subscription_service.get_user_language(email)
-
         subscription_service.update_pause_status(email, True)
         storage.delete_calendar(email)
-
         return template_service.render_pause(request, email, language=user_language)
     except InvalidTokenError as e:
         return handle_token_error(e, request, token, 'pause', subscription_service, template_service)
@@ -167,12 +215,30 @@ async def request_resume(
     subscription_service.validate_subscription_for_action(email, 'resume')
 
     user_language = subscription_service.get_user_language(email)
-    email_service.send_resume_email(email, user_language)
+    email_service.send_resume_email(email, user_language, db=subscription_service.db)
 
     return EmailSentResponse(message='Resume confirmation email sent.')
 
 @router.get('/resume', response_class=HTMLResponse,
             dependencies=[require_component_enabled('student_resume_enabled')])
+async def resume_notifications_confirm(
+        request: Request,
+        token: str,
+        subscription_service: SubscriptionService = Depends(get_subscription_service),
+        template_service: TemplateService = Depends(get_template_service)
+) -> HTMLResponse:
+    try:
+        email = subscription_service.validate_token(token, 'resume')
+        user_language = subscription_service.get_user_language(email)
+        action_url = str(request.url)
+        return template_service.render_confirm(request, 'resume', token, action_url, email=email, language=user_language)
+    except InvalidTokenError as e:
+        return handle_token_error(e, request, token, 'resume', subscription_service, template_service)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.post('/resume', response_class=HTMLResponse,
+             dependencies=[require_component_enabled('student_resume_enabled')])
 async def resume_notifications(
         request: Request,
         token: str,
@@ -183,9 +249,7 @@ async def resume_notifications(
     try:
         email = subscription_service.validate_token(token, 'resume')
         user_language = subscription_service.get_user_language(email)
-
         subscription_service.update_pause_status(email, False)
-
         return template_service.render_resume(request, email, language=user_language)
     except InvalidTokenError as e:
         return handle_token_error(e, request, token, 'resume', subscription_service, template_service)

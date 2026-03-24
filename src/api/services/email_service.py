@@ -1,7 +1,9 @@
 import logging
 from typing import Protocol, List
+from sqlalchemy.orm import Session
 from shared.calendar_utils import EventChange
 from shared.email_client import EmailType
+from shared.crud import create_audit_log
 
 logger = logging.getLogger(__name__)
 
@@ -15,22 +17,34 @@ class EmailService:
     def __init__(self, email_client: EmailClientProtocol):
         self.email_client = email_client
 
-    def send_activation_email(self, email: str, language: str = 'hr') -> None:
+    def send_activation_email(self, email: str, language: str = 'hr', db: Session | None = None) -> None:
         '''Send activation confirmation email.'''
         logger.info(f'Sending activation email to: {email} in language {language}')
         self.email_client.send_confirmation_email(EmailType.ACTIVATE, email, language)
+        if db is not None:
+            create_audit_log(db, 'email_queued', email, details='activate')
+            db.commit()
 
-    def send_deletion_email(self, email: str, language: str = 'hr') -> None:
+    def send_deletion_email(self, email: str, language: str = 'hr', db: Session | None = None) -> None:
         '''Send deletion confirmation email.'''
         logger.info(f'Sending deletion email to: {email} in language {language}')
         self.email_client.send_confirmation_email(EmailType.DELETE, email, language)
+        if db is not None:
+            create_audit_log(db, 'email_queued', email, details='delete')
+            db.commit()
 
-    def send_pause_email(self, email: str, language: str = 'hr') -> None:
+    def send_pause_email(self, email: str, language: str = 'hr', db: Session | None = None) -> None:
         '''Send pause confirmation email.'''
         logger.info(f'Sending pause email to: {email} in language {language}')
         self.email_client.send_confirmation_email(EmailType.PAUSE, email, language)
+        if db is not None:
+            create_audit_log(db, 'email_queued', email, details='pause')
+            db.commit()
 
-    def send_resume_email(self, email: str, language: str = 'hr') -> None:
+    def send_resume_email(self, email: str, language: str = 'hr', db: Session | None = None) -> None:
         '''Send resume confirmation email.'''
         logger.info(f'Sending resume email to: {email} in language {language}')
         self.email_client.send_confirmation_email(EmailType.RESUME, email, language)
+        if db is not None:
+            create_audit_log(db, 'email_queued', email, details='resume')
+            db.commit()

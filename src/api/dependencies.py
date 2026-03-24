@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 from fastapi import Depends, Header, HTTPException, status
 from fastapi.templating import Jinja2Templates
 from fastapi_throttle import RateLimiter
@@ -82,5 +83,5 @@ def verify_notifer_token(authorization: str = Header(...)):
     token = authorization.removeprefix('Bearer ').strip()
     token_hash = hashlib.sha256(token.encode()).hexdigest()
     settings = get_settings()
-    if token_hash != settings.notifer_api_token_hash:
+    if not hmac.compare_digest(token_hash, settings.notifer_api_token_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid API token')

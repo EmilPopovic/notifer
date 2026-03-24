@@ -103,6 +103,14 @@ class Settings(BaseSettings):
     def api_port(self) -> int:
         return int(os.getenv('API_PORT', '8026'))
 
+    @property
+    def dashboard_username(self) -> str:
+        return os.getenv('DASHBOARD_USERNAME', '')
+
+    @property
+    def dashboard_password_hash(self) -> str:
+        return os.getenv('DASHBOARD_PASSWORD_HASH', '')
+
     class Config:
         env_file = '.env'
         extra = 'ignore'

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Dashboard – NotiFER</title>
+  <link rel="stylesheet" href="/static/css/shared.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+
+<nav class="dash-nav">
+  <a href="/dashboard/" class="dash-nav-title">NotiFER Dashboard</a>
+  <div class="dash-nav-actions">
+    <form method="post" action="/dashboard/logout" style="margin:0">
+      <button type="submit" class="nav-btn">Log out</button>
+    </form>
+  </div>
+</nav>
+
+<div class="dash-main">
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.active }}</div>
+      <div class="stat-label">Active</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.paused }}</div>
+      <div class="stat-label">Paused</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.pending }}</div>
+      <div class="stat-label">Pending</div>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div class="card">
+    <div class="card-header">
+      Users
+      <span class="card-count">{{ stats.total }} total</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Changes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in subscriptions %}
+          <tr>
+            <td>
+              <a href="/dashboard/user?email={{ sub.email | urlencode }}" class="email-link">{{ sub.email }}</a>
+            </td>
+            <td>
+              {% if sub.activated and not sub.paused %}
+                <span class="badge badge-active">Active</span>
+              {% elif sub.activated and sub.paused %}
+                <span class="badge badge-paused">Paused</span>
+              {% else %}
+                <span class="badge badge-pending">Pending</span>
+              {% endif %}
+            </td>
+            <td class="ts">{{ sub.created.strftime('%Y-%m-%d') }}</td>
+            <td>{{ sub.change_count }}</td>
+            <td>
+              <div class="actions-cell">
+                <a href="/dashboard/user?email={{ sub.email | urlencode }}" class="btn-sm btn-view">View</a>
+                {% if sub.activated %}
+                  {% if sub.paused %}
+                    <button class="btn-sm btn-resume"
+                      onclick="openModal('Resume notifications for {{ sub.email | e }}?', 'unpause', '{{ sub.email | e }}', '/dashboard/')">
+                      Resume
+                    </button>
+                  {% else %}
+                    <button class="btn-sm btn-warn"
+                      onclick="openModal('Pause notifications for {{ sub.email | e }}?', 'pause', '{{ sub.email | e }}', '/dashboard/')">
+                      Pause
+                    </button>
+                  {% endif %}
+                {% endif %}
+                <button class="btn-sm btn-danger"
+                  onclick="openModal('Delete {{ sub.email | e }}? This cannot be undone.', 'delete', '{{ sub.email | e }}', '/dashboard/')">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" style="color:#888;text-align:center;padding:2rem">No users yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Audit Log -->
+  <div class="card">
+    <div class="card-header">
+      Audit Log
+      <span class="card-count">{{ total_logs }} entries</span>
+    </div>
+
+    <form method="get" action="/dashboard/" class="filter-bar">
+      <input type="text" name="email_filter" value="{{ email_filter }}" placeholder="Filter by email">
+      <select name="action_filter">
+        <option value="">All actions</option>
+        {% for a in action_types %}
+        <option value="{{ a }}" {% if action_filter == a %}selected{% endif %}>
+          {{ a | replace('_', ' ') | title }}
+        </option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="button">Filter</button>
+      {% if email_filter or action_filter %}
+      <a href="/dashboard/" class="button button-secondary">Clear</a>
+      {% endif %}
+    </form>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Email</th>
+            <th>Action</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td class="ts">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+              {% if log.email %}
+              <a href="/dashboard/user?email={{ log.email | urlencode }}" class="email-link">{{ log.email }}</a>
+              {% endif %}
+            </td>
+            <td>
+              {% if log.action in ['subscription_created', 'subscription_activated', 'subscription_resumed', 'subscription_resubmit'] %}
+                <span class="action-tag tag-green">{{ log.action }}</span>
+              {% elif log.action == 'subscription_paused' %}
+                <span class="action-tag tag-yellow">{{ log.action }}</span>
+              {% elif log.action == 'subscription_deleted' %}
+                <span class="action-tag tag-red">{{ log.action }}</span>
+              {% elif log.action in ['email_queued', 'notification_queued'] %}
+                <span class="action-tag tag-blue">{{ log.action }}</span>
+              {% else %}
+                <span class="action-tag tag-gray">{{ log.action }}</span>
+              {% endif %}
+            </td>
+            <td style="color:#666;font-size:.85rem">{{ log.details or '' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" style="color:#888;text-align:center;padding:2rem">No log entries.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination">
+      {% if page > 1 %}
+        <a href="/dashboard/?page={{ page - 1 }}&email_filter={{ email_filter | urlencode }}&action_filter={{ action_filter | urlencode }}">&larr; Prev</a>
+      {% endif %}
+
+      {% for p in range(1, total_pages + 1) %}
+        {% if p == page %}
+          <span class="pg-current">{{ p }}</span>
+        {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+          <a href="/dashboard/?page={{ p }}&email_filter={{ email_filter | urlencode }}&action_filter={{ action_filter | urlencode }}">{{ p }}</a>
+        {% elif p == page - 3 or p == page + 3 %}
+          <span class="pg-info">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if page < total_pages %}
+        <a href="/dashboard/?page={{ page + 1 }}&email_filter={{ email_filter | urlencode }}&action_filter={{ action_filter | urlencode }}">Next &rarr;</a>
+      {% endif %}
+
+      <span class="pg-info">{{ total_logs }} entries</span>
+    </div>
+    {% endif %}
+  </div>
+
+</div><!-- /dash-main -->
+
+<!-- Confirmation Modal -->
+<div id="modal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <h3>Confirm action</h3>
+    <p id="modal-msg"></p>
+    <form method="post" action="/dashboard/action" id="modal-form">
+      <input type="hidden" name="email" id="modal-email">
+      <input type="hidden" name="action" id="modal-action">
+      <input type="hidden" name="next_url" id="modal-next">
+      <div class="modal-actions">
+        <button type="submit" id="modal-confirm" class="button">Confirm</button>
+        <button type="button" onclick="closeModal()" class="button button-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal(msg, action, email, nextUrl) {
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('modal-action').value = action;
+  document.getElementById('modal-email').value = email;
+  document.getElementById('modal-next').value = nextUrl;
+  var btn = document.getElementById('modal-confirm');
+  btn.className = action === 'delete' ? 'button button-error' : 'button';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>
