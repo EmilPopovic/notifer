@@ -10,7 +10,8 @@ import signal
 # Apply configured timezone before any logging or datetime calls so that
 # time.localtime() (used by the logging formatter) reflects the right zone.
 os.environ.setdefault('TZ', os.getenv('TIMEZONE', 'Europe/Zagreb'))
-time.tzset()
+if hasattr(time, 'tzset'):
+    time.tzset()  # Unix only; no-op on Windows
 from api.main import create_app
 from worker.dependencies import get_worker_service
 
@@ -42,7 +43,7 @@ def signal_handler(signum, _):
 def start_api_thread():
     """Start the API server in a thread"""
     app = create_app()
-    config = uvicorn.Config(app, host='0.0.0.0', port=8026, log_level='info')
+    config = uvicorn.Config(app, host='0.0.0.0', port=8026, log_level='info', access_log=False)
     server = uvicorn.Server(config)
     logger.info('Starting API server thread')
     server.run()
