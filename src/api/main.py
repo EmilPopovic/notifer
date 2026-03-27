@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from starlette.exceptions import HTTPException as StarletteHTTPException
 from config import get_settings
 from api.routers import health, subscriptions, frontend, admin, dashboard
 from api.middleware import log_request_middleware
@@ -24,15 +23,13 @@ async def lifespan(_: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
 
-    @app.exception_handler(StarletteHTTPException)
-    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> HTMLResponse:
-        if exc.status_code == 404:
-            return get_templates().TemplateResponse(
-                '404.html',
-                {'request': request, 'title': '404 — NotiFER'},
-                status_code=404
-            )
-        raise exc
+    @app.exception_handler(404)
+    async def not_found_handler(request: Request, exc: StarletteHTTPException) -> HTMLResponse:
+        return get_templates().TemplateResponse(
+            '404.html',
+            {'request': request, 'title': '404 — NotiFER'},
+            status_code=404
+        )
 
     app.middleware('http')(log_request_middleware)
 
